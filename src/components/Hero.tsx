@@ -74,11 +74,11 @@ const Hero = () => {
               transition={{ delay: 0.5, duration: 0.6 }}
               className="flex flex-wrap gap-4"
             >
-              <Button variant="hero" size="lg">
-                Demander une démo
+              <Button variant="hero" size="lg" asChild>
+                <a href="/signup">S'inscrire</a>
               </Button>
-              <Button variant="heroOutline" size="lg">
-                En savoir plus
+              <Button variant="heroOutline" size="lg" asChild>
+                <a href="/signin">Se connecter</a>
               </Button>
             </motion.div>
 
