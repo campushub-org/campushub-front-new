@@ -81,27 +81,6 @@ const Hero = () => {
                 <a href="/signin">Se connecter</a>
               </Button>
             </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="grid grid-cols-3 gap-8 pt-8 border-t border-border"
-            >
-              <div>
-                <div className="text-3xl font-bold text-primary">99%</div>
-                <div className="text-sm text-muted-foreground">Précision</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">-75%</div>
-                <div className="text-sm text-muted-foreground">Temps de planification</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">100%</div>
-                <div className="text-sm text-muted-foreground">Satisfaction</div>
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* Right side - Dashboard preview */}

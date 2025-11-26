@@ -4,8 +4,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
+import { useState, ChangeEvent, FormEvent } from "react"; // Importation des hooks
+
+// Interface pour la requête d'authentification attendue par l'API Java
+interface LoginData {
+  username: string;
+  password: string;
+}
 
 const Signin = () => {
+  // 💡 Changement : Utilisation de 'username' au lieu de 'email'
+  const [formData, setFormData] = useState<LoginData>({
+    username: "",
+    password: "",
+  });
+
+  // Gestion de la modification des champs (username et password)
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
+
+  // Gestion de la soumission du formulaire
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.username || !formData.password) {
+      alert("Veuillez remplir tous les champs.");
+      return;
+    }
+
+    // L'objet `formData` est prêt à être envoyé à l'API Java
+    console.log("Tentative de connexion avec:", formData);
+
+    // Ici, vous feriez l'appel API (fetch ou axios)
+    // Ex: api.post('/auth/login', formData);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-muted flex items-center justify-center p-6">
       <motion.div
@@ -49,14 +87,19 @@ const Signin = () => {
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           <Card className="p-8 shadow-glow">
-            <form className="space-y-6">
+            {/* 💡 Ajout de la fonction handleSubmit */}
+            <form className="space-y-6" onSubmit={handleSubmit}> 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                {/* 💡 Changement de 'Email' à 'Nom d'utilisateur' */}
+                <Label htmlFor="username">Nom d'utilisateur</Label> 
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="vous@exemple.com"
+                  id="username" // 💡 Changement de 'email' à 'username'
+                  type="text" // 💡 Changement de 'email' à 'text'
+                  placeholder="Votre nom d'utilisateur"
                   className="h-12"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -75,6 +118,9 @@ const Signin = () => {
                   type="password"
                   placeholder="••••••••"
                   className="h-12"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -87,6 +133,7 @@ const Signin = () => {
                 Se connecter
               </Button>
 
+              {/* ... (Séparateur et lien S'inscrire inchangés) ... */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
