@@ -435,6 +435,5 @@ const selectedRole = formData.role;
     </div>
   );
 };
-// ... (reste du code après la fonction Signup)
 
 export default Signup;

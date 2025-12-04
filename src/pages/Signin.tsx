@@ -4,22 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
-import { useState, ChangeEvent, FormEvent } from "react"; // Importation des hooks
+import { useState, ChangeEvent, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Interface pour la requête d'authentification attendue par l'API Java
 interface LoginData {
   username: string;
   password: string;
 }
 
 const Signin = () => {
-  // 💡 Changement : Utilisation de 'username' au lieu de 'email'
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginData>({
     username: "",
     password: "",
   });
 
-  // Gestion de la modification des champs (username et password)
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
@@ -28,7 +27,6 @@ const Signin = () => {
     }));
   };
 
-  // Gestion de la soumission du formulaire
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
@@ -37,11 +35,29 @@ const Signin = () => {
       return;
     }
 
-    // L'objet `formData` est prêt à être envoyé à l'API Java
     console.log("Tentative de connexion avec:", formData);
 
-    // Ici, vous feriez l'appel API (fetch ou axios)
-    // Ex: api.post('/auth/login', formData);
+    // --- Simulation de la logique de connexion ---
+    // Dans une vraie application, cette partie serait remplacée par un appel API.
+    // Le rôle de l'utilisateur serait retourné par le serveur.
+
+    // 1. Définir le rôle en fonction du nom d'utilisateur pour la démo
+    let role = 'student'; // Rôle par défaut
+    if (formData.username.toLowerCase().includes('teacher')) {
+      role = 'teacher';
+    } else if (formData.username.toLowerCase().includes('admin')) {
+      role = 'admin';
+    } else if (formData.username.toLowerCase().includes('dean')) {
+      role = 'dean';
+    }
+
+    // 2. Simuler une authentification réussie
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userRole', role);
+
+    // 3. Rediriger vers le tableau de bord
+    navigate('/dashboard');
+    // --- Fin de la simulation ---
   };
 
   return (
@@ -87,15 +103,13 @@ const Signin = () => {
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           <Card className="p-8 shadow-glow">
-            {/* 💡 Ajout de la fonction handleSubmit */}
             <form className="space-y-6" onSubmit={handleSubmit}> 
               <div className="space-y-2">
-                {/* 💡 Changement de 'Email' à 'Nom d'utilisateur' */}
                 <Label htmlFor="username">Nom d'utilisateur</Label> 
                 <Input
-                  id="username" // 💡 Changement de 'email' à 'username'
-                  type="text" // 💡 Changement de 'email' à 'text'
-                  placeholder="Votre nom d'utilisateur"
+                  id="username"
+                  type="text"
+                  placeholder="Ex: student, teacher, admin, dean"
                   className="h-12"
                   value={formData.username}
                   onChange={handleChange}
@@ -133,7 +147,6 @@ const Signin = () => {
                 Se connecter
               </Button>
 
-              {/* ... (Séparateur et lien S'inscrire inchangés) ... */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
