@@ -22,6 +22,7 @@ import ProfilePage from "./pages/dashboard/student/ProfilePage";
 // Teacher Pages
 import TeacherLayout from "./pages/dashboard/teacher/TeacherLayout";
 import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
+import SupportPage from "./pages/dashboard/teacher/SupportPage";
 import DepositMaterialPage from "./pages/dashboard/teacher/DepositMaterialPage";
 import AvailabilitiesPage from "./pages/dashboard/teacher/AvailabilitiesPage";
 import TeacherCourseSchedulePage from "./pages/dashboard/teacher/CourseSchedulePage";
@@ -74,6 +75,7 @@ const App = () => (
             
             <Route path="teacher" element={<TeacherLayout />}>
               <Route index element={<TeacherDashboard />} />
+              <Route path="support" element={<SupportPage />} />
               <Route path="deposit-material" element={<DepositMaterialPage />} />
               <Route path="availabilities" element={<AvailabilitiesPage />} />
               <Route path="schedule-courses" element={<TeacherCourseSchedulePage />} />

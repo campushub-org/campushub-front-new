@@ -9,8 +9,6 @@ const studentNavItems: NavItem[] = [
   { to: '/dashboard/student/courses', icon: <BookOpen size={20} />, label: 'Supports de cours' },
   { to: '/dashboard/student/schedule-courses', icon: <CalendarDays size={20} />, label: 'Emploi du temps - Cours' },
   { to: '/dashboard/student/schedule-exams', icon: <CalendarDays size={20} />, label: 'Emploi du temps - Examens' },
-  { to: '/dashboard/student/notifications', icon: <Bell size={20} />, label: 'Notifications' },
-  { to: '/dashboard/student/profile', icon: <User size={20} />, label: 'Profil' },
 ];
 
 const StudentLayout: React.FC = () => {

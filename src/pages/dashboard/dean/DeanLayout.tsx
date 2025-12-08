@@ -9,8 +9,6 @@ const deanNavItems: NavItem[] = [
   { to: '/dashboard/dean/validations', icon: <CheckSquare size={20} />, label: 'Validation Supports' },
   { to: '/dashboard/dean/schedule-courses', icon: <CalendarDays size={20} />, label: 'Emploi du temps - Cours' },
   { to: '/dashboard/dean/schedule-exams', icon: <CalendarDays size={20} />, label: 'Emploi du temps - Examens' },
-  { to: '/dashboard/dean/notifications', icon: <Bell size={20} />, label: 'Notifications' },
-  { to: '/dashboard/dean/profile', icon: <User size={20} />, label: 'Profil' },
 ];
 
 const DeanLayout: React.FC = () => {
