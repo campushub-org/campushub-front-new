@@ -29,6 +29,7 @@ import TeacherCourseSchedulePage from "./pages/dashboard/teacher/CourseScheduleP
 import TeacherExamSchedulePage from "./pages/dashboard/teacher/ExamSchedulePage";
 import TeacherNotificationsPage from "./pages/dashboard/teacher/NotificationsPage";
 import TeacherProfilePage from "./pages/dashboard/teacher/ProfilePage";
+import ViewMaterialPage from "./pages/dashboard/teacher/ViewMaterialPage";
 
 // Dean Pages
 import DeanLayout from "./pages/dashboard/dean/DeanLayout";
@@ -38,6 +39,7 @@ import DeanCourseSchedulePage from "./pages/dashboard/dean/CourseSchedulePage";
 import DeanExamSchedulePage from "./pages/dashboard/dean/ExamSchedulePage";
 import DeanNotificationsPage from "./pages/dashboard/dean/NotificationsPage";
 import DeanProfilePage from "./pages/dashboard/dean/ProfilePage";
+import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage"; // Import new view page
 
 // Admin Pages
 import AdminLayout from "./pages/dashboard/admin/AdminLayout";
@@ -76,6 +78,7 @@ const App = () => (
             <Route path="teacher" element={<TeacherLayout />}>
               <Route index element={<TeacherDashboard />} />
               <Route path="support" element={<SupportPage />} />
+              <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
               <Route path="deposit-material" element={<DepositMaterialPage />} />
               <Route path="availabilities" element={<AvailabilitiesPage />} />
               <Route path="schedule-courses" element={<TeacherCourseSchedulePage />} />
@@ -87,6 +90,7 @@ const App = () => (
             <Route path="dean" element={<DeanLayout />}>
               <Route index element={<DeanDashboard />} />
               <Route path="validations" element={<ValidationPage />} />
+              <Route path="validations/view/:materialId" element={<DeanViewMaterialPage />} /> {/* New route */}
               <Route path="schedule-courses" element={<DeanCourseSchedulePage />} />
               <Route path="schedule-exams" element={<DeanExamSchedulePage />} />
               <Route path="notifications" element={<DeanNotificationsPage />} />
