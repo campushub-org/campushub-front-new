@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { GraduationCap, BookOpen, Shield, User } from "lucide-react";
 import { useState, ChangeEvent, FormEvent } from "react";
 
-// --- Définition des Rôles (Assurez-vous que l'ID correspond à l'énumération Role de Java) ---
+// --- Définition des Rôles (ADMIN RETIRÉ) ---
 const roles = [
   {
     id: "STUDENT",
@@ -29,13 +29,7 @@ const roles = [
     description: "Validez les supports et supervisez les planifications",
     gradient: "from-amber-500 to-orange-500",
   },
-  {
-    id: "ADMIN",
-    label: "Administrateur",
-    icon: User,
-    description: "Administrez l'ensemble de la plateforme",
-    gradient: "from-green-500 to-emerald-500",
-  },
+  // Rôle ADMIN supprimé pour la sécurité
 ];
 
 // --- Interface de base couvrant TOUS les champs possibles (base + spécifiques) ---
@@ -134,10 +128,7 @@ const Signup = () => {
         // Teacher et Dean utilisent les mêmes champs spécifiques de Teacher.java
         submissionData = { ...baseData, officeNumber: formData.officeNumber, grade: formData.grade };
         break;
-      case 'ADMIN':
-        // Aucun champ supplémentaire pour Admin pour l'instant
-        submissionData = baseData;
-        break;
+      // Note: ADMIN case has been removed.
     }
     // ----------------------------------------------------
 
@@ -189,16 +180,12 @@ const Signup = () => {
             </div>
           </>
         );
-      case 'ADMIN':
-        // Aucun champ supplémentaire pour l'instant
-        return null;
       default:
         return null;
     }
   };
 
-  // ... (code précédent jusqu'à la définition de selectedRole)
-const selectedRole = formData.role;
+  const selectedRole = formData.role;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-muted flex items-center justify-center p-6">
@@ -228,14 +215,15 @@ const selectedRole = formData.role;
         </div>
 
         {/* ======================================================= */}
-        {/* ÉTAPE 1: SÉLECTION DU RÔLE (Affichée si selectedRole est vide) */}
+        {/* ÉTAPE 1: SÉLECTION DU RÔLE (CENTRé avec max-w-4xl mx-auto) */}
         {/* ======================================================= */}
         {!selectedRole ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+            // Classes ajustées pour centrer la grille de 3 colonnes
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 max-w-4xl mx-auto"
           >
             {roles.map((role, index) => (
               <motion.div
@@ -288,7 +276,6 @@ const selectedRole = formData.role;
               </div>
 
               <form className="space-y-6" onSubmit={handleSubmit}>
-                {/* ... (Le reste du formulaire avec tous les champs) ... */}
                 
                 {/* CHAMPS DE BASE (USER.JAVA) */}
                 
@@ -403,7 +390,6 @@ const selectedRole = formData.role;
                   className="w-full"
                   variant="hero"
                   size="lg"
-                  // Je n'ai pas pu valider tous les champs ici, donc je me base sur le rôle
                   disabled={!selectedRole || !formData.email || !formData.password || !passwordConfirm}
                 >
                   Créer mon compte

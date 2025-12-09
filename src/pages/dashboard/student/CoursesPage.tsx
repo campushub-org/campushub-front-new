@@ -31,6 +31,7 @@ const CoursesPage: React.FC = () => {
               <SelectValue placeholder="Filtrer par niveau" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="none">Aucun</SelectItem>
               <SelectItem value="l1">Licence 1</SelectItem>
               <SelectItem value="l2">Licence 2</SelectItem>
               <SelectItem value="l3">Licence 3</SelectItem>
@@ -43,6 +44,7 @@ const CoursesPage: React.FC = () => {
               <SelectValue placeholder="Filtrer par département" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="none">Aucun</SelectItem>
               <SelectItem value="info">Informatique</SelectItem>
               <SelectItem value="maths">Mathématiques</SelectItem>
               <SelectItem value="physique">Physique</SelectItem>

@@ -1,35 +1,110 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
+import { Save, PencilLine, X, Camera } from 'lucide-react';
 
 const DeanProfilePage: React.FC = () => {
-    // Données de profil simulées
-    const profileData = {
-        fullName: "Dr. Valérie Dubois",
-        username: "vdubois",
-        email: "valerie.dubois@campus.com",
-        department: "Direction - Faculté des Sciences",
-        officeNumber: "A101",
-        grade: "Doyen"
-    };
+  // Données de profil simulées
+  const initialProfileData = {
+    fullName: "Dr. Valérie Dubois",
+    username: "vdubois",
+    email: "valerie.dubois@campus.com",
+    department: "Direction - Faculté des Sciences",
+    officeNumber: "A101",
+    grade: "Doyen"
+  };
+
+  const [profileData, setProfileData] = useState(initialProfileData);
+  const [editableProfileData, setEditableProfileData] = useState(initialProfileData);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showSecuritySection, setShowSecuritySection] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleEditToggle = () => {
+    if (isEditingProfile) {
+      // Revenir à l'état initial si annuler
+      setEditableProfileData(profileData);
+    }
+    setIsEditingProfile(!isEditingProfile);
+  };
+
+  const handleSaveProfile = () => {
+    setProfileData(editableProfileData);
+    // Ici, vous enverriez les données à l'API
+    console.log("Saving profile:", editableProfileData);
+    setIsEditingProfile(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditableProfileData({ ...editableProfileData, [e.target.id]: e.target.value });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+        // Ici, vous enverriez l'image au serveur
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Mon Profil Doyen</CardTitle>
-          <CardDescription>Consultez et mettez à jour vos informations professionnelles.</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Mon Profil Doyen</CardTitle>
+            <CardDescription>Consultez et mettez à jour vos informations professionnelles.</CardDescription>
+          </div>
+          {isEditingProfile ? (
+            <div className="space-x-2">
+              <Button variant="outline" onClick={handleEditToggle}>
+                <X className="mr-2 h-4 w-4" /> Annuler
+              </Button>
+              <Button onClick={handleSaveProfile}>
+                <Save className="mr-2 h-4 w-4" /> Enregistrer
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" onClick={handleEditToggle}>
+              <PencilLine className="mr-2 h-4 w-4" /> Modifier
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center space-x-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src="/placeholder-user.jpg" alt="Photo de profil" />
-              <AvatarFallback className="text-xl">VD</AvatarFallback>
-            </Avatar>
+            <div className="relative group">
+              <Avatar className="h-20 w-20 cursor-pointer" onClick={triggerFileInput}>
+                {profileImage ? (
+                  <AvatarImage src={profileImage} alt="Photo de profil" />
+                ) : (
+                  <AvatarFallback className="text-xl">
+                    {profileData.fullName.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={triggerFileInput}>
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+            </div>
             <div>
               <h3 className="text-2xl font-bold">{profileData.fullName}</h3>
               <p className="text-md text-muted-foreground">{profileData.grade}</p>
@@ -39,56 +114,57 @@ const DeanProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Nom complet</Label>
-              <Input id="fullName" defaultValue={profileData.fullName} />
+              <Input id="fullName" value={editableProfileData.fullName} onChange={handleChange} readOnly={!isEditingProfile} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">Nom d'utilisateur</Label>
-              <Input id="username" defaultValue={profileData.username} readOnly />
+              <Input id="username" value={editableProfileData.username} readOnly />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue={profileData.email} />
+              <Input id="email" type="email" value={editableProfileData.email} onChange={handleChange} readOnly={!isEditingProfile} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="department">Département</Label>
-              <Input id="department" defaultValue={profileData.department} />
+              <Input id="department" value={editableProfileData.department} onChange={handleChange} readOnly={!isEditingProfile} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="officeNumber">Numéro de bureau</Label>
-              <Input id="officeNumber" defaultValue={profileData.officeNumber} />
+              <Input id="officeNumber" value={editableProfileData.officeNumber} onChange={handleChange} readOnly={!isEditingProfile} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="grade">Grade / Titre</Label>
-              <Input id="grade" defaultValue={profileData.grade} />
+              <Input id="grade" value={editableProfileData.grade} onChange={handleChange} readOnly={!isEditingProfile} />
             </div>
           </div>
-          <Button disabled>
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer les modifications
-          </Button>
         </CardContent>
       </Card>
       
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Sécurité</CardTitle>
           <CardDescription>Gérez votre mot de passe.</CardDescription>
+            <Button variant="outline" onClick={() => setShowSecuritySection(!showSecuritySection)}>
+                {showSecuritySection ? 'Masquer la section' : 'Modifier mot de passe'}
+            </Button>
         </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-                <Input id="currentPassword" type="password" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                <Input id="newPassword" type="password" />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
-                <Input id="confirmPassword" type="password" />
-            </div>
-            <Button variant="destructive">Changer le mot de passe</Button>
-        </CardContent>
+        {showSecuritySection && (
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                    <Input id="currentPassword" type="password" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                    <Input id="newPassword" type="password" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
+                    <Input id="confirmPassword" type="password" />
+                </div>
+                <Button variant="destructive">Changer le mot de passe</Button>
+            </CardContent>
+        )}
       </Card>
     </div>
   );

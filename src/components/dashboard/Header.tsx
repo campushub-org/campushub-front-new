@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User as UserIcon, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,35 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  // Charger l'image au montage du composant
+  useEffect(() => {
+    const storedImage = localStorage.getItem('userProfileImage');
+    if (storedImage) {
+      setProfileImage(storedImage);
+    }
+
+    // Fonction pour mettre à jour l'image lors d'un événement personnalisé
+    const handleProfileImageUpdate = () => {
+      const updatedImage = localStorage.getItem('userProfileImage');
+      setProfileImage(updatedImage);
+    };
+
+    // Écouter l'événement personnalisé
+    window.addEventListener('profileImageUpdated', handleProfileImageUpdate);
+
+    // Nettoyage de l'écouteur d'événement
+    return () => {
+      window.removeEventListener('profileImageUpdated', handleProfileImageUpdate);
+    };
+  }, []);
 
   const handleLogout = () => {
     // Simulate logout
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('userProfileImage'); // Clean up profile image on logout
     navigate('/signin');
   };
 
@@ -35,8 +59,11 @@ const Header: React.FC = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt="User avatar" />
-                <AvatarFallback>U</AvatarFallback>
+                {profileImage ? (
+                  <AvatarImage src={profileImage} alt="User avatar" />
+                ) : (
+                  <AvatarFallback>U</AvatarFallback>
+                )}
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
