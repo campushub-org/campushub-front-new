@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { GraduationCap, BookOpen, Shield, User } from "lucide-react";
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
 // --- Définition des Rôles (ADMIN RETIRÉ) ---
 const roles = [
@@ -62,6 +63,7 @@ const initialFormData: FullSignupData = {
 };
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FullSignupData>(initialFormData);
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
@@ -138,12 +140,11 @@ const Signup = () => {
     // ----------------------------------------------------
 
     try {
-      const response = await api.post('/api/auth/register', submissionData);
+      const response = await api.post('/campushub-user-service/api/auth/register', submissionData);
       if (response.status === 201) {
-        setSuccess("Inscription réussie ! Vous pouvez maintenant vous connecter.");
-        // Optionnel: rediriger l'utilisateur après un court délai
+        setSuccess("Inscription réussie ! Vous allez être redirigé vers la page de connexion.");
         setTimeout(() => {
-          // window.location.href = '/signin';
+          navigate('/signin');
         }, 2000);
       }
     } catch (err: any) {

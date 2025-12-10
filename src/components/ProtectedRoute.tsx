@@ -2,9 +2,8 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 const isAuthenticated = () => {
-  // In a real app, this would involve checking a token, maybe calling an API.
-  // For now, we'll use a simple placeholder in localStorage.
-  return localStorage.getItem('isAuthenticated') === 'true';
+  // Check for the presence of the authentication token.
+  return localStorage.getItem('token') !== null;
 };
 
 const ProtectedRoute: React.FC = () => {

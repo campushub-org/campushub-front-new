@@ -42,11 +42,33 @@ const Signin = () => {
       const response = await api.post("/campushub-user-service/api/auth/login", formData);
 
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        // Vous pouvez également stocker d'autres informations utilisateur si nécessaire
-        // const decodedToken = JSON.parse(atob(response.data.token.split('.')[1]));
-        // localStorage.setItem('userRole', decodedToken.role);
-        navigate("/dashboard");
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+
+        // Décoder le token pour obtenir le rôle
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        const role = decodedToken.role.toLowerCase(); // Assurez-vous que le rôle est en minuscules
+
+        localStorage.setItem('userRole', role);
+
+        // Rediriger en fonction du rôle
+        switch (role) {
+          case 'student':
+            navigate('/dashboard/student');
+            break;
+          case 'teacher':
+            navigate('/dashboard/teacher');
+            break;
+          case 'dean':
+            navigate('/dashboard/dean');
+            break;
+          case 'admin':
+            navigate('/dashboard/admin');
+            break;
+          default:
+            navigate('/dashboard');
+            break;
+        }
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Nom d'utilisateur ou mot de passe incorrect.");
