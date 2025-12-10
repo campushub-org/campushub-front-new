@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Save, PencilLine, X, Camera } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const ProfilePage: React.FC = () => {
   // Données de profil simulées
@@ -20,7 +21,10 @@ const ProfilePage: React.FC = () => {
   const [editableProfileData, setEditableProfileData] = useState(initialProfileData);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showSecuritySection, setShowSecuritySection] = useState(false);
+  
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Charger l'image depuis localStorage au montage
@@ -33,7 +37,6 @@ const ProfilePage: React.FC = () => {
 
   const handleEditToggle = () => {
     if (isEditingProfile) {
-      // Revenir à l'état initial si annuler
       setEditableProfileData(profileData);
     }
     setIsEditingProfile(!isEditingProfile);
@@ -41,7 +44,6 @@ const ProfilePage: React.FC = () => {
 
   const handleSaveProfile = () => {
     setProfileData(editableProfileData);
-    // Ici, vous enverriez les données à l'API
     console.log("Saving profile:", editableProfileData);
     setIsEditingProfile(false);
   };
@@ -50,20 +52,32 @@ const ProfilePage: React.FC = () => {
     setEditableProfileData({ ...editableProfileData, [e.target.id]: e.target.value });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        const imageDataUrl = reader.result as string;
-        setProfileImage(imageDataUrl);
-        // Sauvegarder dans localStorage et dispatcher l'événement
-        localStorage.setItem('userProfileImage', imageDataUrl);
-        window.dispatchEvent(new Event('profileImageUpdated'));
+        setPendingImage(reader.result as string);
+        setIsImageDialogOpen(true);
       };
       reader.readAsDataURL(file);
     }
   };
+  
+  const confirmImageChange = () => {
+      if (pendingImage) {
+        setProfileImage(pendingImage);
+        localStorage.setItem('userProfileImage', pendingImage);
+        window.dispatchEvent(new Event('profileImageUpdated'));
+      }
+      setIsImageDialogOpen(false);
+      setPendingImage(null);
+  };
+  
+  const cancelImageChange = () => {
+      setIsImageDialogOpen(false);
+      setPendingImage(null);
+  }
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
@@ -71,6 +85,22 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Dialog for Image Confirmation */}
+      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Confirmer la nouvelle photo de profil ?</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center p-4">
+                  {pendingImage && <img src={pendingImage} alt="Aperçu" className="max-h-64 rounded-full aspect-square object-cover" />}
+              </div>
+              <DialogFooter>
+                  <Button variant="outline" onClick={cancelImageChange}>Annuler</Button>
+                  <Button onClick={confirmImageChange}>Modifier la photo de profil</Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
@@ -112,7 +142,7 @@ const ProfilePage: React.FC = () => {
                 ref={fileInputRef}
                 className="hidden"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleImageSelect}
               />
             </div>
             <div>
@@ -143,7 +173,6 @@ const ProfilePage: React.FC = () => {
               <Input id="studentNumber" value={editableProfileData.studentNumber} readOnly />
             </div>
           </div>
-          {/* Les boutons Enregistrer/Annuler sont maintenant dans le CardHeader */}
         </CardContent>
       </Card>
       

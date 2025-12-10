@@ -18,6 +18,7 @@ import CourseSchedulePage from "./pages/dashboard/student/CourseSchedulePage";
 import ExamSchedulePage from "./pages/dashboard/student/ExamSchedulePage";
 import NotificationsPage from "./pages/dashboard/student/NotificationsPage";
 import ProfilePage from "./pages/dashboard/student/ProfilePage";
+import StudentViewMaterialPage from "./pages/dashboard/student/ViewCourseMaterialPage";
 
 // Teacher Pages
 import TeacherLayout from "./pages/dashboard/teacher/TeacherLayout";
@@ -39,7 +40,8 @@ import DeanCourseSchedulePage from "./pages/dashboard/dean/CourseSchedulePage";
 import DeanExamSchedulePage from "./pages/dashboard/dean/ExamSchedulePage";
 import DeanNotificationsPage from "./pages/dashboard/dean/NotificationsPage";
 import DeanProfilePage from "./pages/dashboard/dean/ProfilePage";
-import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage"; // Import new view page
+import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage";
+import TimetableUploadPage from "./pages/dashboard/dean/TimetableUploadPage"; // Import new page
 
 // Admin Pages
 import AdminLayout from "./pages/dashboard/admin/AdminLayout";
@@ -69,6 +71,7 @@ const App = () => (
             <Route path="student" element={<StudentLayout />}>
               <Route index element={<StudentDashboard />} />
               <Route path="courses" element={<CoursesPage />} />
+              <Route path="courses/view/:materialId" element={<StudentViewMaterialPage />} />
               <Route path="schedule-courses" element={<CourseSchedulePage />} />
               <Route path="schedule-exams" element={<ExamSchedulePage />} />
               <Route path="notifications" element={<NotificationsPage />} />
@@ -90,7 +93,8 @@ const App = () => (
             <Route path="dean" element={<DeanLayout />}>
               <Route index element={<DeanDashboard />} />
               <Route path="validations" element={<ValidationPage />} />
-              <Route path="validations/view/:materialId" element={<DeanViewMaterialPage />} /> {/* New route */}
+              <Route path="validations/view/:materialId" element={<DeanViewMaterialPage />} />
+              <Route path="timetable-upload" element={<TimetableUploadPage />} /> {/* New route */}
               <Route path="schedule-courses" element={<DeanCourseSchedulePage />} />
               <Route path="schedule-exams" element={<DeanExamSchedulePage />} />
               <Route path="notifications" element={<DeanNotificationsPage />} />

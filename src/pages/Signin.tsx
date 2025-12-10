@@ -76,12 +76,16 @@ const Signin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-muted flex items-center justify-center p-6">
+    <div className="min-h-screen animated-bg flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Decorative Blobs */}
+        <div className="absolute top-0 -left-1/4 w-96 h-96 bg-blue-500/30 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
+        <div className="absolute bottom-0 -right-1/4 w-96 h-96 bg-purple-500/30 rounded-full filter blur-3xl opacity-50 animate-pulse animation-delay-4000"></div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md z-10"
       >
         <div className="text-center mb-8">
           <motion.div

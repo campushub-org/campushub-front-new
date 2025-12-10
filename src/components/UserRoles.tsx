@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { GraduationCap, Users, UserCheck, Settings } from "lucide-react";
+import universityBuildingBg from "@/assets/1727223626892-1536x692.jpg"; // Import the new image
 
 const roles = [
   {
@@ -30,14 +31,12 @@ const roles = [
 
 const UserRoles = () => {
   return (
-    <section className="py-24 bg-muted/50 relative overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, hsl(var(--primary)) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
-      </div>
+    <section 
+      className="py-24 relative overflow-hidden bg-cover bg-center"
+      style={{ backgroundImage: `url(${universityBuildingBg})` }}
+    >
+      {/* Overlay to ensure text readability */}
+      <div className="absolute inset-0 bg-black/60"></div>
 
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
@@ -45,13 +44,13 @@ const UserRoles = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-16 text-white" // Text color changed for contrast
         >
           <span className="text-accent font-semibold mb-4 block">Pour Tous</span>
-          <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
             Une plateforme adaptée à chaque rôle
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl max-w-2xl mx-auto text-white/80">
             Des interfaces personnalisées pour chaque acteur de l'écosystème universitaire
           </p>
         </motion.div>

@@ -107,13 +107,15 @@ const ValidationPage: React.FC = () => {
               className="flex flex-col justify-between cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => handleViewMaterial(item.id)} // Rendre la carte cliquable
             >
-              <CardHeader className="pb-0">
-                <CardDescription>{item.course} par {item.teacher}</CardDescription>
-                <CardTitle className="text-lg">{item.title}</CardTitle>
-                <div className="absolute top-4 right-4">
-                  <Badge variant={getStatusBadgeVariant(item.status)}>
-                    {item.status}
-                  </Badge>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardDescription>{item.course} par {item.teacher}</CardDescription>
+                        <CardTitle className="text-lg">{item.title}</CardTitle>
+                    </div>
+                    <Badge variant={getStatusBadgeVariant(item.status)}>
+                        {item.status}
+                    </Badge>
                 </div>
               </CardHeader>
               <CardContent className="pt-2">

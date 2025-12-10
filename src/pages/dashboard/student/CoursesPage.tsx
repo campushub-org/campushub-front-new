@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+=======
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+>>>>>>> origin/dev
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, BookOpen } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import api from '@/lib/api';
 
+<<<<<<< HEAD
 interface SupportCours {
   id: number;
   titre: string;
@@ -52,6 +59,20 @@ const CoursesPage: React.FC = () => {
   const handleDownload = (fileUrl: string) => {
     // Dans une vraie application, on pourrait vouloir sécuriser ce lien
     window.open(fileUrl, '_blank');
+=======
+const validatedCourses = [
+  { id: 1, course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 1', date: '25 Nov 2025' },
+  { id: 2, course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 2', date: '01 Déc 2025' },
+  { id: 3, course: 'Chimie Organique', title: 'Réactions Acido-Basiques', date: '28 Nov 2025' },
+  { id: 4, course: 'Physique des Ondes', title: 'Notes de cours - Ondes', date: '30 Nov 2025' },
+];
+
+const CoursesPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleViewMaterial = (id: number) => {
+    navigate(`/dashboard/student/courses/view/${id}`);
+>>>>>>> origin/dev
   };
 
   return (
@@ -88,6 +109,7 @@ const CoursesPage: React.FC = () => {
           </Select>
         </div>
 
+<<<<<<< HEAD
         {loading && <p>Chargement des cours...</p>}
         {error && <p className="text-red-500">{error}</p>}
 
@@ -130,6 +152,34 @@ const CoursesPage: React.FC = () => {
             </TableBody>
           </Table>
         )}
+=======
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {validatedCourses.map((item) => (
+                <Card 
+                    key={item.id}
+                    className="flex flex-col justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleViewMaterial(item.id)}
+                >
+                    <CardHeader>
+                        <div className="flex items-center gap-3">
+                           <BookOpen className="h-6 w-6 text-blue-500" />
+                            <div>
+                                <CardTitle className="text-lg">{item.title}</CardTitle>
+                                <CardDescription>{item.course}</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardFooter className="flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">Publié le: {item.date}</span>
+                        <Button variant="outline" size="sm" onClick={(e) => {e.stopPropagation(); /* handle download */}}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Télécharger
+                        </Button>
+                    </CardFooter>
+                </Card>
+            ))}
+        </div>
+>>>>>>> origin/dev
       </CardContent>
     </Card>
   );
