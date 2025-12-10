@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, BookOpen } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,13 +12,19 @@ import {
 } from "@/components/ui/select"
 
 const validatedCourses = [
-  { course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 1', date: '25 Nov 2025' },
-  { course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 2', date: '01 Déc 2025' },
-  { course: 'Chimie Organique', title: 'Réactions Acido-Basiques', date: '28 Nov 2025' },
-  { course: 'Physique des Ondes', title: 'Notes de cours - Ondes', date: '30 Nov 2025' },
+  { id: 1, course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 1', date: '25 Nov 2025' },
+  { id: 2, course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 2', date: '01 Déc 2025' },
+  { id: 3, course: 'Chimie Organique', title: 'Réactions Acido-Basiques', date: '28 Nov 2025' },
+  { id: 4, course: 'Physique des Ondes', title: 'Notes de cours - Ondes', date: '30 Nov 2025' },
 ];
 
 const CoursesPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleViewMaterial = (id: number) => {
+    navigate(`/dashboard/student/courses/view/${id}`);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -52,31 +58,33 @@ const CoursesPage: React.FC = () => {
             </SelectContent>
           </Select>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Cours</TableHead>
-              <TableHead>Titre du Support</TableHead>
-              <TableHead>Date de publication</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {validatedCourses.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{item.course}</TableCell>
-                <TableCell>{item.title}</TableCell>
-                <TableCell>{item.date}</TableCell>
-                <TableCell className="text-right">
-                  <Button variant="outline" size="sm">
-                    <Download className="mr-2 h-4 w-4" />
-                    Télécharger
-                  </Button>
-                </TableCell>
-              </TableRow>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {validatedCourses.map((item) => (
+                <Card 
+                    key={item.id}
+                    className="flex flex-col justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleViewMaterial(item.id)}
+                >
+                    <CardHeader>
+                        <div className="flex items-center gap-3">
+                           <BookOpen className="h-6 w-6 text-blue-500" />
+                            <div>
+                                <CardTitle className="text-lg">{item.title}</CardTitle>
+                                <CardDescription>{item.course}</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardFooter className="flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">Publié le: {item.date}</span>
+                        <Button variant="outline" size="sm" onClick={(e) => {e.stopPropagation(); /* handle download */}}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Télécharger
+                        </Button>
+                    </CardFooter>
+                </Card>
             ))}
-          </TableBody>
-        </Table>
+        </div>
       </CardContent>
     </Card>
   );

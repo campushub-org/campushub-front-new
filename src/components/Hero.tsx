@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, BookOpen, Bell } from "lucide-react";
-import heroDashboard from "@/assets/hero-dashboard.png";
+import newHeroImage from "@/assets/Capture d’écran de 2025-12-04 02-31-05.png";
 
 const Hero = () => {
   return (
@@ -92,7 +92,7 @@ const Hero = () => {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-glow border border-border/50 bg-card">
               <img
-                src={heroDashboard}
+                src={newHeroImage}
                 alt="CampusHub Dashboard"
                 className="w-full h-auto"
               />

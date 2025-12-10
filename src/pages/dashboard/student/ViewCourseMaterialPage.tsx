@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { FileText, Download, ArrowLeft } from 'lucide-react';
 
-const ViewMaterialPage: React.FC = () => {
+const StudentViewMaterialPage: React.FC = () => {
   const { materialId } = useParams<{ materialId: string }>();
   const navigate = useNavigate();
 
@@ -12,10 +12,9 @@ const ViewMaterialPage: React.FC = () => {
   const materialDetails = {
     id: materialId,
     course: 'Mathématiques I',
-    title: 'Algèbre Linéaire - Chapitre 1',
+    title: 'Algèbre Linéaire - Chap. 1',
     teacher: 'Dr. Jean Dupont',
-    status: 'Validé',
-    description: 'Ce document couvre les bases de l\'algèbre linéaire, y compris les vecteurs, les matrices et les transformations linéaires. Idéal pour les étudiants en première année de licence.',
+    description: 'Ce document couvre les bases de l\'algèbre linéaire, y compris les vecteurs, les matrices et les transformations linéaires.',
     filePath: '/path/to/algebre_chap1.pdf', // Placeholder
   };
 
@@ -32,7 +31,7 @@ const ViewMaterialPage: React.FC = () => {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div>
-                    <CardTitle>Visualiser le Support : {materialDetails.title}</CardTitle>
+                    <CardTitle>{materialDetails.title}</CardTitle>
                     <CardDescription>{materialDetails.course} par {materialDetails.teacher}</CardDescription>
                 </div>
             </div>
@@ -48,16 +47,12 @@ const ViewMaterialPage: React.FC = () => {
             Télécharger
           </Button>
         </div>
-        <div className="text-sm">
-          <span className="font-semibold">Statut:</span> <span className="text-green-600">{materialDetails.status}</span>
-        </div>
-        {/* Ici, on pourrait intégrer un visualiseur de PDF ou d'autres contenus */}
-        <div className="border rounded-md p-4 bg-gray-50 flex items-center justify-center h-64">
-            <p className="text-muted-foreground">Zone d'affichage du contenu du support (ex: Aperçu PDF)</p>
+        <div className="border rounded-md p-4 bg-gray-50 flex items-center justify-center h-96">
+            <p className="text-muted-foreground">Zone d\'affichage du contenu du support (ex: Aperçu PDF)</p>
         </div>
       </CardContent>
     </Card>
   );
 };
 
-export default ViewMaterialPage;
+export default StudentViewMaterialPage;

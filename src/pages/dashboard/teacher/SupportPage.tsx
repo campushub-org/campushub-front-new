@@ -4,6 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Upload, Send, Trash2, Eye } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Interface pour typer nos données
 export interface Material {
@@ -70,65 +81,85 @@ const SupportPage: React.FC = () => {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Gestion des Supports de Cours</CardTitle>
-        <Link to="/dashboard/teacher/deposit-material">
-          <Button>
-            <Upload className="mr-2 h-4 w-4" />
-            Déposer un support
-          </Button>
-        </Link>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {materials.map((item) => (
-            <Card 
-              key={item.id} 
-              className="flex flex-col justify-between cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => handleViewMaterial(item.id)} // Rendre la carte cliquable
-            >
-              <CardHeader className="flex flex-row items-start justify-between pb-2">
-                <div className="flex flex-col space-y-1">
-                  <CardDescription>{item.course}</CardDescription>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
-                </div>
-                <Badge variant={getStatusBadgeVariant(item.status)}>
-                  {item.status}
-                </Badge>
-              </CardHeader>
-              <CardContent className="pt-0 flex items-center justify-between">
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleViewMaterial(item.id); }}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Visualiser
-                </Button>
-                <div className="flex space-x-2">
-                  {item.status === 'Brouillon' && (
-                    <>
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleSubmitForValidation(item.id); }}>
-                        <Send className="h-4 w-4" />
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteMaterial(item.id); }}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                  {item.status === 'En attente' && (
-                    <span className="text-xs text-muted-foreground">En validation...</span>
-                  )}
-                  {item.status === 'Rejeté' && (
-                    <span className="text-xs text-destructive">Rejeté</span>
-                  )}
-                  {item.status === 'Validé' && (
-                    <span className="text-xs text-green-600">Validé</span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Gestion des Supports de Cours</CardTitle>
+          <Link to="/dashboard/teacher/deposit-material">
+            <Button>
+              <Upload className="mr-2 h-4 w-4" />
+              Déposer un support
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {materials.map((item) => (
+              <Card 
+                key={item.id} 
+                className="flex flex-col justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => handleViewMaterial(item.id)} // Rendre la carte cliquable
+              >
+                <CardHeader className="flex flex-row items-start justify-between pb-2">
+                  <div className="flex flex-col space-y-1">
+                    <CardDescription>{item.course}</CardDescription>
+                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                  </div>
+                  <Badge variant={getStatusBadgeVariant(item.status)}>
+                    {item.status}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="pt-0 flex items-center justify-between">
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleViewMaterial(item.id); }}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Visualiser
+                  </Button>
+                  <div className="flex space-x-2">
+                    {item.status === 'Brouillon' && (
+                      <>
+                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleSubmitForValidation(item.id); }}>
+                          <Send className="h-4 w-4" />
+                        </Button>
+                         <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" onClick={(e) => e.stopPropagation()}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce brouillon ?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Cette action est irréversible. Le support "{item.title}" sera définitivement supprimé.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteMaterial(item.id)}>
+                                Confirmer la suppression
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    )}
+                    {item.status === 'En attente' && (
+                      <span className="text-xs text-muted-foreground">En validation...</span>
+                    )}
+                    {item.status === 'Rejeté' && (
+                      <span className="text-xs text-destructive">Rejeté</span>
+                    )}
+                    {item.status === 'Validé' && (
+                      <span className="text-xs text-green-600">Validé</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

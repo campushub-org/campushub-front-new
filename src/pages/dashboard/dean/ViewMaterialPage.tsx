@@ -1,11 +1,12 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Check, X } from 'lucide-react';
+import { FileText, Download, Check, X, ArrowLeft } from 'lucide-react';
 
 const DeanViewMaterialPage: React.FC = () => {
   const { materialId } = useParams<{ materialId: string }>();
+  const navigate = useNavigate();
 
   // Simulation de la récupération des détails du support
   const materialDetails = {
@@ -41,8 +42,17 @@ const DeanViewMaterialPage: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Visualiser le Support : {materialDetails.title}</CardTitle>
-        <CardDescription>{materialDetails.course} par {materialDetails.teacher}</CardDescription>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+                <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                    <CardTitle>Visualiser le Support : {materialDetails.title}</CardTitle>
+                    <CardDescription>{materialDetails.course} par {materialDetails.teacher}</CardDescription>
+                </div>
+            </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-muted-foreground">{materialDetails.description}</p>

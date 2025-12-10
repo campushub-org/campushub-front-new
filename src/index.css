@@ -127,3 +127,15 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(-45deg, hsl(var(--primary)/.1), hsl(var(--secondary)), hsl(var(--background)), hsl(var(--primary)/.15));
+  background-size: 400% 400%;
+  animation: gradient-move 15s ease infinite;
+}
