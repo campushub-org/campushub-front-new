@@ -113,9 +113,19 @@ const TeacherNotificationsPage: React.FC = () => {
     setConfirmDeleteId(null); // Reset confirm delete on toggle
   };
 
-  const handleMarkAsRead = (e: React.MouseEvent, id: number) => {
+  const handleMarkAsRead = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
+    const originalNotifications = [...notifications];
+    const updatedNotifications = notifications.map(n => n.id === id ? { ...n, isRead: true } : n);
+    setNotifications(updatedNotifications);
+
+    try {
+      await api.put(`/campushub-notification-service/api/notifications/${id}/read`);
+    } catch (err) {
+      console.error("Failed to mark notification as read", err);
+      setNotifications(originalNotifications);
+      // Optionally, show an error message to the user
+    }
   };
 
   const handleDelete = (e: React.MouseEvent, id: number) => {
@@ -123,10 +133,20 @@ const TeacherNotificationsPage: React.FC = () => {
     setConfirmDeleteId(id);
   };
 
-  const handleConfirmDelete = (e: React.MouseEvent, id: number) => {
+  const handleConfirmDelete = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    setNotifications(notifications.filter(n => n.id !== id));
+    const originalNotifications = [...notifications];
+    const updatedNotifications = notifications.filter(n => n.id !== id);
+    setNotifications(updatedNotifications);
     setConfirmDeleteId(null);
+
+    try {
+      await api.delete(`/campushub-notification-service/api/notifications/${id}`);
+    } catch (err) {
+      console.error("Failed to delete notification", err);
+      setNotifications(originalNotifications);
+      // Optionally, show an error message to the user
+    }
   };
 
 
