@@ -1,3 +1,4 @@
+import api from "@/lib/api";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,8 @@ const Signup = () => {
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Fonction de mise à jour générique pour tous les champs
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -93,16 +96,18 @@ const Signup = () => {
   };
 
   // Logique de soumission
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     if (formData.password !== passwordConfirm) {
-      alert("Les mots de passe ne correspondent pas !");
+      setError("Les mots de passe ne correspondent pas !");
       return;
     }
 
     if (!formData.role) {
-      alert("Veuillez sélectionner un rôle.");
+      setError("Veuillez sélectionner un rôle.");
       return;
     }
 
@@ -132,10 +137,18 @@ const Signup = () => {
     }
     // ----------------------------------------------------
 
-    console.log(`Données finalisées pour l'API Java (${formData.role}):`, submissionData);
-
-    // Ici, vous feriez l'appel API (fetch ou axios)
-    // Exemple : api.post('/api/users/signup', submissionData);
+    try {
+      const response = await api.post('/api/auth/register', submissionData);
+      if (response.status === 201) {
+        setSuccess("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+        // Optionnel: rediriger l'utilisateur après un court délai
+        setTimeout(() => {
+          // window.location.href = '/signin';
+        }, 2000);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Une erreur est survenue lors de l'inscription.");
+    }
   };
 
   // --- RENDU CONDITIONNEL DES CHAMPS SPÉCIFIQUES ---
@@ -385,16 +398,17 @@ const Signup = () => {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  variant="hero"
-                  size="lg"
-                  disabled={!selectedRole || !formData.email || !formData.password || !passwordConfirm}
-                >
-                  Créer mon compte
-                </Button>
-
+                                  {error && <p className="text-sm text-red-600">{error}</p>}
+                                  {success && <p className="text-sm text-green-600">{success}</p>}
+                                  <Button
+                                  type="submit"
+                                  className="w-full"
+                                  variant="hero"
+                                  size="lg"
+                                  disabled={!selectedRole || !formData.email || !formData.password || !passwordConfirm}
+                                >
+                                  Créer mon compte
+                                </Button>
                 <p className="text-center text-sm text-muted-foreground">
                   Vous avez déjà un compte?{" "}
                   <a href="/signin" className="text-primary hover:underline font-semibold">

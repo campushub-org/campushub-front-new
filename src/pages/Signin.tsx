@@ -1,3 +1,4 @@
+import api from "@/lib/api";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const Signin = () => {
     username: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -27,37 +29,28 @@ const Signin = () => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (!formData.username || !formData.password) {
-      alert("Veuillez remplir tous les champs.");
+      setError("Veuillez remplir tous les champs.");
       return;
     }
 
-    console.log("Tentative de connexion avec:", formData);
+    try {
+      const response = await api.post("/campushub-user-service/api/auth/login", formData);
 
-    // --- Simulation de la logique de connexion ---
-    // Dans une vraie application, cette partie serait remplacée par un appel API.
-    // Le rôle de l'utilisateur serait retourné par le serveur.
-
-    // 1. Définir le rôle en fonction du nom d'utilisateur pour la démo
-    let role = 'student'; // Rôle par défaut
-    if (formData.username.toLowerCase().includes('teacher')) {
-      role = 'teacher';
-    } else if (formData.username.toLowerCase().includes('admin')) {
-      role = 'admin';
-    } else if (formData.username.toLowerCase().includes('dean')) {
-      role = 'dean';
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        // Vous pouvez également stocker d'autres informations utilisateur si nécessaire
+        // const decodedToken = JSON.parse(atob(response.data.token.split('.')[1]));
+        // localStorage.setItem('userRole', decodedToken.role);
+        navigate("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Nom d'utilisateur ou mot de passe incorrect.");
     }
-
-    // 2. Simuler une authentification réussie
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userRole', role);
-
-    // 3. Rediriger vers le tableau de bord
-    navigate('/dashboard');
-    // --- Fin de la simulation ---
   };
 
   return (
@@ -138,6 +131,7 @@ const Signin = () => {
                 />
               </div>
 
+                  {error && <p className="text-sm text-red-600 text-center">{error}</p>}
               <Button
                 type="submit"
                 className="w-full"
