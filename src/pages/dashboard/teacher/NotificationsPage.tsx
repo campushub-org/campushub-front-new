@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
-import { Bell, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Bell, CheckCircle, XCircle, AlertTriangle, ChevronDown } from 'lucide-react';
 
 interface Notification {
   id: number;
@@ -9,9 +10,8 @@ interface Notification {
   isRead: boolean;
   createdAt: string;
   statut: 'BROUILLON' | 'SOUMIS' | 'VALIDÉ' | 'REJETÉ';
-  // Add other fields from the backend model if needed
-  // niveau: string;
-  // matiere: string;
+  niveau: string;
+  matiere: string;
 }
 
 const decodeToken = (token: string) => {
@@ -66,6 +66,8 @@ const TeacherNotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -87,7 +89,7 @@ const TeacherNotificationsPage: React.FC = () => {
 
       try {
         const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/teacher/${userId}`);
-        setNotifications(response.data);
+        setNotifications(response.data.map(n => ({ ...n, isRead: n.isRead === null ? false : n.isRead })));
       } catch (err) {
         setError("Impossible de charger les notifications.");
         console.error(err);
@@ -105,6 +107,28 @@ const TeacherNotificationsPage: React.FC = () => {
     warning: 'bg-yellow-100 border-yellow-400 text-yellow-700',
     error: 'bg-red-100 border-red-400 text-red-700',
   };
+  
+  const handleToggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id);
+    setConfirmDeleteId(null); // Reset confirm delete on toggle
+  };
+
+  const handleMarkAsRead = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    setConfirmDeleteId(id);
+  };
+
+  const handleConfirmDelete = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    setNotifications(notifications.filter(n => n.id !== id));
+    setConfirmDeleteId(null);
+  };
+
 
   return (
     <Card>
@@ -119,32 +143,62 @@ const TeacherNotificationsPage: React.FC = () => {
             {notifications.length > 0 ? (
               notifications.map((notif) => {
                 const { title, message, type, Icon } = getNotificationDetails(notif);
+                const isExpanded = expandedId === notif.id;
                 return (
                   <div
                     key={notif.id}
-                    className={`flex items-start p-4 rounded-lg border ${
+                    className={`rounded-lg border ${
                       notif.isRead ? 'bg-muted/50' : typeToColorClass[type as keyof typeof typeToColorClass]
                     }`}
                   >
-                    <div className="flex-shrink-0">
-                      <Icon className={`w-5 h-5 ${
-                        notif.isRead ? 'text-muted-foreground' : 'text-current'
-                      }`} />
+                    <div className="p-4 flex items-start" onClick={() => handleToggleExpand(notif.id)} style={{ cursor: 'pointer' }}>
+                      <div className="flex-shrink-0">
+                        <Icon className={`w-5 h-5 ${
+                          notif.isRead ? 'text-muted-foreground' : 'text-current'
+                        }`} />
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <p className={`text-sm font-medium ${notif.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
+                          {title}
+                        </p>
+                        <p className={`text-sm ${notif.isRead ? 'text-muted-foreground/80' : 'text-foreground/90'}`}>
+                          {message}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(notif.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="ml-3 flex items-center">
+                        {!notif.isRead && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 self-center"></div>
+                        )}
+                        <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      </div>
                     </div>
-                    <div className="ml-3 flex-1">
-                      <p className={`text-sm font-medium ${notif.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
-                        {title}
-                      </p>
-                      <p className={`text-sm ${notif.isRead ? 'text-muted-foreground/80' : 'text-foreground/90'}`}>
-                        {message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(notif.createdAt).toLocaleString()}
-                      </p>
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
+                    >
+                      <div className="px-4 pb-4">
+                        <p className="text-sm"><strong>Niveau:</strong> {notif.niveau}</p>
+                        <p className="text-sm"><strong>Matière:</strong> {notif.matiere}</p>
+                      </div>
                     </div>
-                    {!notif.isRead && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full ml-auto self-center"></div>
-                    )}
+                    <div className="px-4 pb-4 flex space-x-2">
+                      {!notif.isRead && (
+                        <Button variant="outline" size="sm" onClick={(e) => handleMarkAsRead(e, notif.id)}>
+                          Marquer comme lue
+                        </Button>
+                      )}
+                      {confirmDeleteId !== notif.id ? (
+                        <Button variant="destructive" size="sm" onClick={(e) => handleDelete(e, notif.id)}>
+                          Supprimer
+                        </Button>
+                      ) : (
+                        <Button variant="destructive" size="sm" onClick={(e) => handleConfirmDelete(e, notif.id)}>
+                          Confirmer la suppression
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 );
               })
