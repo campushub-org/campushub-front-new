@@ -7,6 +7,13 @@ import { Card } from "@/components/ui/card";
 import { GraduationCap, BookOpen, Shield, User } from "lucide-react";
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Import Select components
 
 // --- Définition des Rôles (ADMIN RETIRÉ) ---
 const roles = [
@@ -32,6 +39,35 @@ const roles = [
     gradient: "from-amber-500 to-orange-500",
   },
   // Rôle ADMIN supprimé pour la sécurité
+];
+
+// --- Options pour les filières/départements ---
+const DEPARTMENT_OPTIONS = [
+  "Informatique",
+  "Mathématiques",
+  "Physique",
+  "Chimie",
+  "Biologie",
+  "Droit",
+  "Économie",
+  "Gestion",
+  "Lettres Modernes",
+  "Histoire",
+  "Géographie",
+  "Médecine",
+  "Pharmacie",
+  "Architecture",
+];
+
+// --- Options pour les grades/titres universitaires ---
+const GRADE_OPTIONS = [
+  "Professeur",
+  "Maître de Conférences",
+  "Assistant",
+  "Doctorant",
+  "Chargé de TD",
+  "Vacataire",
+  "Ingénieur Pédagogique",
 ];
 
 // --- Interface de base couvrant TOUS les champs possibles (base + spécifiques) ---
@@ -71,12 +107,20 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Fonction de mise à jour générique pour tous les champs
+  // Fonction de mise à jour générique pour les champs Input
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [id as keyof FullSignupData]: value, // Assure le typage correct de l'ID
+      [id as keyof FullSignupData]: value,
+    }));
+  };
+
+  // Fonction de mise à jour générique pour les composants Select
+  const handleSelectChange = (id: keyof FullSignupData, value: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
     }));
   };
 
@@ -85,6 +129,8 @@ const Signup = () => {
     setFormData((prevData) => ({
       ...prevData,
       role: roleId,
+      department: "", // Réinitialiser le département lors du changement de rôle
+      grade: "", // Réinitialiser le grade lors du changement de rôle
     }));
   };
 
@@ -110,6 +156,11 @@ const Signup = () => {
 
     if (!formData.role) {
       setError("Veuillez sélectionner un rôle.");
+      return;
+    }
+
+    if (!formData.department) {
+      setError("Veuillez sélectionner un département.");
       return;
     }
 
@@ -184,13 +235,18 @@ const Signup = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="grade">Grade / Titre</Label>
-              <Input
-                id="grade"
-                placeholder="Ex: Maître de Conférences"
-                value={formData.grade}
-                onChange={handleChange}
-                required
-              />
+              <Select onValueChange={(value) => handleSelectChange('grade', value)} value={formData.grade} required>
+                <SelectTrigger id="grade">
+                  <SelectValue placeholder="Sélectionner votre grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADE_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </>
         );
@@ -330,13 +386,18 @@ const Signup = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="department">Département/Faculté</Label>
-                  <Input
-                    id="department"
-                    placeholder="Ex: Informatique ou Faculté de Droit"
-                    value={formData.department}
-                    onChange={handleChange}
-                    required
-                  />
+                  <Select onValueChange={(value) => handleSelectChange('department', value)} value={formData.department} required>
+                    <SelectTrigger id="department">
+                      <SelectValue placeholder="Sélectionner votre département" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DEPARTMENT_OPTIONS.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

@@ -1,42 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Check, X, ArrowLeft } from 'lucide-react';
+import api from '@/lib/api'; // Import your API utility
+import { SupportCours } from '../teacher/SupportPage'; // Use SupportCours interface for consistency
+import { toast } from 'sonner';
+import { decodeToken } from '@/lib/auth';
 
 const DeanViewMaterialPage: React.FC = () => {
   const { materialId } = useParams<{ materialId: string }>();
   const navigate = useNavigate();
+  const [material, setMaterial] = useState<SupportCours | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
-  // Simulation de la récupération des détails du support
-  const materialDetails = {
-    id: materialId,
-    course: 'Algèbre I',
-    title: 'Algèbre Linéaire - Chapitre 1',
-    teacher: 'Dr. Dupont',
-    status: 'En attente', // Pour le doyen, le statut est souvent "En attente" ou "Révision demandée"
-    description: 'Ce document couvre les bases de l\'algèbre linéaire, y compris les vecteurs, les matrices et les transformations linéaires. Il a été soumis pour validation par le Dr. Dupont.',
-    filePath: '/path/to/algebre_chap1.pdf', // Placeholder
-  };
+  useEffect(() => {
+    const fetchMaterial = async () => {
+      if (!materialId) {
+        setError("Identifiant de support manquant.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await api.get<SupportCours>(`/campushub-support-service/api/supports/${materialId}`);
+        setMaterial(response.data);
+      } catch (err) {
+        console.error('Erreur lors du chargement du support:', err);
+        setError("Impossible de charger le support de cours.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!materialId) {
+    fetchMaterial();
+  }, [materialId]);
+
+  if (loading) {
+    return <Card><CardContent>Chargement du support...</CardContent></Card>;
+  }
+
+  if (error) {
+    return <Card><CardContent className="text-red-500">{error}</CardContent></Card>;
+  }
+
+  if (!material) {
     return <Card><CardContent>Support non trouvé.</CardContent></Card>;
   }
 
-  // Fonctions de simulation pour la validation
-  const handleValidate = () => {
-    alert(`Support ${materialDetails.id} validé.`);
-    // Logique API ici pour changer le statut
+  const handleDownload = () => {
+    if (material?.fichierUrl) {
+      window.open(material.fichierUrl, '_blank');
+    }
   };
 
-  const handleReject = () => {
-    alert(`Support ${materialDetails.id} rejeté.`);
-    // Logique API ici
-  };
+  const handleAction = async (action: 'validate' | 'reject', remarque?: string) => {
+    setActionLoading(true);
+    const token = localStorage.getItem('token');
+    if (!token) {
+        toast.error("Authentification requise pour cette action.");
+        setActionLoading(false);
+        return;
+    }
 
-  const handleRequestRevision = () => {
-    alert(`Révision demandée pour le support ${materialDetails.id}.`);
-    // Logique API ici
+    try {
+      await api.post(`/campushub-support-service/api/supports/${material.id}/${action}`, { remarque }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success(`Support ${action === 'validate' ? 'validé' : 'rejeté'} avec succès !`);
+      navigate('/dashboard/dean/validations'); // Navigate back to validation list
+    } catch (err) {
+      console.error(`Erreur lors de l'action ${action} sur le support:`, err);
+      toast.error(`Échec de l'action sur le support. Veuillez réessayer.`);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   return (
@@ -48,44 +87,46 @@ const DeanViewMaterialPage: React.FC = () => {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div>
-                    <CardTitle>Visualiser le Support : {materialDetails.title}</CardTitle>
-                    <CardDescription>{materialDetails.course} par {materialDetails.teacher}</CardDescription>
+                    <CardTitle>Visualiser le Support : {material.titre}</CardTitle>
+                    <CardDescription>{material.matiere} (Niveau {material.niveau})</CardDescription>
                 </div>
             </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-muted-foreground">{materialDetails.description}</p>
+        <p className="text-muted-foreground">{material.description}</p>
         <div className="flex items-center space-x-4">
           <FileText className="h-6 w-6 text-blue-500" />
-          <span>Fichier: algebre_chap1.pdf</span>
-          <Button variant="outline" size="sm">
+          <span>Fichier: {material.fichierUrl ? new URL(material.fichierUrl).pathname.split('/').pop() : 'N/A'}</span>
+          <Button variant="outline" size="sm" onClick={handleDownload} disabled={!material.fichierUrl}>
             <Download className="mr-2 h-4 w-4" />
             Télécharger
           </Button>
         </div>
         <div className="text-sm">
-          <span className="font-semibold">Statut:</span> <span className="text-orange-600">{materialDetails.status}</span>
+          <span className="font-semibold">Statut:</span> <span className="text-green-600">{material.statut}</span>
         </div>
         
-        <div className="border rounded-md p-4 bg-gray-50 flex items-center justify-center h-64">
-            <p className="text-muted-foreground">Zone d\'affichage du contenu du support (ex: Aperçu PDF)</p>
-        </div>
+        {material.fichierUrl && (
+          <div className="flex items-center justify-center">
+            <iframe src={material.fichierUrl} width="100%" height="600px" style={{ border: 'none' }}>
+              Ce navigateur ne prend pas en charge les PDF intégrés. Veuillez utiliser le bouton Télécharger pour visualiser le fichier.
+            </iframe>
+          </div>
+        )}
 
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button variant="destructive" onClick={handleReject}>
-            <X className="mr-2 h-4 w-4" />
-            Rejeter
-          </Button>
-          <Button variant="outline" onClick={handleRequestRevision}>
-            <FileText className="mr-2 h-4 w-4" />
-            Demander Révision
-          </Button>
-          <Button onClick={handleValidate}>
-            <Check className="mr-2 h-4 w-4" />
-            Valider
-          </Button>
-        </div>
+        {material.statut === 'SOUMIS' && (
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="destructive" onClick={() => handleAction('reject', 'Rejeté par le doyen.')} disabled={actionLoading}>
+              <X className="mr-2 h-4 w-4" />
+              Rejeter
+            </Button>
+            <Button onClick={() => handleAction('validate')} disabled={actionLoading}>
+              <Check className="mr-2 h-4 w-4" />
+              Valider
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -6,41 +6,117 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Upload } from 'lucide-react';
-import { Material } from './SupportPage'; // Importer l'interface
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import api from '@/lib/api';
+import axios from 'axios';
+import { decodeToken } from '@/lib/auth';
 
-const STORAGE_KEY = 'teacher_materials';
+import { SupportCours } from './SupportPage'; 
 
 const DepositMaterialPage: React.FC = () => {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [course, setCourse] = useState('');
-  
-  const handleSubmit = (e: React.FormEvent) => {
+  const [titre, setTitre] = useState('');
+  const [description, setDescription] = useState('');
+  const [niveau, setNiveau] = useState('');
+  const [matiere, setMatiere] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    } else {
+      setSelectedFile(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !course) {
-      alert('Veuillez remplir le titre et le cours associé.');
+    setLoading(true);
+    setError(null);
+
+    if (!titre || !description || !niveau || !matiere || !selectedFile) {
+      setError('Veuillez remplir tous les champs et sélectionner un fichier.');
+      setLoading(false);
       return;
     }
 
-    // Récupérer la liste existante
-    const storedMaterials = localStorage.getItem(STORAGE_KEY);
-    const materials: Material[] = storedMaterials ? JSON.parse(storedMaterials) : [];
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError("Authentification requise.");
+      setLoading(false);
+      return;
+    }
 
-    // Créer le nouveau support
-    const newMaterial: Material = {
-      id: Date.now(), // Utiliser un ID unique simple
-      title,
-      course,
-      status: 'Brouillon',
-    };
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.id) {
+      setError("Impossible de récupérer les informations de l'utilisateur depuis le token.");
+      setLoading(false);
+      return;
+    }
+    const enseignantId = decoded.id;
 
-    // Ajouter et sauvegarder
-    const updatedMaterials = [...materials, newMaterial];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMaterials));
+    try {
+      // 1. Upload file to Cloudinary
+      const cloudinaryCloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const cloudinaryUploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'unsigned_upload_preset'; // Define an unsigned upload preset in Cloudinary
 
-    // Rediriger vers la page de support
-    navigate('/dashboard/teacher/support');
+      if (!cloudinaryCloudName) {
+        setError("Configuration Cloudinary manquante: Cloud Name.");
+        setLoading(false);
+        return;
+      }
+
+      const cloudinaryFormData = new FormData();
+      cloudinaryFormData.append('file', selectedFile);
+      cloudinaryFormData.append('upload_preset', cloudinaryUploadPreset);
+      cloudinaryFormData.append('cloud_name', cloudinaryCloudName);
+      // Optional: Add tags, folder, etc.
+      // cloudinaryFormData.append('folder', 'course_materials');
+
+      const cloudinaryResponse = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/upload`,
+        cloudinaryFormData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const fichierUrl = cloudinaryResponse.data.secure_url;
+
+      // 2. Submit data to backend
+      const supportData = {
+        titre,
+        description,
+        fichierUrl, // Cloudinary URL
+        niveau,
+        matiere,
+      };
+
+      await api.post(`/campushub-support-service/api/supports`, supportData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      navigate('/dashboard/teacher/support');
+    } catch (err) {
+      console.error('Erreur lors du dépôt du support:', err);
+      setError('Erreur lors du dépôt du support. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <Card>
@@ -49,37 +125,58 @@ const DepositMaterialPage: React.FC = () => {
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {error && <p className="text-red-500">{error}</p>}
           <div>
-            <Label htmlFor="title">Titre du Support</Label>
+            <Label htmlFor="titre">Titre du Support</Label>
             <Input 
-              id="title" 
+              id="titre" 
               placeholder="Ex: Algèbre Linéaire - Chapitre 1" 
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="course">Cours Associé</Label>
-            <Input 
-              id="course" 
-              placeholder="Ex: Mathématiques I" 
-              value={course}
-              onChange={(e) => setCourse(e.target.value)}
+              value={titre}
+              onChange={(e) => setTitre(e.target.value)}
               required
             />
           </div>
           <div>
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" placeholder="Courte description du contenu du support..." />
+            <Textarea 
+              id="description" 
+              placeholder="Courte description du contenu du support..." 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="niveau">Niveau</Label>
+            <Select onValueChange={setNiveau} value={niveau} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner le niveau" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="L1">L1</SelectItem>
+                <SelectItem value="L2">L2</SelectItem>
+                <SelectItem value="L3">L3</SelectItem>
+                <SelectItem value="M1">M1</SelectItem>
+                <SelectItem value="M2">M2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="matiere">Matière</Label>
+            <Input 
+              id="matiere" 
+              placeholder="Ex: Mathématiques I" 
+              value={matiere}
+              onChange={(e) => setMatiere(e.target.value)}
+              required
+            />
           </div>
           <div>
             <Label htmlFor="file">Fichier du Support</Label>
-            <Input id="file" type="file" />
+            <Input id="file" type="file" onChange={handleFileChange} required />
           </div>
-          <Button type="submit">
-            <Upload className="mr-2 h-4 w-4" />
-            Déposer comme Brouillon
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Dépôt en cours...' : 'Déposer comme Brouillon'}
           </Button>
         </form>
       </CardContent>
