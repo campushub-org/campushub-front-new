@@ -126,7 +126,7 @@ const DeanNotificationsPage: React.FC = () => {
 
     try {
       // Nouvelle route et envoi de l'userId pour marquer comme lue
-      await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${userNotificationId}`, { userId });
+      await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${userNotificationId}`);
     } catch (err) {
       console.error("Failed to mark notification as read", err);
       setNotifications(originalNotifications);
@@ -151,7 +151,7 @@ const DeanNotificationsPage: React.FC = () => {
 
     try {
       // Nouvelle route et envoi de l'userId pour la suppression
-      await api.delete(`/campushub-notification-service/api/notifications/${userNotificationId}`, { data: { userId } });
+      await api.delete(`/campushub-notification-service/api/notifications/${userNotificationId}`);
     } catch (err) {
       console.error("Failed to delete notification", err);
       setNotifications(originalNotifications);
