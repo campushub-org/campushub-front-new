@@ -44,6 +44,7 @@ const ValidationPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deanDepartment, setDeanDepartment] = useState<string | null>(null);
+  const [teacherDepartments, setTeacherDepartments] = useState<Map<number, string>>(new Map()); // Nouvel état
   const navigate = useNavigate();
 
   // Fetch Dean's department
@@ -76,27 +77,51 @@ const ValidationPage: React.FC = () => {
     fetchDeanProfile();
   }, []);
 
-  // Fetch pending supports
+  // Fetch all supports and filter them
   useEffect(() => {
-    const fetchPendingSupports = async () => {
+    const fetchAllSupports = async () => {
       if (!deanDepartment) { // Wait for dean's department to be fetched
         setLoading(false);
         return;
       }
 
       try {
-        const response = await api.get<SupportCours[]>('/campushub-support-service/api/supports/pending');
-        // Filter by dean's department
-        const filteredSupports = response.data.filter(support => support.matiere === deanDepartment); // Assuming matiere directly maps to department or a similar logic
+        const supportsResponse = await api.get<SupportCours[]>('/campushub-support-service/api/supports');
+        const allSupports = supportsResponse.data;
+
+        // Récupérer les IDs uniques des enseignants
+        const teacherIds = Array.from(new Set(allSupports.map(s => s.enseignantId)));
+
+        // Récupérer les départements de tous les enseignants
+        const teacherDepartmentsMap = new Map<number, string>();
+        await Promise.all(teacherIds.map(async (id) => {
+          try {
+            const userResponse = await api.get<UserProfile>(`/campushub-user-service/api/users/${id}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            teacherDepartmentsMap.set(id, userResponse.data.department);
+          } catch (err) {
+            console.error(`Error fetching department for teacher ${id}:`, err);
+            teacherDepartmentsMap.set(id, 'Unknown'); // Fallback en cas d'erreur
+          }
+        }));
+        
+        // Filtrer les supports par statut (SOUMIS ou VALIDÉ) et par département de l'enseignant
+        const filteredSupports = allSupports.filter(support => {
+            const teacherDept = teacherDepartmentsMap.get(support.enseignantId);
+            return (support.statut === 'SOUMIS' || support.statut === 'VALIDÉ') && teacherDept === deanDepartment;
+        });
+
         setPendingSupports(filteredSupports);
+        setTeacherDepartments(teacherDepartmentsMap);
       } catch (err) {
-        console.error('Error fetching pending supports:', err);
-        setError("Impossible de charger les supports en attente.");
+        console.error('Error fetching supports or teacher departments:', err);
+        setError("Impossible de charger les supports ou les départements des enseignants.");
       } finally {
         setLoading(false);
       }
     };
-    fetchPendingSupports();
+    fetchAllSupports();
   }, [deanDepartment]); // Re-fetch when deanDepartment changes
 
   const handleAction = async (id: number, action: 'validate' | 'reject', remarque?: string) => {
@@ -150,7 +175,7 @@ const ValidationPage: React.FC = () => {
         {!loading && !error && pendingSupports.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10">
             <p className="mt-4 text-lg text-muted-foreground">
-              Aucun support en attente de validation pour votre filière.
+              Aucun support soumis ou validé pour votre filière.
             </p>
           </div>
         )}
@@ -160,7 +185,7 @@ const ValidationPage: React.FC = () => {
             {pendingSupports.map((item) => (
               <Card 
                 key={item.id} 
-                className="flex flex-col justify-between hover:shadow-lg transition-shadow"
+                className="flex flex-col justify-between hover:shadow-lg transition-shadow min-h-[200px]"
               >
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
@@ -172,15 +197,15 @@ const ValidationPage: React.FC = () => {
                           {item.statut}
                       </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
+                  <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{item.description}</p>
                 </CardHeader>
                 <CardContent className="pt-2">
-                  <div className="flex justify-between items-center">
-                    <Button variant="ghost" size="sm" onClick={() => handleViewMaterial(item.id)}>
+                  <div className="flex justify-between items-center flex-wrap">
+                    <Button variant="ghost" size="sm" onClick={() => handleViewMaterial(item.id)} className="flex-shrink-0">
                       <Eye className="mr-2 h-4 w-4" />
                       Visualiser
                     </Button>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 flex-shrink-0">
                       <Button variant="default" size="sm" onClick={() => handleAction(item.id, 'validate')}>
                         <Check className="mr-2 h-4 w-4" />
                         Valider
