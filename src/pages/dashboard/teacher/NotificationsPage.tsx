@@ -6,6 +6,7 @@ import { Bell, CheckCircle, XCircle, AlertTriangle, ChevronDown } from 'lucide-r
 
 interface Notification {
   id: number;
+  userNotificationId: number; // New field
   titre: string;
   isRead: boolean;
   createdAt: string;
@@ -88,7 +89,7 @@ const TeacherNotificationsPage: React.FC = () => {
       const userId = decoded.id;
 
       try {
-        const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/teacher/${userId}`);
+        const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
         setNotifications(response.data.map(n => ({ ...n, isRead: n.isRead === null ? false : n.isRead })));
       } catch (err) {
         setError("Impossible de charger les notifications.");
@@ -113,36 +114,34 @@ const TeacherNotificationsPage: React.FC = () => {
     setConfirmDeleteId(null); // Reset confirm delete on toggle
   };
 
-  const handleMarkAsRead = async (e: React.MouseEvent, id: number) => {
+  const handleMarkAsRead = async (e: React.MouseEvent, userNotificationId: number) => {
     e.stopPropagation();
     const originalNotifications = [...notifications];
-    const updatedNotifications = notifications.map(n => n.id === id ? { ...n, isRead: true } : n);
+    const updatedNotifications = notifications.map(n => n.userNotificationId === userNotificationId ? { ...n, isRead: true } : n);
     setNotifications(updatedNotifications);
 
     try {
-      await api.put(`/campushub-notification-service/api/notifications/${id}/read`);
-    } catch (err) {
+                  await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${userNotificationId}`);    } catch (err) {
       console.error("Failed to mark notification as read", err);
       setNotifications(originalNotifications);
       // Optionally, show an error message to the user
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, id: number) => {
+  const handleDelete = (e: React.MouseEvent, userNotificationId: number) => {
     e.stopPropagation();
-    setConfirmDeleteId(id);
+    setConfirmDeleteId(userNotificationId);
   };
 
-  const handleConfirmDelete = async (e: React.MouseEvent, id: number) => {
+  const handleConfirmDelete = async (e: React.MouseEvent, userNotificationId: number) => {
     e.stopPropagation();
     const originalNotifications = [...notifications];
-    const updatedNotifications = notifications.filter(n => n.id !== id);
+    const updatedNotifications = notifications.filter(n => n.userNotificationId !== userNotificationId);
     setNotifications(updatedNotifications);
     setConfirmDeleteId(null);
 
     try {
-      await api.delete(`/campushub-notification-service/api/notifications/${id}`);
-    } catch (err) {
+                  await api.delete(`/campushub-notification-service/api/notifications/${userNotificationId}`);    } catch (err) {
       console.error("Failed to delete notification", err);
       setNotifications(originalNotifications);
       // Optionally, show an error message to the user
@@ -166,7 +165,7 @@ const TeacherNotificationsPage: React.FC = () => {
                 const isExpanded = expandedId === notif.id;
                 return (
                   <div
-                    key={notif.id}
+                    key={notif.userNotificationId} // Use userNotificationId as key
                     className={`rounded-lg border ${
                       notif.isRead ? 'bg-muted/50' : typeToColorClass[type as keyof typeof typeToColorClass]
                     }`}
@@ -205,16 +204,16 @@ const TeacherNotificationsPage: React.FC = () => {
                     </div>
                     <div className="px-4 pb-4 flex space-x-2">
                       {!notif.isRead && (
-                        <Button variant="outline" size="sm" onClick={(e) => handleMarkAsRead(e, notif.id)}>
+                        <Button variant="outline" size="sm" onClick={(e) => handleMarkAsRead(e, notif.userNotificationId)}>
                           Marquer comme lue
                         </Button>
                       )}
-                      {confirmDeleteId !== notif.id ? (
-                        <Button variant="destructive" size="sm" onClick={(e) => handleDelete(e, notif.id)}>
+                      {confirmDeleteId !== notif.userNotificationId ? ( // Use userNotificationId here
+                        <Button variant="destructive" size="sm" onClick={(e) => handleDelete(e, notif.userNotificationId)}>
                           Supprimer
                         </Button>
                       ) : (
-                        <Button variant="destructive" size="sm" onClick={(e) => handleConfirmDelete(e, notif.id)}>
+                        <Button variant="destructive" size="sm" onClick={(e) => handleConfirmDelete(e, notif.userNotificationId)}>
                           Confirmer la suppression
                         </Button>
                       )}
@@ -235,3 +234,4 @@ const TeacherNotificationsPage: React.FC = () => {
 };
 
 export default TeacherNotificationsPage;
+
