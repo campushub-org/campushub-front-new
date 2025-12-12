@@ -64,7 +64,7 @@ const Header: React.FC = () => {
 
       try {
         // Assuming there's a /user endpoint or the existing teacher one can be adapted
-        const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/teacher/${userId}`);
+        const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
         const count = response.data.filter(notif => !notif.isRead).length;
         setUnreadCount(count);
       } catch (err) {
@@ -85,7 +85,7 @@ const Header: React.FC = () => {
     localStorage.removeItem('userRole');
     localStorage.removeItem('token'); // Also remove token on logout
     localStorage.removeItem('userProfileImage'); // Clean up profile image on logout
-    navigate('/signin');
+    navigate('/');
   };
 
   return (

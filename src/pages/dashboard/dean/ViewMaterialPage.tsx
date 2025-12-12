@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea'; // Nouvel import
+import { Badge } from '@/components/ui/badge';       // Nouvel import
 import { FileText, Download, Check, X, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api'; // Import your API utility
 import { SupportCours } from '../teacher/SupportPage'; // Use SupportCours interface for consistency
@@ -15,6 +17,21 @@ const DeanViewMaterialPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [doyenRemarque, setDoyenRemarque] = useState<string>(''); // Nouvel état pour la remarque
+
+  const getStatusBadgeVariant = (status: SupportCours['statut']) => {
+    switch (status) {
+      case 'VALIDÉ':
+        return 'default';
+      case 'BROUILLON':
+      case 'SOUMIS':
+        return 'secondary';
+      case 'REJETÉ':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
 
   useEffect(() => {
     const fetchMaterial = async () => {
@@ -26,6 +43,9 @@ const DeanViewMaterialPage: React.FC = () => {
       try {
         const response = await api.get<SupportCours>(`/campushub-support-service/api/supports/${materialId}`);
         setMaterial(response.data);
+        if (response.data.remarqueDoyen) {
+            setDoyenRemarque(response.data.remarqueDoyen); // Pré-remplir si déjà existant
+        }
       } catch (err) {
         console.error('Erreur lors du chargement du support:', err);
         setError("Impossible de charger le support de cours.");
@@ -94,7 +114,17 @@ const DeanViewMaterialPage: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-muted-foreground">{material.description}</p>
+        {/* Détails du Support */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><span className="font-semibold">Description:</span> <p className="text-muted-foreground">{material.description}</p></div>
+            <div><span className="font-semibold">Matière:</span> <span className="text-muted-foreground">{material.matiere}</span></div>
+            <div><span className="font-semibold">Niveau:</span> <span className="text-muted-foreground">{material.niveau}</span></div>
+            <div><span className="font-semibold">Date de dépôt:</span> <span className="text-muted-foreground">{new Date(material.dateDepot).toLocaleDateString()}</span></div>
+            <div><span className="font-semibold">Statut:</span> <Badge variant={getStatusBadgeVariant(material.statut)}>{material.statut}</Badge></div>
+            {material.dateValidation && <div><span className="font-semibold">Date de validation:</span> <span className="text-muted-foreground">{new Date(material.dateValidation).toLocaleDateString()}</span></div>}
+        </div>
+
+        {/* Fichier et Téléchargement */}
         <div className="flex items-center space-x-4">
           <FileText className="h-6 w-6 text-blue-500" />
           <span>Fichier: {material.fichierUrl ? new URL(material.fichierUrl).pathname.split('/').pop() : 'N/A'}</span>
@@ -103,28 +133,42 @@ const DeanViewMaterialPage: React.FC = () => {
             Télécharger
           </Button>
         </div>
-        <div className="text-sm">
-          <span className="font-semibold">Statut:</span> <span className="text-green-600">{material.statut}</span>
-        </div>
         
-        {material.fichierUrl && (
-          <div className="flex items-center justify-center">
-            <iframe src={material.fichierUrl} width="100%" height="600px" style={{ border: 'none' }}>
-              Ce navigateur ne prend pas en charge les PDF intégrés. Veuillez utiliser le bouton Télécharger pour visualiser le fichier.
-            </iframe>
+        {/* Section Remarque du Doyen et Actions */}
+        {material.statut === 'SOUMIS' && (
+          <div className="space-y-4 pt-4">
+            <h3 className="text-lg font-semibold">Remarque du Doyen</h3>
+            <Textarea
+              placeholder="Ajouter une remarque pour l'enseignant (optionnel pour validation, requis pour rejet)."
+              value={doyenRemarque}
+              onChange={(e) => setDoyenRemarque(e.target.value)}
+              rows={4}
+            />
+            <div className="flex justify-end space-x-2">
+              <Button variant="destructive" onClick={() => handleAction('reject', doyenRemarque)} disabled={actionLoading || doyenRemarque.trim() === ''}> {/* Remarque requise pour rejet */}
+                <X className="mr-2 h-4 w-4" />
+                Rejeter
+              </Button>
+              <Button onClick={() => handleAction('validate', doyenRemarque)} disabled={actionLoading}>
+                <Check className="mr-2 h-4 w-4" />
+                Valider
+              </Button>
+            </div>
           </div>
         )}
 
-        {material.statut === 'SOUMIS' && (
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="destructive" onClick={() => handleAction('reject', 'Rejeté par le doyen.')} disabled={actionLoading}>
-              <X className="mr-2 h-4 w-4" />
-              Rejeter
-            </Button>
-            <Button onClick={() => handleAction('validate')} disabled={actionLoading}>
-              <Check className="mr-2 h-4 w-4" />
-              Valider
-            </Button>
+        {material.remarqueDoyen && material.statut !== 'SOUMIS' && (
+            <div className="space-y-2 pt-4">
+                <h3 className="text-lg font-semibold">Remarque du Doyen (Historique)</h3>
+                <p className="text-muted-foreground italic">{material.remarqueDoyen}</p>
+            </div>
+        )}
+
+        {material.fichierUrl && (
+          <div className="flex items-center justify-center pt-4">
+            <iframe src={material.fichierUrl} width="100%" height="600px" style={{ border: 'none' }}>
+              Ce navigateur ne prend pas en charge les PDF intégrés. Veuillez utiliser le bouton Télécharger pour visualiser le fichier.
+            </iframe>
           </div>
         )}
       </CardContent>

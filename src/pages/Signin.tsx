@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react"; // Ajout de useEffect
 import { useNavigate } from "react-router-dom";
 
 interface LoginData {
@@ -20,6 +20,15 @@ const Signin = () => {
     password: "",
   });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Si un token existe, l'utilisateur est considéré comme connecté
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]); // Exécuter une seule fois au montage du composant
+
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -45,11 +54,27 @@ const Signin = () => {
         const token = response.data.token;
         localStorage.setItem("token", token);
 
-        // Décoder le token pour obtenir le rôle
+        // Décoder le token pour obtenir le rôle et l'ID de l'utilisateur
         const decodedToken = JSON.parse(atob(token.split('.')[1]));
-        const role = decodedToken.role.toLowerCase(); // Assurez-vous que le rôle est en minuscules
+        const role = decodedToken.role.toLowerCase();
+        const userId = decodedToken.id; // Supposons que l'ID de l'utilisateur est dans le token
 
         localStorage.setItem('userRole', role);
+
+        // Récupérer et stocker l'URL de l'image de profil
+        try {
+          const userProfileResponse = await api.get(`/campushub-user-service/api/users/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const profilePictureUrl = userProfileResponse.data.profilePictureUrl;
+          if (profilePictureUrl) {
+            localStorage.setItem('userProfileImage', profilePictureUrl);
+            window.dispatchEvent(new Event('profileImageUpdated')); // Déclencher l'événement pour la mise à jour
+          }
+        } catch (profileErr) {
+          console.error("Erreur lors de la récupération de l'image de profil:", profileErr);
+          // Continuer même si l'image de profil ne peut pas être chargée
+        }
 
         // Rediriger en fonction du rôle
         switch (role) {

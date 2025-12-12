@@ -124,26 +124,6 @@ const ValidationPage: React.FC = () => {
     fetchAllSupports();
   }, [deanDepartment]); // Re-fetch when deanDepartment changes
 
-  const handleAction = async (id: number, action: 'validate' | 'reject', remarque?: string) => {
-    setLoading(true);
-    setError(null);
-    const token = localStorage.getItem('token');
-
-    try {
-      await api.post(`/campushub-support-service/api/supports/${id}/${action}`, { remarque }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPendingSupports(prevSupports => prevSupports.filter(support => support.id !== id));
-      toast.success(`Support ${action === 'validate' ? 'validé' : 'rejeté'} avec succès !`);
-    } catch (err) {
-      console.error(`Erreur lors de l'action ${action} sur le support:`, err);
-      setError(`Erreur lors de l'action. Veuillez réessayer.`);
-      toast.error(`Échec de l'action sur le support.`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const getStatusBadgeVariant = (status: SupportCours['statut']) => {
     switch (status) {
       case 'VALIDÉ':
@@ -160,7 +140,7 @@ const ValidationPage: React.FC = () => {
   };
 
   const handleViewMaterial = (id: number) => {
-    navigate(`/dashboard/dean/view-material/${id}`);
+    navigate(`/dashboard/dean/validations/view/${id}`);
   };
 
   return (
@@ -200,21 +180,11 @@ const ValidationPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{item.description}</p>
                 </CardHeader>
                 <CardContent className="pt-2">
-                  <div className="flex justify-between items-center flex-wrap">
-                    <Button variant="ghost" size="sm" onClick={() => handleViewMaterial(item.id)} className="flex-shrink-0">
+                  <div className="flex justify-center items-center">
+                    <Button variant="default" size="sm" onClick={() => handleViewMaterial(item.id)} className="w-full">
                       <Eye className="mr-2 h-4 w-4" />
-                      Visualiser
+                      Voir le document
                     </Button>
-                    <div className="flex space-x-2 flex-shrink-0">
-                      <Button variant="default" size="sm" onClick={() => handleAction(item.id, 'validate')}>
-                        <Check className="mr-2 h-4 w-4" />
-                        Valider
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleAction(item.id, 'reject', 'Rejeté par le doyen.')}>
-                        <X className="mr-2 h-4 w-4" />
-                        Rejeter
-                      </Button>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
