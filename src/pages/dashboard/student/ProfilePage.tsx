@@ -71,8 +71,8 @@ const StudentProfilePage: React.FC = () => {
 
   // Account deletion states
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false);
   const [deleteConfirmationPassword, setDeleteConfirmationPassword] = useState('');
-  const [isDeletingAccountLoading, setIsDeletingAccountLoading] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
 
   // Password visibility states
@@ -475,6 +475,9 @@ const StudentProfilePage: React.FC = () => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Nouvelle photo de profil</DialogTitle>
+            <DialogDescription>
+              Ajustez le cadrage si nécessaire avant de confirmer votre nouvelle photo.
+            </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-6">
             {pendingImageFile && <img src={URL.createObjectURL(pendingImageFile)} alt="Preview" className="h-48 w-48 rounded-2xl object-cover shadow-2xl border-4 border-background" />}
@@ -492,6 +495,9 @@ const StudentProfilePage: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-destructive">Supprimer mon compte</DialogTitle>
+            <DialogDescription>
+              Cette action est irréversible. Toutes vos données seront définitivement supprimées.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <Label htmlFor="deletePass">Confirmez votre mot de passe</Label>
@@ -499,16 +505,22 @@ const StudentProfilePage: React.FC = () => {
             {deleteAccountError && <p className="text-destructive text-xs">{deleteAccountError}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)} disabled={isDeletingAccount}>Annuler</Button>
             <Button variant="destructive" onClick={async () => {
+              if (!profileData) return;
               setIsDeletingAccount(true);
               try {
                 await api.post(`/campushub-user-service/api/users/${profileData.id}/delete-account-confirm`, { password: deleteConfirmationPassword });
-                localStorage.clear(); navigate('/signin');
-              } catch(e:any) { setDeleteAccountError(e.response?.data?.message || "Erreur."); }
-              finally { setIsDeletingAccount(false); }
+                localStorage.clear(); 
+                navigate('/signin');
+              } catch(e:any) { 
+                setDeleteAccountError(e.response?.data?.message || "Erreur lors de la suppression du compte."); 
+              } finally { 
+                setIsDeletingAccount(false); 
+              }
             }} disabled={!deleteConfirmationPassword || isDeletingAccount}>
-              Confirmer la suppression
+              {isDeletingAccount ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Supprimer mon compte
             </Button>
           </DialogFooter>
         </DialogContent>

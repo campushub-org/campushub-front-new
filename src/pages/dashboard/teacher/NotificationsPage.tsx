@@ -1,18 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import api from '@/lib/api';
-import { Bell, CheckCircle, XCircle, AlertTriangle, ChevronDown } from 'lucide-react';
+import { 
+  Bell, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  Trash2, 
+  Check,
+  Inbox,
+  FileText,
+  ChevronRight,
+  MessageSquare,
+  Info
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface Notification {
   id: number;
-  userNotificationId: number; // New field
+  userNotificationId: number;
   titre: string;
   isRead: boolean;
   createdAt: string;
   statut: 'BROUILLON' | 'SOUMIS' | 'VALIDÉ' | 'REJETÉ';
   niveau: string;
   matiere: string;
+  description?: string;
+  remarqueDoyen?: string;
 }
 
 const decodeToken = (token: string) => {
@@ -23,215 +40,209 @@ const decodeToken = (token: string) => {
   }
 };
 
-const getNotificationDetails = (notification: Notification) => {
-  switch (notification.statut) {
-    case 'BROUILLON':
-      return {
-        title: "Nouvelle création de support",
-        message: `Le support de cours "${notification.titre}" a été créé.`,
-        type: 'info',
-        Icon: Bell,
-      };
-    case 'SOUMIS':
-      return {
-        title: "Soumission de support",
-        message: `Le support de cours "${notification.titre}" a été soumis pour validation.`,
-        type: 'warning',
-        Icon: AlertTriangle,
-      };
-    case 'VALIDÉ':
-      return {
-        title: "Validation de support",
-        message: `Félicitations ! Votre support de cours "${notification.titre}" a été validé.`,
-        type: 'success',
-        Icon: CheckCircle,
-      };
-    case 'REJETÉ':
-      return {
-        title: "Rejet de support",
-        message: `Votre support de cours "${notification.titre}" a été rejeté.`,
-        type: 'error',
-        Icon: XCircle,
-      };
-    default:
-      return {
-        title: "Notification inconnue",
-        message: 'Notification inconnue.',
-        type: 'info',
-        Icon: Bell,
-      };
+const getStatusConfig = (statut: string) => {
+  switch (statut) {
+    case 'VALIDÉ': return { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'Approuvé' };
+    case 'REJETÉ': return { icon: XCircle, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'Rejeté' };
+    case 'SOUMIS': return { icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'En attente' };
+    default: return { icon: Bell, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'Information' };
   }
 };
 
 const TeacherNotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError("Authentification requise.");
-        setLoading(false);
-        return;
-      }
-
-      const decoded = decodeToken(token);
-      if (!decoded || !decoded.id) {
-        setError("Impossible de récupérer les informations de l'utilisateur depuis le token.");
-        setLoading(false);
-        return;
-      }
-
-      const userId = decoded.id;
-
-      try {
-        const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
-        setNotifications(response.data.map(n => ({ ...n, isRead: n.isRead === null ? false : n.isRead })));
-      } catch (err) {
-        setError("Impossible de charger les notifications.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotifications();
-  }, []);
-
-  const typeToColorClass = {
-    info: 'bg-blue-100 border-blue-400 text-blue-700',
-    success: 'bg-green-100 border-green-400 text-green-700',
-    warning: 'bg-yellow-100 border-yellow-400 text-yellow-700',
-    error: 'bg-red-100 border-red-400 text-red-700',
-  };
-  
-  const handleToggleExpand = (id: number) => {
-    setExpandedId(expandedId === id ? null : id);
-    setConfirmDeleteId(null); // Reset confirm delete on toggle
-  };
-
-  const handleMarkAsRead = async (e: React.MouseEvent, userNotificationId: number) => {
-    e.stopPropagation();
-    const originalNotifications = [...notifications];
-    const updatedNotifications = notifications.map(n => n.userNotificationId === userNotificationId ? { ...n, isRead: true } : n);
-    setNotifications(updatedNotifications);
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem('token');
+    const decoded = decodeToken(token || '');
+    if (!decoded?.id) return;
 
     try {
-                  await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${userNotificationId}`);    } catch (err) {
-      console.error("Failed to mark notification as read", err);
-      setNotifications(originalNotifications);
-      // Optionally, show an error message to the user
+      const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${decoded.id}`);
+      setNotifications(response.data.map(n => ({ ...n, isRead: !!n.isRead })));
+    } catch (err) {
+      toast.error("Erreur de synchronisation");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, userNotificationId: number) => {
-    e.stopPropagation();
-    setConfirmDeleteId(userNotificationId);
-  };
+  useEffect(() => { fetchNotifications(); }, []);
 
-  const handleConfirmDelete = async (e: React.MouseEvent, userNotificationId: number) => {
+  const handleAction = async (e: React.MouseEvent, id: number, action: 'read' | 'delete') => {
     e.stopPropagation();
-    const originalNotifications = [...notifications];
-    const updatedNotifications = notifications.filter(n => n.userNotificationId !== userNotificationId);
-    setNotifications(updatedNotifications);
-    setConfirmDeleteId(null);
-
     try {
-                  await api.delete(`/campushub-notification-service/api/notifications/${userNotificationId}`);    } catch (err) {
-      console.error("Failed to delete notification", err);
-      setNotifications(originalNotifications);
-      // Optionally, show an error message to the user
+      if (action === 'read') {
+        await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${id}`);
+        setNotifications(prev => prev.map(n => n.userNotificationId === id ? { ...n, isRead: true } : n));
+      } else {
+        await api.delete(`/campushub-notification-service/api/notifications/${id}`);
+        setNotifications(prev => prev.filter(n => n.userNotificationId !== id));
+      }
+    } catch (err) {
+      toast.error("Erreur lors de l'action");
     }
   };
-
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Notifications</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading && <p>Chargement des notifications...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {!loading && !error && (
-          <div className="space-y-4">
-            {notifications.length > 0 ? (
-              notifications.map((notif) => {
-                const { title, message, type, Icon } = getNotificationDetails(notif);
-                const isExpanded = expandedId === notif.id;
+    <div className="max-w-6xl mx-auto py-6 px-4 animate-in fade-in duration-500">
+      {/* Mini Header */}
+      <div className="flex items-center justify-between mb-4 px-2">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Inbox size={18} />
+          <h1 className="text-sm font-bold uppercase tracking-widest">Centre de Notifications</h1>
+          <Badge variant="secondary" className="ml-2 rounded-md font-bold px-1.5 py-0">
+            {notifications.filter(n => !n.isRead).length} Nouveau
+          </Badge>
+        </div>
+        <Button variant="ghost" size="sm" className="text-xs h-8 font-bold hover:bg-primary/5 text-primary" onClick={() => setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))}>
+          Marquer tout comme lu
+        </Button>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-soft overflow-hidden">
+        {loading ? (
+          <div className="p-20 flex flex-col items-center justify-center gap-4">
+             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Chargement...</span>
+          </div>
+        ) : notifications.length > 0 ? (
+          <div className="divide-y divide-border">
+            <AnimatePresence initial={false}>
+              {notifications.map((notif) => {
+                const style = getStatusConfig(notif.statut);
+                const isExpanded = expandedId === notif.userNotificationId;
+                
                 return (
-                  <div
-                    key={notif.userNotificationId} // Use userNotificationId as key
-                    className={`rounded-lg border ${
-                      notif.isRead ? 'bg-muted/50' : typeToColorClass[type as keyof typeof typeToColorClass]
-                    }`}
+                  <motion.div
+                    key={notif.userNotificationId}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={cn(
+                      "group transition-all duration-200 border-l-4",
+                      !notif.isRead ? "border-l-primary bg-primary/[0.01]" : "border-l-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    )}
                   >
-                    <div className="p-4 flex items-start" onClick={() => handleToggleExpand(notif.id)} style={{ cursor: 'pointer' }}>
-                      <div className="flex-shrink-0">
-                        <Icon className={`w-5 h-5 ${
-                          notif.isRead ? 'text-muted-foreground' : 'text-current'
-                        }`} />
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <p className={`text-sm font-medium ${notif.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
-                          {title}
-                        </p>
-                        <p className={`text-sm ${notif.isRead ? 'text-muted-foreground/80' : 'text-foreground/90'}`}>
-                          {message}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(notif.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="ml-3 flex items-center">
-                        {!notif.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 self-center"></div>
-                        )}
-                        <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                      </div>
-                    </div>
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
+                    {/* Compact Header Line */}
+                    <div 
+                      className="flex items-center gap-4 p-4 cursor-pointer" 
+                      onClick={() => setExpandedId(isExpanded ? null : notif.userNotificationId)}
                     >
-                      <div className="px-4 pb-4">
-                        <p className="text-sm"><strong>Niveau:</strong> {notif.niveau}</p>
-                        <p className="text-sm"><strong>Matière:</strong> {notif.matiere}</p>
+                      <div className={cn("p-2 rounded-xl shrink-0 transition-transform group-hover:scale-110", style.bg, style.color)}>
+                        <style.icon size={18} />
+                      </div>
+
+                      <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <div className="md:col-span-5 flex flex-col min-w-0">
+                          <span className={cn("text-sm font-bold truncate", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
+                            {notif.titre}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                            <Clock size={10} /> {new Date(notif.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+
+                        <div className="md:col-span-4 flex items-center gap-2 overflow-hidden">
+                          <Badge variant="outline" className="text-[10px] font-bold bg-muted/50 border-none px-2 py-0 h-5 shrink-0">
+                            {notif.matiere}
+                          </Badge>
+                          <Badge variant="outline" className="text-[10px] font-bold bg-muted/50 border-none px-2 py-0 h-5 shrink-0">
+                            {notif.niveau}
+                          </Badge>
+                        </div>
+
+                        <div className="md:col-span-3 flex items-center justify-end gap-3 pr-2">
+                           {!notif.isRead && (
+                             <Button 
+                               variant="ghost" 
+                               size="sm" 
+                               className="h-8 w-8 rounded-lg text-primary hover:bg-primary/10"
+                               onClick={(e) => handleAction(e, notif.userNotificationId, 'read')}
+                             >
+                               <Check size={16} />
+                             </Button>
+                           )}
+                           <Button 
+                             variant="ghost" 
+                             size="sm" 
+                             className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                             onClick={(e) => handleAction(e, notif.userNotificationId, 'delete')}
+                           >
+                             <Trash2 size={16} />
+                           </Button>
+                           <ChevronRight size={16} className={cn("text-muted-foreground transition-transform duration-300", isExpanded && "rotate-90")} />
+                        </div>
                       </div>
                     </div>
-                    <div className="px-4 pb-4 flex space-x-2">
-                      {!notif.isRead && (
-                        <Button variant="outline" size="sm" onClick={(e) => handleMarkAsRead(e, notif.userNotificationId)}>
-                          Marquer comme lue
-                        </Button>
+
+                    {/* Rich Details Section */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 border-t border-border/50"
+                        >
+                          <div className="p-6 ml-14 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            {/* Detailed Info */}
+                            <div className="space-y-4">
+                              <div className="flex items-start gap-3">
+                                <div className="p-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-sm border border-border/50 text-muted-foreground">
+                                  <Info size={14} />
+                                </div>
+                                <div className="space-y-1">
+                                  <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Description du support</h5>
+                                  <p className="text-sm text-foreground/80 leading-relaxed italic">
+                                    "{notif.description || "Aucune description fournie pour ce support."}"
+                                  </p>
+                                </div>
+                              </div>
+                              <Button variant="outline" size="sm" className="rounded-xl font-bold h-9 px-4" onClick={() => window.location.href='/dashboard/teacher/support'}>
+                                <FileText className="mr-2 h-4 w-4 text-primary" /> Voir le document complet
+                              </Button>
+                            </div>
+
+                            {/* Status and Feedback */}
+                            <div className="space-y-4">
+                               <div className="flex items-start gap-3 p-4 rounded-2xl bg-white dark:bg-slate-800 border border-border/50 shadow-sm">
+                                  <div className={cn("p-1.5 rounded-lg shrink-0", style.bg, style.color)}>
+                                    <MessageSquare size={14} />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Retour Académique</h5>
+                                    <p className="text-sm font-medium">
+                                      {notif.remarqueDoyen ? `"${notif.remarqueDoyen}"` : "Aucune remarque particulière pour ce dossier."}
+                                    </p>
+                                  </div>
+                               </div>
+                            </div>
+                          </div>
+                        </motion.div>
                       )}
-                      {confirmDeleteId !== notif.userNotificationId ? ( // Use userNotificationId here
-                        <Button variant="destructive" size="sm" onClick={(e) => handleDelete(e, notif.userNotificationId)}>
-                          Supprimer
-                        </Button>
-                      ) : (
-                        <Button variant="destructive" size="sm" onClick={(e) => handleConfirmDelete(e, notif.userNotificationId)}>
-                          Confirmer la suppression
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                    </AnimatePresence>
+                  </motion.div>
                 );
-              })
-            ) : (
-              <div className="text-center py-10">
-                <p className="text-muted-foreground">Vous n'avez aucune notification.</p>
-              </div>
-            )}
+              })}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="p-32 text-center flex flex-col items-center gap-4">
+             <div className="h-16 w-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-muted-foreground/30">
+                <Bell size={32} />
+             </div>
+             <div>
+                <h3 className="text-lg font-bold">Tout est calme</h3>
+                <p className="text-xs text-muted-foreground mt-1 max-w-xs">Vos nouvelles notifications et mises à jour apparaîtront ici.</p>
+             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
 export default TeacherNotificationsPage;
-
