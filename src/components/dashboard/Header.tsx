@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Search, Command } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import api from '@/lib/api';
 import { decodeToken } from '@/lib/auth';
+import { CommandMenu } from './CommandMenu';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -47,44 +48,33 @@ const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center gap-4 border-b border-border/50 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
-      <SidebarTrigger className="-ml-1" />
-      
-      <div className="flex flex-1 items-center gap-4 md:gap-8">
-        <Breadcrumb className="hidden md:flex">
+      <div className="flex items-center gap-2">
+        <SidebarTrigger className="-ml-1" />
+        <Breadcrumb className="hidden md:flex ml-4">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/dashboard">Dashboard</Link>
+                <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">CampusHub</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Aperçu</BreadcrumbPage>
+              <BreadcrumbPage className="font-semibold text-foreground">Tableau de bord</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <div className="relative ml-auto flex-1 md:grow-0">
-          <div className="group relative flex items-center">
-            <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-            <input
-              type="search"
-              placeholder="Rechercher..."
-              className="h-9 w-full rounded-md border border-input bg-muted/50 px-9 py-2 text-sm ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:w-[200px] lg:w-[300px]"
-            />
-            <kbd className="pointer-events-none absolute right-2 top-1/2 hidden h-5 -translate-y-1/2 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-              <span className="text-xs">⌘</span>K
-            </kbd>
-          </div>
-        </div>
+      </div>
+      
+      <div className="flex flex-1 items-center justify-center px-4 md:px-20">
+        <CommandMenu />
       </div>
 
       <div className="flex items-center gap-2">
         <Link to="./notifications" className="relative">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-            <Bell className="h-[1.2rem] w-[1.2rem]" />
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-muted transition-all">
+            <Bell className="h-[1.2rem] w-[1.2rem] text-muted-foreground" />
             {unreadCount > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
+              <span className="absolute right-1.5 top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm animate-in zoom-in">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}

@@ -1,74 +1,106 @@
-# Welcome to your Lovable project
+# 🎓 CampusHub - Front-end Next-Gen
 
-## Project info
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
-**URL**: https://lovable.dev/projects/c2d90ecf-4785-4aec-90d8-0855dcf9eeb9
+> **CampusHub** est une plateforme de gestion académique moderne conçue comme une application SaaS (Software as a Service) haute performance. Elle offre une expérience utilisateur fluide pour les étudiants, les enseignants, les doyens et les administrateurs.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ Points Forts de l'Interface
 
-**Use Lovable**
+CampusHub a été repensé pour s'éloigner des designs e-commerce classiques et adopter une esthétique **SaaS/Admin** professionnelle inspirée des meilleurs outils du marché (Linear, Vercel, Notion).
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c2d90ecf-4785-4aec-90d8-0855dcf9eeb9) and start prompting.
+### 🖥️ Expérience SaaS Moderne
+- **Sidebar Adaptive** : Une navigation latérale intelligente et rétractable qui maximise l'espace de travail.
+- **Command Palette (`⌘K`)** : Un menu de recherche globale pour naviguer et exécuter des actions à la vitesse de la lumière.
+- **Dark Mode Natif** : Une interface reposante pour les yeux, entièrement personnalisable via le profil utilisateur.
+*   **Drawers & Sheets** : Finis les changements de page inutiles. Les actions de gestion s'ouvrent dans des panneaux latéraux fluides.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📊 Tableaux de Bord Intelligents
+- **Enseignants** : Suivi des supports de cours, agenda dynamique et outils de dépôt rapide.
+- **Étudiants** : Vue d'ensemble de la progression, emploi du temps et accès aux ressources pédagogiques.
+- **Doyens** : Console de supervision, validation des documents et statistiques académiques.
+- **Admin** : Monitoring des microservices et gestion des ressources système.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Stack Technique
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Core :** React 18 + TypeScript (Typage fort pour une stabilité maximale)
+- **Styling :** Tailwind CSS + Shadcn/UI (Design System atomique)
+- **État & API :** TanStack Query (React Query) + Axios
+- **Icônes :** Lucide React (Icônes vectorielles épurées)
+- **Animations :** Tailwind Animate + Framer Motion (Transitions fluides)
+- **Build Tool :** Vite (HMR ultra-rapide)
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🚀 Installation & Démarrage
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Prérequis
+- Node.js (v18+)
+- npm ou bun
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Étapes
+1. **Cloner le projet**
+   ```bash
+   git clone <repository-url>
+   cd campushub-front-new
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   ```
+
+3. **Configuration de l'environnement**
+   Créez un fichier `.env` à la racine :
+   ```env
+   VITE_API_URL=http://<SERVER_IP>:8080
+   VITE_CLOUDINARY_CLOUD_NAME=your_name
+   VITE_CLOUDINARY_UPLOAD_PRESET=your_preset
+   ```
+
+4. **Lancer le serveur de développement**
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 📁 Architecture du Projet
+
+```text
+src/
+├── components/       # Composants atomiques et widgets
+│   ├── dashboard/    # Composants spécifiques au Dashboard
+│   ├── ui/           # Design System (Shadcn)
+│   └── ThemeProvider # Gestion du Dark Mode
+├── hooks/            # Hooks React personnalisés
+├── lib/              # Utilitaires (API, Auth, Utils)
+├── pages/            # Vues principales de l'application
+│   ├── dashboard/    # Pages par rôles (Teacher, Student...)
+│   └── Index.tsx     # Landing Page
+└── App.tsx           # Router et Providers
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🎨 Design System
 
-**Use GitHub Codespaces**
+Le projet utilise un système de variables CSS (`hsl`) pour permettre le changement de thème dynamique.
+- **Couleurs Sobres** : Palette de gris `slate` et `zinc` pour minimiser la fatigue visuelle.
+- **Densité Optimisée** : Utilisation de `text-sm` par défaut pour afficher plus de données sans encombrer l'écran.
+- **Skeletons** : Chargement élégant simulant la structure des données.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 📝 Licence
 
-This project is built with:
+Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c2d90ecf-4785-4aec-90d8-0855dcf9eeb9) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
-# campushub-front-new
+---
+<p align="center">Fait avec ❤️ pour CampusHub</p>
