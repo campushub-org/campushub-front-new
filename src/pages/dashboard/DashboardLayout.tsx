@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar, { NavItem } from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -9,15 +10,19 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, navItems }) => {
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar navItems={navItems} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-          {children}
-        </main>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <Sidebar navItems={navItems} />
+        <SidebarInset className="flex flex-col">
+          <Header />
+          <main className="flex-1 p-4 md:p-6 lg:p-8 bg-slate-50/50">
+            <div className="mx-auto max-w-7xl">
+              {children}
+            </div>
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
