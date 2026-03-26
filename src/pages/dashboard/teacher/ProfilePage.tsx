@@ -1,10 +1,28 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useState, useRef, useEffect, FormEvent } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Save, PencilLine, X, Camera, Loader2, Info, Eye as EyeIcon, Trash2, LogOut, KeyRound } from 'lucide-react';
+import { 
+  Save, 
+  PencilLine, 
+  X, 
+  Camera, 
+  Loader2, 
+  Info, 
+  Eye as EyeIcon, 
+  Trash2, 
+  LogOut, 
+  KeyRound,
+  User,
+  Settings,
+  ShieldCheck,
+  Moon,
+  Sun,
+  Monitor,
+  ChevronRight
+} from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import api from '@/lib/api';
 import axios from 'axios';
@@ -14,23 +32,24 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/components/ThemeProvider';
+import { cn } from '@/lib/utils';
 
-
-// Interface for the user profile data from the backend
 interface UserProfile {
   id: number;
   username: string;
   fullName: string;
   email: string;
   department: string;
-  profilePictureUrl?: string; // Optional as it might not be set
-  officeNumber?: string; // Specific to Teacher/Dean
-  grade?: string; // Specific to Teacher
-  role: string; // To differentiate between roles if needed
+  profilePictureUrl?: string;
+  officeNumber?: string;
+  grade?: string;
+  role: string;
 }
 
 const TeacherProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [editableProfileData, setEditableProfileData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,8 +75,6 @@ const TeacherProfilePage: React.FC = () => {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
 
-
-  // Fetch user profile data
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
@@ -69,26 +86,22 @@ const TeacherProfilePage: React.FC = () => {
 
       const decoded = decodeToken(token);
       if (!decoded || !decoded.id) {
-        setError("Impossible de récupérer les informations de l'utilisateur depuis le token.");
+        setError("Token invalide.");
         setLoading(false);
         return;
       }
       const userId = decoded.id;
 
       try {
-        const response = await api.get<UserProfile>(`/campushub-user-service/api/users/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get<UserProfile>(`/campushub-user-service/api/users/${userId}`);
         const fetchedData = response.data;
         setProfileData(fetchedData);
         setEditableProfileData(fetchedData);
         if (fetchedData.profilePictureUrl) {
           setProfileImage(fetchedData.profilePictureUrl);
-          localStorage.setItem('userProfileImage', fetchedData.profilePictureUrl);
-          window.dispatchEvent(new Event('profileImageUpdated'));
         }
       } catch (err) {
-        console.error('Error fetching user profile:', err);
+        console.error(err);
         setError("Impossible de charger le profil.");
       } finally {
         setLoading(false);
@@ -99,45 +112,22 @@ const TeacherProfilePage: React.FC = () => {
 
   const handleEditToggle = () => {
     if (isEditingProfile) {
-      setEditableProfileData(profileData); // Reset changes if cancelling
+      setEditableProfileData(profileData);
     }
     setIsEditingProfile(!isEditingProfile);
   };
 
   const handleSaveProfile = async () => {
     if (!editableProfileData || !profileData) return;
-
     setLoading(true);
-    const token = localStorage.getItem('token');
-
     try {
-      // Filter out unchanged fields to send a partial update
-      const updatedFields: Partial<UserProfile> = {};
-      for (const key in editableProfileData) {
-        if (
-          Object.prototype.hasOwnProperty.call(editableProfileData, key) &&
-          (editableProfileData as any)[key] !== (profileData as any)[key] &&
-          key !== 'id' && key !== 'username' && key !== 'email' // These fields are not typically changed via this UI
-        ) {
-          (updatedFields as any)[key] = (editableProfileData as any)[key];
-        }
-      }
-
-      if (Object.keys(updatedFields).length > 0) {
-        const response = await api.put<UserProfile>(`/campushub-user-service/api/users/${profileData.id}`, updatedFields, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setProfileData(response.data);
-        setEditableProfileData(response.data);
-        toast.success("Profil mis à jour avec succès !");
-      } else {
-        toast.info("Aucune modification à enregistrer.");
-      }
+      const response = await api.put<UserProfile>(`/campushub-user-service/api/users/${profileData.id}`, editableProfileData);
+      setProfileData(response.data);
+      setEditableProfileData(response.data);
+      toast.success("Profil mis à jour !");
       setIsEditingProfile(false);
-
     } catch (err) {
-      console.error('Error saving profile:', err);
-      toast.error("Échec de la mise à jour du profil. Veuillez réessayer.");
+      toast.error("Échec de la mise à jour.");
     } finally {
       setLoading(false);
     }
@@ -151,56 +141,34 @@ const TeacherProfilePage: React.FC = () => {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setPendingImageFile(e.target.files[0]); // Store the File object
-      setIsImageUploadConfirmDialogOpen(true); // Open confirmation dialog
+      setPendingImageFile(e.target.files[0]);
+      setIsImageUploadConfirmDialogOpen(true);
     }
   };
 
   const confirmImageChange = async () => {
     if (!pendingImageFile || !profileData) return;
-
     setIsUploadingImage(true);
-    const token = localStorage.getItem('token');
-
     try {
-      const cloudinaryCloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-      const cloudinaryUploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'unsigned_profile_pictures';
-
-      if (!cloudinaryCloudName) {
-        toast.error("Configuration Cloudinary manquante: Cloud Name.");
-        setIsUploadingImage(false);
-        return;
-      }
-
       const cloudinaryFormData = new FormData();
       cloudinaryFormData.append('file', pendingImageFile);
-      cloudinaryFormData.append('upload_preset', cloudinaryUploadPreset);
-      cloudinaryFormData.append('cloud_name', cloudinaryCloudName);
+      cloudinaryFormData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'unsigned_profile_pictures');
       
       const cloudinaryResponse = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/upload`,
-        cloudinaryFormData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/upload`,
+        cloudinaryFormData
       );
 
       const newProfilePictureUrl = cloudinaryResponse.data.secure_url;
-
-      await api.put<UserProfile>(
-        `/campushub-user-service/api/users/${profileData.id}`,
-        { profilePictureUrl: newProfilePictureUrl },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/campushub-user-service/api/users/${profileData.id}`, { profilePictureUrl: newProfilePictureUrl });
 
       setProfileImage(newProfilePictureUrl);
       setProfileData(prev => prev ? { ...prev, profilePictureUrl: newProfilePictureUrl } : null);
-      setEditableProfileData(prev => prev ? { ...prev, profilePictureUrl: newProfilePictureUrl } : null);
       localStorage.setItem('userProfileImage', newProfilePictureUrl);
       window.dispatchEvent(new Event('profileImageUpdated'));
-      toast.success("Photo de profil mise à jour avec succès !");
-
+      toast.success("Photo mise à jour !");
     } catch (err) {
-      console.error('Error uploading profile picture:', err);
-      toast.error("Échec du téléversement de la photo de profil. Veuillez réessayer.");
+      toast.error("Erreur de téléversement.");
     } finally {
       setIsImageUploadConfirmDialogOpen(false);
       setPendingImageFile(null);
@@ -208,359 +176,320 @@ const TeacherProfilePage: React.FC = () => {
     }
   };
 
-  const removeProfilePicture = async () => {
-    if (!profileData) return;
-    setLoading(true);
-    const token = localStorage.getItem('token');
-    try {
-        await api.put<UserProfile>(
-            `/campushub-user-service/api/users/${profileData.id}`,
-            { profilePictureUrl: null }, // Set to null to remove
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setProfileImage(null);
-        setProfileData(prev => prev ? { ...prev, profilePictureUrl: undefined } : null);
-        setEditableProfileData(prev => prev ? { ...prev, profilePictureUrl: undefined } : null);
-        localStorage.removeItem('userProfileImage');
-        window.dispatchEvent(new Event('profileImageUpdated'));
-        toast.success("Photo de profil supprimée !");
-    } catch (err) {
-        console.error('Error removing profile picture:', err);
-        toast.error("Échec de la suppression de la photo de profil.");
-    } finally {
-        setLoading(false);
-    }
-  };
-
-  const cancelImageChange = () => {
-    setIsImageUploadConfirmDialogOpen(false);
-    setPendingImageFile(null);
-    setProfileImage(profileData?.profilePictureUrl || null); // Revert preview to current
-    if (fileInputRef.current) fileInputRef.current.value = ''; // Clear file input
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-
   const handlePasswordChange = async (e: FormEvent) => {
     e.preventDefault();
-    setPasswordChangeError(null);
-    if (!newPassword || !confirmNewPassword || !currentPassword) {
-      setPasswordChangeError("Veuillez remplir tous les champs du mot de passe.");
-      return;
-    }
     if (newPassword !== confirmNewPassword) {
-      setPasswordChangeError("Le nouveau mot de passe et sa confirmation ne correspondent pas.");
+      setPasswordChangeError("Les mots de passe ne correspondent pas.");
       return;
     }
-    if (newPassword.length < 6) { // Example minimum length
-        setPasswordChangeError("Le nouveau mot de passe doit contenir au moins 6 caractères.");
-        return;
-    }
-
     setIsChangingPassword(true);
-    const token = localStorage.getItem('token');
-    if (!profileData) return;
-
     try {
-      // This requires a new backend endpoint or modification to /api/users/{id} PUT
-      // For now, assuming an endpoint like /api/users/change-password
-      await api.put(
-        `/campushub-user-service/api/users/${profileData.id}/change-password`,
-        { currentPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Mot de passe mis à jour avec succès !");
+      await api.put(`/campushub-user-service/api/users/${profileData?.id}/change-password`, { currentPassword, newPassword });
+      toast.success("Mot de passe mis à jour !");
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
     } catch (err: any) {
-      console.error('Error changing password:', err);
-      setPasswordChangeError(err.response?.data?.message || "Échec de la mise à jour du mot de passe.");
+      setPasswordChangeError(err.response?.data?.message || "Erreur.");
     } finally {
       setIsChangingPassword(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!profileData || !deleteConfirmationPassword) return;
-
-    setIsDeletingAccount(true);
-    setDeleteAccountError(null);
-    const token = localStorage.getItem('token');
-
-    try {
-      // This requires a new backend endpoint
-      // For now, assuming an endpoint like /api/users/{id}/delete-account-confirm
-      await api.post(
-        `/campushub-user-service/api/users/${profileData.id}/delete-account-confirm`,
-        { password: deleteConfirmationPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Votre compte a été supprimé avec succès.");
-      // Perform logout actions
-      localStorage.clear();
-      navigate('/signin');
-    } catch (err: any) {
-      console.error('Error deleting account:', err);
-      setDeleteAccountError(err.response?.data?.message || "Échec de la suppression du compte. Le mot de passe est-il correct ?");
-    } finally {
-      setIsDeletingAccount(false);
-    }
-  };
-
-
-  if (loading) {
-    return <Card><CardContent>Chargement du profil...</CardContent></Card>;
-  }
-
-  if (error) {
-    return <Card><CardContent className="text-red-500">{error}</CardContent></Card>;
-  }
-
-  if (!profileData || !editableProfileData) {
-    return <Card><CardContent>Profil non trouvé.</CardContent></Card>;
-  }
-
-  const getInitials = (fullName: string) => {
-    if (!fullName) return "U";
-    return fullName.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
+  if (loading && !profileData) return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (error) return <Alert variant="destructive"><AlertTitle>Erreur</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
+  if (!profileData) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Dialog for Image Confirmation */}
-      <Dialog open={isImageUploadConfirmDialogOpen} onOpenChange={setIsImageUploadConfirmDialogOpen}>
-          <DialogContent>
-              <DialogHeader>
-                  <DialogTitle>Confirmer la nouvelle photo de profil ?</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center p-4">
-                  {pendingImageFile && <img src={URL.createObjectURL(pendingImageFile)} alt="Aperçu" className="max-h-64 rounded-full aspect-square object-cover" />}
-              </div>
-              <DialogFooter>
-                  <Button variant="outline" onClick={cancelImageChange} disabled={isUploadingImage}>Annuler</Button>
-                  <Button onClick={confirmImageChange} disabled={isUploadingImage}>
-                    {isUploadingImage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Modifier la photo de profil
-                  </Button>
-              </DialogFooter>
-          </DialogContent>
-      </Dialog>
-
-      {/* Dialog for Delete Account Confirmation */}
-      <Dialog open={isDeleteAccountDialogOpen} onOpenChange={setIsDeleteAccountDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Supprimer votre compte ?</DialogTitle>
-            <DialogDescription>
-              Cette action est irréversible. Toutes vos données seront définitivement supprimées. Pour confirmer, veuillez entrer votre mot de passe.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <Label htmlFor="deletePasswordConfirm">Mot de passe</Label>
-            <Input
-              id="deletePasswordConfirm"
-              type="password"
-              value={deleteConfirmationPassword}
-              onChange={(e) => setDeleteConfirmationPassword(e.target.value)}
-              disabled={isDeletingAccount}
-            />
-            {deleteAccountError && <p className="text-destructive text-sm">{deleteAccountError}</p>}
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Header avec Avatar */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-background border border-border/50 p-8">
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+          <div className="relative group">
+            <Avatar className="h-32 w-32 border-4 border-background shadow-xl ring-1 ring-border/50">
+              <AvatarImage src={profileImage || ''} className="object-cover" />
+              <AvatarFallback className="text-4xl bg-primary/5 text-primary font-bold">
+                {profileData.fullName.split(' ').map(n => n[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-0 right-0 h-10 w-10 bg-primary text-primary-foreground rounded-full border-4 border-background shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+            >
+              <Camera size={18} />
+            </button>
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)} disabled={isDeletingAccount}>Annuler</Button>
-            <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeletingAccount || !deleteConfirmationPassword}>
-              {isDeletingAccount && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Supprimer mon compte
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Mon Profil Enseignant</CardTitle>
-          <CardDescription>Consultez et mettez à jour vos informations professionnelles.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <div className="relative group cursor-pointer">
-                  <Avatar className="h-28 w-28">
-                    {profileImage ? (
-                      <AvatarImage src={profileImage} alt="Photo de profil" />
-                    ) : (
-                      <AvatarFallback className="text-4xl">
-                        {getInitials(profileData.fullName)}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48">
-                <DropdownMenuLabel>Photo de profil</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.open(profileImage || 'about:blank', '_blank')} disabled={!profileImage}>
-                  <EyeIcon className="mr-2 h-4 w-4" /> Voir
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={triggerFileInput}>
-                  <Camera className="mr-2 h-4 w-4" /> Changer
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={removeProfilePicture} disabled={!profileImage}>
-                  <Trash2 className="mr-2 h-4 w-4" /> Supprimer
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageSelect}
-            />
-
-            <div className="text-center sm:text-left">
-              <h3 className="text-3xl font-bold">{profileData.fullName}</h3>
-              <p className="text-lg text-muted-foreground">{profileData.grade}</p>
-              <p className="text-sm text-muted-foreground">{profileData.department}</p>
+          <div className="text-center md:text-left space-y-2">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">{profileData.fullName}</h1>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">
+                {profileData.role === 'TEACHER' ? 'Professeur' : profileData.role}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              {profileData.email}
+            </p>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+              <div className="flex items-center gap-1.5 text-sm bg-background/50 px-3 py-1 rounded-full border border-border/50">
+                <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="font-medium">{profileData.department}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm bg-background/50 px-3 py-1 rounded-full border border-border/50">
+                <User className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="font-medium">{profileData.grade}</span>
+              </div>
             </div>
           </div>
-          
-          <Tabs defaultValue="personal" className="mt-8">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="personal">Informations Personnelles</TabsTrigger>
-              <TabsTrigger value="security">Sécurité</TabsTrigger>
-              <TabsTrigger value="account">Gestion du Compte</TabsTrigger>
-            </TabsList>
+        </div>
+      </div>
 
-            <TabsContent value="personal" className="mt-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Détails du Profil</CardTitle>
-                  {isEditingProfile ? (
-                    <div className="space-x-2">
-                      <Button variant="outline" onClick={handleEditToggle} disabled={loading}>
-                        <X className="mr-2 h-4 w-4" /> Annuler
-                      </Button>
-                      <Button onClick={handleSaveProfile} disabled={loading}>
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        <Save className="mr-2 h-4 w-4" /> Enregistrer
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button variant="outline" onClick={handleEditToggle} disabled={loading}>
-                      <PencilLine className="mr-2 h-4 w-4" /> Modifier
-                    </Button>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Nom complet</Label>
-                      <Input id="fullName" value={editableProfileData.fullName || ''} onChange={handleChange} readOnly={!isEditingProfile} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Nom d'utilisateur</Label>
-                      <Input id="username" value={editableProfileData.username} readOnly />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" value={editableProfileData.email} onChange={handleChange} readOnly={!isEditingProfile} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="department">Département</Label>
-                      <Input id="department" value={editableProfileData.department || ''} onChange={handleChange} readOnly={!isEditingProfile} />
-                    </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="officeNumber">Numéro de bureau</Label>
-                      <Input id="officeNumber" value={editableProfileData.officeNumber || ''} onChange={handleChange} readOnly={!isEditingProfile} />
-                    </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="grade">Grade / Titre</Label>
-                      <Input id="grade" value={editableProfileData.grade || ''} onChange={handleChange} readOnly={!isEditingProfile} />
-                    </div>
+      {/* Tabs */}
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="w-full justify-start bg-transparent h-auto p-0 border-b border-border/50 rounded-none mb-8 gap-8">
+          <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
+            Mon Profil
+          </TabsTrigger>
+          <TabsTrigger value="preferences" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
+            Préférences
+          </TabsTrigger>
+          <TabsTrigger value="security" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
+            Sécurité
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="mt-0 space-y-6">
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50">
+              <div>
+                <CardTitle className="text-xl">Informations personnelles</CardTitle>
+                <CardDescription>Gérez les détails de votre identité publique.</CardDescription>
+              </div>
+              <Button 
+                variant={isEditingProfile ? "default" : "outline"} 
+                onClick={isEditingProfile ? handleSaveProfile : handleEditToggle}
+                className="gap-2"
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isEditingProfile ? <Save size={16} /> : <PencilLine size={16} />}
+                {isEditingProfile ? "Enregistrer" : "Modifier"}
+              </Button>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-sm font-semibold">Nom complet</Label>
+                  <Input 
+                    id="fullName" 
+                    value={editableProfileData?.fullName} 
+                    onChange={handleChange} 
+                    readOnly={!isEditingProfile} 
+                    className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-sm font-semibold">Nom d'utilisateur</Label>
+                  <Input id="username" value={profileData.username} readOnly className="h-11 bg-muted/30 border-border/50 focus-visible:ring-0 opacity-70" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="department" className="text-sm font-semibold">Département</Label>
+                  <Input id="department" value={editableProfileData?.department} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="officeNumber" className="text-sm font-semibold">Numéro de bureau</Label>
+                  <Input id="officeNumber" value={editableProfileData?.officeNumber} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="grade" className="text-sm font-semibold">Grade / Titre académique</Label>
+                  <Input id="grade" value={editableProfileData?.grade} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="preferences" className="mt-0 space-y-6">
+          <Card className="border-border/50 shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/10">
+              <CardTitle className="text-xl">Apparence & Affichage</CardTitle>
+              <CardDescription>Personnalisez votre interface CampusHub.</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-8">
+              <div className="space-y-4">
+                <Label className="text-base font-bold">Thème de l'application</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { id: 'light', label: 'Clair', icon: Sun },
+                    { id: 'dark', label: 'Sombre', icon: Moon },
+                    { id: 'system', label: 'Système', icon: Monitor }
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setTheme(t.id as any)}
+                      className={cn(
+                        "flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all group",
+                        theme === t.id 
+                          ? "border-primary bg-primary/5 text-primary shadow-sm" 
+                          : "border-border/50 hover:border-border hover:bg-muted/30"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
+                        theme === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-muted/80"
+                      )}>
+                        <t.icon size={20} />
+                      </div>
+                      <span className="font-semibold text-sm">{t.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-bold">Notifications Email</Label>
+                    <p className="text-sm text-muted-foreground">Recevoir des résumés quotidiens de l'activité académique.</p>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  <div className="h-6 w-11 rounded-full bg-primary relative cursor-pointer shadow-inner">
+                    <div className="absolute right-1 top-1 h-4 w-4 rounded-full bg-white" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-            <TabsContent value="security" className="mt-4">
-              <Card>
+        <TabsContent value="security" className="mt-0 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Card className="border-border/50 shadow-sm">
                 <CardHeader>
-                  <CardTitle>Changer le mot de passe</CardTitle>
-                  <CardDescription>Mettez à jour votre mot de passe régulièrement pour la sécurité de votre compte.</CardDescription>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <ShieldCheck className="text-primary h-5 w-5" />
+                    Changer le mot de passe
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-                      <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+                      <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required className="h-11 border-border/50" />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                      <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                        <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required className="h-11 border-border/50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmNewPassword">Confirmation</Label>
+                        <Input id="confirmNewPassword" type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required className="h-11 border-border/50" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmNewPassword">Confirmer le nouveau mot de passe</Label>
-                      <Input id="confirmNewPassword" type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required />
-                    </div>
-                    {passwordChangeError && <p className="text-destructive text-sm">{passwordChangeError}</p>}
-                    <Button type="submit" disabled={isChangingPassword}>
+                    {passwordChangeError && <p className="text-destructive text-xs font-medium">{passwordChangeError}</p>}
+                    <Button type="submit" disabled={isChangingPassword} className="w-full md:w-auto mt-2">
                       {isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Changer le mot de passe
+                      Mettre à jour le mot de passe
                     </Button>
                   </form>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="account" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gestion du Compte</CardTitle>
-                  <CardDescription>Options avancées de gestion de compte.</CardDescription>
+            <div className="space-y-6">
+              <Card className="border-destructive/20 bg-destructive/5 overflow-hidden">
+                <CardHeader className="bg-destructive/10">
+                  <CardTitle className="text-lg text-destructive flex items-center gap-2">
+                    <Trash2 size={18} />
+                    Zone de danger
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div>
-                        <h4 className="font-semibold text-lg mb-2">Déconnexion</h4>
-                        <p className="text-sm text-muted-foreground mb-4">Déconnectez-vous de votre compte CampusHub.</p>
-                        <Button variant="outline" onClick={() => { localStorage.clear(); navigate('/signin'); }}>
-                            <LogOut className="mr-2 h-4 w-4" /> Déconnexion
-                        </Button>
-                    </div>
-                    <div className="border-t pt-4 mt-4">
-                        <h4 className="font-semibold text-lg mb-2 text-destructive">Supprimer le Compte</h4>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Cette action est irréversible et supprimera définitivement votre compte et toutes les données associées.
-                        </p>
-                        <Button variant="destructive" onClick={() => setIsDeleteAccountDialogOpen(true)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Supprimer mon compte
-                        </Button>
-                    </div>
+                <CardContent className="pt-4 space-y-4">
+                  <p className="text-sm text-destructive/80 leading-relaxed font-medium">
+                    La suppression de votre compte est définitive. Toutes vos données seront effacées.
+                  </p>
+                  <Button variant="destructive" className="w-full" onClick={() => setIsDeleteAccountDialogOpen(true)}>
+                    Supprimer le compte
+                  </Button>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
 
-      {error && (
-        <Alert variant="destructive" className="mt-4">
-          <Info className="h-4 w-4" />
-          <AlertTitle>Erreur</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+              <Card className="border-border/50">
+                <CardContent className="p-4">
+                  <Button variant="outline" className="w-full justify-between" onClick={() => { localStorage.clear(); navigate('/signin'); }}>
+                    Se déconnecter
+                    <LogOut size={16} />
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialogs */}
+      <Dialog open={isImageUploadConfirmDialogOpen} onOpenChange={setIsImageUploadConfirmDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Nouvelle photo de profil</DialogTitle>
+            <DialogDescription>Ajustez le cadrage si nécessaire avant de confirmer.</DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-6">
+            {pendingImageFile && <img src={URL.createObjectURL(pendingImageFile)} alt="Preview" className="h-48 w-48 rounded-2xl object-cover shadow-2xl border-4 border-background ring-1 ring-border/50" />}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>Annuler</Button>
+            <Button onClick={confirmImageChange} disabled={isUploadingImage}>
+              {isUploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Confirmer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteAccountDialogOpen} onOpenChange={setIsDeleteAccountDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Êtes-vous absolument sûr ?</DialogTitle>
+            <DialogDescription>
+              Cette action est irréversible. Pour confirmer, saisissez votre mot de passe ci-dessous.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Label htmlFor="deletePass">Mot de passe</Label>
+            <Input id="deletePass" type="password" value={deleteConfirmationPassword} onChange={(e) => setDeleteConfirmationPassword(e.target.value)} className="border-destructive/30" />
+            {deleteAccountError && <p className="text-destructive text-xs font-bold">{deleteAccountError}</p>}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)}>Annuler</Button>
+            <Button variant="destructive" onClick={async () => {
+              setIsDeletingAccount(true);
+              try {
+                await api.post(`/campushub-user-service/api/users/${profileData.id}/delete-account-confirm`, { password: deleteConfirmationPassword });
+                localStorage.clear(); navigate('/signin');
+              } catch(e:any) { setDeleteAccountError(e.response?.data?.message || "Erreur."); }
+              finally { setIsDeletingAccount(false); }
+            }} disabled={!deleteConfirmationPassword || isDeletingAccount}>
+              {isDeletingAccount ? "Suppression..." : "Confirmer la suppression"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+};
+
+// missing badge component since it wasn't used in teacher dashboard but is in others
+const Badge = ({ children, variant = "default", className }: any) => {
+  const variants: any = {
+    default: "bg-primary text-primary-foreground",
+    secondary: "bg-secondary text-secondary-foreground",
+    destructive: "bg-destructive text-destructive-foreground",
+    outline: "border border-border text-foreground bg-transparent"
+  };
+  return <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors", variants[variant], className)}>{children}</span>
 };
 
 export default TeacherProfilePage;

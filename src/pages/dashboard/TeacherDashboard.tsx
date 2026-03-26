@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   BookOpen, 
   Clock, 
@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import CourseMaterialsWidget from '@/components/dashboard/teacher/CourseMaterialsWidget';
 import TeacherScheduleWidget from '@/components/dashboard/teacher/TeacherScheduleWidget';
 import ValidationStatusWidget from '@/components/dashboard/teacher/ValidationStatusWidget';
+import DepositMaterialDrawer from '@/components/dashboard/teacher/DepositMaterialDrawer';
 
 const StatsCard = ({ title, value, icon: Icon, description, trend }: any) => (
   <Card className="overflow-hidden transition-all hover:shadow-md border-border/50">
@@ -33,6 +34,8 @@ const StatsCard = ({ title, value, icon: Icon, description, trend }: any) => (
 );
 
 const TeacherDashboard: React.FC = () => {
+  const [isDepositDrawerOpen, setIsDepositDrawerOpen] = useState(false);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Page Header */}
@@ -88,7 +91,10 @@ const TeacherDashboard: React.FC = () => {
               <CardDescription>Accédez aux outils fréquents</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-2">
-              <button className="flex items-center gap-3 w-full p-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-left">
+              <button 
+                onClick={() => setIsDepositDrawerOpen(true)}
+                className="flex items-center gap-3 w-full p-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-left"
+              >
                 <div className="h-8 w-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
                   <BookOpen className="h-4 w-4" />
                 </div>
@@ -104,6 +110,16 @@ const TeacherDashboard: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Drawers */}
+      <DepositMaterialDrawer 
+        open={isDepositDrawerOpen} 
+        onOpenChange={setIsDepositDrawerOpen}
+        onSuccess={() => {
+          // You could refresh data here if needed
+          console.log("Upload success, refreshing data...");
+        }}
+      />
     </div>
   );
 };

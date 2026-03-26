@@ -51,69 +51,73 @@ import AdminNotificationsPage from "./pages/dashboard/admin/NotificationsPage";
 import AdminProfilePage from "./pages/dashboard/admin/ProfilePage";
 
 
+import { ThemeProvider } from "./components/ThemeProvider";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/signin" element={<Signin />} />
+    <ThemeProvider defaultTheme="light" storageKey="campushub-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/signin" element={<Signin />} />
 
-          {/* Protected Dashboard Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute />}>
-            <Route index element={<Dashboard />} />
-            
-            <Route path="student" element={<StudentLayout />}>
-              <Route index element={<StudentDashboard />} />
-              <Route path="courses" element={<CoursesPage />} />
-              <Route path="courses/view/:materialId" element={<StudentViewMaterialPage />} />
-              <Route path="schedule-courses" element={<CourseSchedulePage />} />
-              <Route path="schedule-exams" element={<ExamSchedulePage />} />
-              <Route path="notifications" element={<NotificationsPage />} />
-              <Route path="profile" element={<ProfilePage />} />
-            </Route>
-            
-            <Route path="teacher" element={<TeacherLayout />}>
-              <Route index element={<TeacherDashboard />} />
-              <Route path="support" element={<SupportPage />} />
-              <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
-              <Route path="deposit-material" element={<DepositMaterialPage />} />
-              <Route path="availabilities" element={<AvailabilitiesPage />} />
-              <Route path="schedule-courses" element={<TeacherCourseSchedulePage />} />
-              <Route path="schedule-exams" element={<TeacherExamSchedulePage />} />
-              <Route path="notifications" element={<TeacherNotificationsPage />} />
-              <Route path="profile" element={<TeacherProfilePage />} />
+            {/* Protected Dashboard Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute />}>
+              <Route index element={<Dashboard />} />
+              
+              <Route path="student" element={<StudentLayout />}>
+                <Route index element={<StudentDashboard />} />
+                <Route path="courses" element={<CoursesPage />} />
+                <Route path="courses/view/:materialId" element={<StudentViewMaterialPage />} />
+                <Route path="schedule-courses" element={<CourseSchedulePage />} />
+                <Route path="schedule-exams" element={<ExamSchedulePage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+              </Route>
+              
+              <Route path="teacher" element={<TeacherLayout />}>
+                <Route index element={<TeacherDashboard />} />
+                <Route path="support" element={<SupportPage />} />
+                <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
+                <Route path="deposit-material" element={<DepositMaterialPage />} />
+                <Route path="availabilities" element={<AvailabilitiesPage />} />
+                <Route path="schedule-courses" element={<TeacherCourseSchedulePage />} />
+                <Route path="schedule-exams" element={<TeacherExamSchedulePage />} />
+                <Route path="notifications" element={<TeacherNotificationsPage />} />
+                <Route path="profile" element={<TeacherProfilePage />} />
+              </Route>
+
+              <Route path="dean" element={<DeanLayout />}>
+                <Route index element={<DeanDashboard />} />
+                <Route path="validations" element={<ValidationPage />} />
+                <Route path="validations/view/:materialId" element={<DeanViewMaterialPage />} />
+                <Route path="timetable-upload" element={<TimetableUploadPage />} /> {/* New route */}
+                <Route path="schedule-courses" element={<DeanCourseSchedulePage />} />
+                <Route path="schedule-exams" element={<DeanExamSchedulePage />} />
+                <Route path="notifications" element={<DeanNotificationsPage />} />
+                <Route path="profile" element={<DeanProfilePage />} />
+              </Route>
+
+              <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="activity" element={<ActivityPage />} />
+                <Route path="notifications" element={<AdminNotificationsPage />} />
+                <Route path="profile" element={<AdminProfilePage />} />
+              </Route>
             </Route>
 
-            <Route path="dean" element={<DeanLayout />}>
-              <Route index element={<DeanDashboard />} />
-              <Route path="validations" element={<ValidationPage />} />
-              <Route path="validations/view/:materialId" element={<DeanViewMaterialPage />} />
-              <Route path="timetable-upload" element={<TimetableUploadPage />} /> {/* New route */}
-              <Route path="schedule-courses" element={<DeanCourseSchedulePage />} />
-              <Route path="schedule-exams" element={<DeanExamSchedulePage />} />
-              <Route path="notifications" element={<DeanNotificationsPage />} />
-              <Route path="profile" element={<DeanProfilePage />} />
-            </Route>
-
-            <Route path="admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="activity" element={<ActivityPage />} />
-              <Route path="notifications" element={<AdminNotificationsPage />} />
-              <Route path="profile" element={<AdminProfilePage />} />
-            </Route>
-          </Route>
-
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
