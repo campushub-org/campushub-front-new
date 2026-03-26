@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { LogIn } from "lucide-react";
-import { useState, ChangeEvent, FormEvent, useEffect } from "react"; // Ajout de useEffect
+import { LogIn, GraduationCap, ArrowRight, ShieldCheck, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface LoginData {
@@ -20,15 +20,15 @@ const Signin = () => {
     password: "",
   });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Si un token existe, l'utilisateur est considéré comme connecté
       navigate('/dashboard', { replace: true });
     }
-  }, [navigate]); // Exécuter une seule fois au montage du composant
-
+  }, [navigate]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -41,9 +41,11 @@ const Signin = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     if (!formData.username || !formData.password) {
       setError("Veuillez remplir tous les champs.");
+      setIsLoading(false);
       return;
     }
 
@@ -54,14 +56,12 @@ const Signin = () => {
         const token = response.data.token;
         localStorage.setItem("token", token);
 
-        // Décoder le token pour obtenir le rôle et l'ID de l'utilisateur
         const decodedToken = JSON.parse(atob(token.split('.')[1]));
         const role = decodedToken.role.toLowerCase();
-        const userId = decodedToken.id; // Supposons que l'ID de l'utilisateur est dans le token
+        const userId = decodedToken.id;
 
         localStorage.setItem('userRole', role);
 
-        // Récupérer et stocker l'URL de l'image de profil
         try {
           const userProfileResponse = await api.get(`/campushub-user-service/api/users/${userId}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -69,166 +69,166 @@ const Signin = () => {
           const profilePictureUrl = userProfileResponse.data.profilePictureUrl;
           if (profilePictureUrl) {
             localStorage.setItem('userProfileImage', profilePictureUrl);
-            window.dispatchEvent(new Event('profileImageUpdated')); // Déclencher l'événement pour la mise à jour
+            window.dispatchEvent(new Event('profileImageUpdated'));
           }
         } catch (profileErr) {
-          console.error("Erreur lors de la récupération de l'image de profil:", profileErr);
-          // Continuer même si l'image de profil ne peut pas être chargée
+          console.error("Erreur profil:", profileErr);
         }
 
-        // Rediriger en fonction du rôle
         switch (role) {
-          case 'student':
-            navigate('/dashboard/student');
-            break;
-          case 'teacher':
-            navigate('/dashboard/teacher');
-            break;
-          case 'dean':
-            navigate('/dashboard/dean');
-            break;
-          case 'admin':
-            navigate('/dashboard/admin');
-            break;
-          default:
-            navigate('/dashboard');
-            break;
+          case 'student': navigate('/dashboard/student'); break;
+          case 'teacher': navigate('/dashboard/teacher'); break;
+          case 'dean': navigate('/dashboard/dean'); break;
+          case 'admin': navigate('/dashboard/admin'); break;
+          default: navigate('/dashboard'); break;
         }
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Nom d'utilisateur ou mot de passe incorrect.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen animated-bg flex items-center justify-center p-6 relative overflow-hidden">
-        {/* Decorative Blobs */}
-        <div className="absolute top-0 -left-1/4 w-96 h-96 bg-blue-500/30 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
-        <div className="absolute bottom-0 -right-1/4 w-96 h-96 bg-purple-500/30 rounded-full filter blur-3xl opacity-50 animate-pulse animation-delay-4000"></div>
+    <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background patterns */}
+      <div className="absolute top-0 left-0 w-full h-full -z-10">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_2px_2px,rgba(0,0,0,0.05)_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_2px_2px,rgba(255,255,255,0.05)_1px,transparent_0)] bg-[size:40px_40px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px]" />
+      </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md z-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[1000px] grid lg:grid-cols-2 bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-border/50"
       >
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="w-16 h-16 bg-gradient-hero rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow"
-          >
-            <LogIn className="w-8 h-8 text-white" />
-          </motion.div>
-          
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-4xl font-bold text-foreground mb-4"
-          >
-            Connexion
-          </motion.h1>
-          
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-muted-foreground"
-          >
-            Accédez à votre espace CampusHub
-          </motion.p>
-        </div>
+        {/* Left Side - Form */}
+        <div className="p-8 lg:p-16 flex flex-col justify-center">
+          <div className="mb-10">
+            <a href="/" className="flex items-center gap-2 mb-8 group">
+              <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-glow group-hover:rotate-12 transition-transform">
+                <GraduationCap className="h-6 w-6" />
+              </div>
+              <span className="text-xl font-bold tracking-tighter">CampusHub</span>
+            </a>
+            <h1 className="text-4xl font-bold tracking-tight mb-2">Bon retour !</h1>
+            <p className="text-muted-foreground">Connectez-vous pour accéder à votre espace.</p>
+          </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-        >
-          <Card className="p-8 shadow-glow">
-            <form className="space-y-6" onSubmit={handleSubmit}> 
-              <div className="space-y-2">
-                <Label htmlFor="username">Nom d'utilisateur</Label> 
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   id="username"
-                  type="text"
-                  placeholder="Ex: student, teacher, admin, dean"
-                  className="h-12"
+                  placeholder="votre.nom"
+                  className="h-14 pl-12 bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                   value={formData.username}
                   onChange={handleChange}
                   required
                 />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <a
-                    href="#"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Mot de passe oublié?
-                  </a>
-                </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label htmlFor="password">Mot de passe</Label>
+                <a href="#" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">Oublié ?</a>
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className="h-12"
+                  className="h-14 pl-12 pr-12 bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                   value={formData.password}
                   onChange={handleChange}
                   required
                 />
-              </div>
-
-                  {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-              <Button
-                type="submit"
-                className="w-full"
-                variant="hero"
-                size="lg"
-              >
-                Se connecter
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">
-                    Ou
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-center text-sm text-muted-foreground">
-                Vous n'avez pas de compte?{" "}
-                <a
-                  href="/signup"
-                  className="text-primary hover:underline font-semibold"
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                 >
-                  S'inscrire
-                </a>
-              </p>
-            </form>
-          </Card>
-        </motion.div>
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          className="text-center mt-8"
-        >
-          <a
-            href="/"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Retour à l'accueil
-          </a>
-        </motion.div>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full h-14 text-lg font-bold shadow-glow group"
+              disabled={isLoading}
+            >
+              {isLoading ? "Connexion..." : "Se connecter"}
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-white dark:bg-slate-900 px-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Ou</span>
+              </div>
+            </div>
+
+            <p className="text-center text-muted-foreground">
+              Pas encore de compte ?{" "}
+              <a href="/signup" className="text-primary font-bold hover:underline transition-all">S'inscrire</a>
+            </p>
+          </form>
+        </div>
+
+        {/* Right Side - Visual/Marketing */}
+        <div className="hidden lg:block relative bg-slate-50 dark:bg-slate-800 p-16 overflow-hidden">
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-primary/10 to-transparent" />
+          
+          <div className="relative h-full flex flex-col justify-between z-10">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-bold border border-primary/20">
+                <ShieldCheck className="h-4 w-4" />
+                <span>Plateforme Sécurisée</span>
+              </div>
+              <h2 className="text-4xl font-bold leading-tight tracking-tight">
+                La gestion académique réinventée pour <span className="text-primary">votre succès.</span>
+              </h2>
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                Rejoignez une communauté d'excellence et profitez d'outils intelligents pour vos études.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl border border-border/50 transform rotate-2 translate-y-12">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-slate-800" />
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded" />
+                  <div className="h-3 w-20 bg-slate-50 dark:bg-slate-800 rounded" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-4 w-full bg-slate-50 dark:bg-slate-800 rounded" />
+                <div className="h-4 w-[80%] bg-slate-50 dark:bg-slate-800 rounded" />
+                <div className="h-12 w-full bg-primary/10 rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
       </motion.div>
     </div>
   );

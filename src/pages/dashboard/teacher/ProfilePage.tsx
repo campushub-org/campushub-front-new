@@ -11,7 +11,6 @@ import {
   Camera, 
   Loader2, 
   Info, 
-  Eye as EyeIcon, 
   Trash2, 
   LogOut, 
   KeyRound,
@@ -21,7 +20,9 @@ import {
   Moon,
   Sun,
   Monitor,
-  ChevronRight
+  ChevronRight,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import api from '@/lib/api';
@@ -74,6 +75,11 @@ const TeacherProfilePage: React.FC = () => {
   const [deleteConfirmationPassword, setDeleteConfirmationPassword] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
+
+  // Password visibility states
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -376,16 +382,64 @@ const TeacherProfilePage: React.FC = () => {
                   <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-                      <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required className="h-11 border-border/50" />
+                      <div className="relative group">
+                        <Input
+                          id="currentPassword"
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          required
+                          className="h-11 border-border/50 pr-12"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                        <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required className="h-11 border-border/50" />
+                        <div className="relative group">
+                          <Input
+                            id="newPassword"
+                            type={showNewPassword ? "text" : "password"}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                            className="h-11 border-border/50 pr-12"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="confirmNewPassword">Confirmation</Label>
-                        <Input id="confirmNewPassword" type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required className="h-11 border-border/50" />
+                        <div className="relative group">
+                          <Input
+                            id="confirmNewPassword"
+                            type={showConfirmNewPassword ? "text" : "password"}
+                            value={confirmNewPassword}
+                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                            required
+                            className="h-11 border-border/50 pr-12"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {showConfirmNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                       </div>
                     </div>
                     {passwordChangeError && <p className="text-destructive text-xs font-medium">{passwordChangeError}</p>}
