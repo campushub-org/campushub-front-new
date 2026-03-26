@@ -1,61 +1,66 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Users, UserCheck, Settings } from "lucide-react";
-import universityBuildingBg from "@/assets/1727223626892-1536x692.jpg"; // Import the new image
+import { GraduationCap, Users, UserCheck, Settings, ChevronRight } from "lucide-react";
 
 const roles = [
   {
     icon: GraduationCap,
     title: "Étudiants",
-    description: "Consultez vos emplois du temps, accédez aux supports de cours et recevez des notifications d'examens.",
-    color: "from-blue-500 to-cyan-500",
+    description: "Accédez à vos supports de cours, consultez vos emplois du temps et recevez vos alertes d'examen.",
+    color: "bg-blue-500",
+    lightColor: "bg-blue-50",
+    darkColor: "dark:bg-blue-900/20",
+    borderColor: "border-blue-200 dark:border-blue-800",
   },
   {
     icon: Users,
     title: "Enseignants",
-    description: "Déposez vos supports, gérez vos disponibilités et suivez la planification de vos examens.",
-    color: "from-purple-500 to-pink-500",
+    description: "Déposez vos cours, gérez vos disponibilités et suivez les validations de vos supports.",
+    color: "bg-purple-500",
+    lightColor: "bg-purple-50",
+    darkColor: "dark:bg-purple-900/20",
+    borderColor: "border-purple-200 dark:border-purple-800",
   },
   {
     icon: UserCheck,
     title: "Doyens",
-    description: "Validez les supports pédagogiques, supervisez la planification et accédez aux rapports détaillés.",
-    color: "from-orange-500 to-red-500",
+    description: "Supervisez la planification, validez les ressources et accédez aux statistiques de l'établissement.",
+    color: "bg-orange-500",
+    lightColor: "bg-orange-50",
+    darkColor: "dark:bg-orange-900/20",
+    borderColor: "border-orange-200 dark:border-orange-800",
   },
   {
     icon: Settings,
     title: "Administrateurs",
-    description: "Gérez les utilisateurs, configurez les salles et ressources, et personnalisez le système.",
-    color: "from-green-500 to-emerald-500",
+    description: "Gérez les comptes, configurez les salles et maintenez l'infrastructure du campus.",
+    color: "bg-green-500",
+    lightColor: "bg-green-50",
+    darkColor: "dark:bg-green-900/20",
+    borderColor: "border-green-200 dark:border-green-800",
   },
 ];
 
 const UserRoles = () => {
   return (
-    <section 
-      className="py-24 relative overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: `url(${universityBuildingBg})` }}
-    >
-      {/* Overlay to ensure text readability */}
-      <div className="absolute inset-0 bg-black/60"></div>
-
-      <div className="container mx-auto px-6 relative z-10">
+    <section className="py-32 bg-slate-50/50 dark:bg-slate-900/30">
+      <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 text-white" // Text color changed for contrast
+          className="text-center mb-20"
         >
-          <span className="text-accent font-semibold mb-4 block">Pour Tous</span>
-          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            Une plateforme adaptée à chaque rôle
+          <span className="text-primary font-bold uppercase tracking-widest text-sm mb-4 block">Écosystème</span>
+          <h2 className="text-4xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight">
+            Une expérience sur mesure
           </h2>
-          <p className="text-xl max-w-2xl mx-auto text-white/80">
-            Des interfaces personnalisées pour chaque acteur de l'écosystème universitaire
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            CampusHub s'adapte à chaque utilisateur avec des interfaces optimisées pour leurs besoins spécifiques.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {roles.map((role, index) => (
             <motion.div
               key={index}
@@ -65,20 +70,21 @@ const UserRoles = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group"
             >
-              <div className="relative h-full bg-card rounded-2xl p-8 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-medium overflow-hidden">
-                {/* Gradient background on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+              <div className={`h-full relative p-8 rounded-[32px] border ${role.borderColor} ${role.lightColor} ${role.darkColor} transition-all duration-300 hover:shadow-2xl hover:-translate-y-2`}>
+                <div className={`w-16 h-16 rounded-2xl ${role.color} text-white flex items-center justify-center mb-8 shadow-lg group-hover:rotate-12 transition-transform`}>
+                  <role.icon className="w-8 h-8" />
+                </div>
                 
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <role.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
-                    {role.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {role.description}
-                  </p>
+                <h3 className="text-2xl font-bold text-foreground mb-4">
+                  {role.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed mb-8">
+                  {role.description}
+                </p>
+                
+                <div className="flex items-center gap-2 text-foreground font-bold group-hover:gap-4 transition-all">
+                  <span>En savoir plus</span>
+                  <ChevronRight className="w-5 h-5 text-primary" />
                 </div>
               </div>
             </motion.div>

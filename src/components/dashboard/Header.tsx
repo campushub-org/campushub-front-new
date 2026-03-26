@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -22,6 +22,7 @@ interface Notification {
 
 const Header: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -46,6 +47,27 @@ const Header: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Generate Breadcrumbs from URL
+  const pathnames = location.pathname.split('/').filter((x) => x);
+  
+  const getBreadcrumbLabel = (name: string) => {
+    const labels: Record<string, string> = {
+      'dashboard': 'Tableau de bord',
+      'teacher': 'Enseignant',
+      'student': 'Étudiant',
+      'dean': 'Doyen',
+      'admin': 'Admin',
+      'support': 'Supports',
+      'profile': 'Profil',
+      'notifications': 'Notifications',
+      'schedule-courses': 'Planning Cours',
+      'schedule-exams': 'Planning Examens',
+      'availabilities': 'Disponibilités',
+      'view': 'Vue'
+    };
+    return labels[name] || name.charAt(0).toUpperCase() + name.slice(1);
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center gap-4 border-b border-border/50 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
       <div className="flex items-center gap-2">
@@ -57,10 +79,30 @@ const Header: React.FC = () => {
                 <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">CampusHub</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-semibold text-foreground">Tableau de bord</BreadcrumbPage>
-            </BreadcrumbItem>
+            
+            {pathnames.slice(0, 2).map((name, index) => {
+              const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
+              const isLast = index === 1 || index === pathnames.length - 1;
+              
+              return (
+                <React.Fragment key={name}>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    {isLast ? (
+                      <BreadcrumbPage className="font-semibold text-foreground">
+                        {getBreadcrumbLabel(name)}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link to={routeTo} className="text-muted-foreground hover:text-foreground transition-colors">
+                          {getBreadcrumbLabel(name)}
+                        </Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              );
+            })}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
