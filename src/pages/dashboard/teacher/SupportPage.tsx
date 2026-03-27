@@ -117,43 +117,43 @@ const TeacherSupportPage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-700">
-      {/* SaaS Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight">Mes Supports de Cours</h1>
-          <p className="text-muted-foreground text-lg font-medium">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Mes Supports de Cours</h1>
+          <p className="text-muted-foreground">
             Gérez votre catalogue pédagogique et suivez l'état des validations.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative w-full md:w-80 group">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative w-full sm:w-80 group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
               placeholder="Rechercher un support..." 
-              className="pl-10 h-12 rounded-xl border-border/50 bg-white dark:bg-slate-900 shadow-sm"
+              className="pl-10 h-10 rounded-lg border-border/50 bg-background shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <Button 
             onClick={() => setIsDepositDrawerOpen(true)} 
-            className="h-12 rounded-xl px-6 font-bold shadow-glow gap-2"
+            className="h-10 rounded-lg px-4 font-semibold shadow-sm gap-2"
           >
-            <Plus size={20} /> Nouveau support
+            <Plus size={18} /> Nouveau support
           </Button>
         </div>
       </div>
 
       {/* Grid Display */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-[380px] rounded-[32px] bg-muted/30 animate-pulse border border-border/50" />
+            <div key={i} className="h-[380px] rounded-xl bg-muted/30 animate-pulse border border-border/50" />
           ))}
         </div>
       ) : filteredMaterials.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredMaterials.map((item) => {
               const config = getStatusConfig(item.statut);
@@ -167,35 +167,35 @@ const TeacherSupportPage: React.FC = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                 >
-                  <Card className="group h-full flex flex-col justify-between hover:shadow-2xl hover:border-primary/20 transition-all duration-500 rounded-[32px] overflow-hidden border-border/50 bg-white dark:bg-slate-900">
-                    <div className="relative aspect-[4/5] overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer" onClick={() => navigate(`/dashboard/teacher/support/view/${item.id}`)}>
+                  <Card className="group h-full flex flex-col justify-between hover:shadow-lg transition-all duration-300 rounded-xl overflow-hidden border-border/50 bg-card">
+                    <div className="relative aspect-[4/5] overflow-hidden bg-muted cursor-pointer" onClick={() => navigate(`/dashboard/teacher/support/view/${item.id}`)}>
                       {thumbnail ? (
-                        <img src={thumbnail} alt={item.titre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <img src={thumbnail} alt={item.titre} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
-                          <FileText size={80} strokeWidth={1} />
+                          <FileText size={64} strokeWidth={1.5} />
                         </div>
                       )}
                       
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                        <Button variant="secondary" className="w-full rounded-xl font-bold gap-2">
-                          Ouvrir <ArrowUpRight size={16} />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6">
+                        <Button variant="secondary" className="rounded-lg font-bold gap-2">
+                          Voir les détails <ArrowUpRight size={16} />
                         </Button>
                       </div>
 
-                      <div className="absolute top-4 right-4">
-                        <Badge className={cn("rounded-xl border shadow-lg backdrop-blur-md px-3 py-1 font-bold gap-2", config.color)}>
-                          <config.icon size={14} /> {config.label}
+                      <div className="absolute top-3 right-3">
+                        <Badge className={cn("rounded-lg border shadow-sm px-2.5 py-0.5 font-semibold gap-1.5", config.color)}>
+                          <config.icon size={12} /> {config.label}
                         </Badge>
                       </div>
                     </div>
 
-                    <div className="p-6 space-y-4">
+                    <div className="p-5 space-y-3">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary">
-                          <BookOpen size={12} /> {item.matiere}
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                          <BookOpen size={10} /> {item.matiere}
                         </div>
-                        <h3 className="text-xl font-extrabold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
+                        <h3 className="text-lg font-bold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
                           {item.titre}
                         </h3>
                       </div>

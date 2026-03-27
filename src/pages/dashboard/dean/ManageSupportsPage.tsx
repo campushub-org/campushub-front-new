@@ -116,56 +116,79 @@ const ManageSupportsPage: React.FC = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Gestion des Supports du Département</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading && <p>Chargement des supports...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {!loading && !error && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Titre</TableHead>
-                <TableHead>Enseignant</TableHead>
-                <TableHead>Date de Dépôt</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {supports.length > 0 ? (
-                supports.map((support) => (
-                  <TableRow key={support.id}>
-                    <TableCell className="font-medium">{support.titre}</TableCell>
-                    <TableCell>{users[support.enseignantId]?.username || 'Inconnu'}</TableCell>
-                    <TableCell>{new Date(support.dateDepot).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusBadgeVariant(support.statut)}>
-                        {support.statut}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                       <Button variant="outline" size="sm" onClick={() => navigate(`/dashboard/dean/support/view/${support.id}`)}>
-                         <Eye className="mr-2 h-4 w-4" />
-                         Voir
-                       </Button>
-                    </TableCell>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Gestion des Supports</h1>
+          <p className="text-muted-foreground">
+            Validez les ressources pédagogiques déposées par les enseignants de votre département.
+          </p>
+        </div>
+      </div>
+
+      <Card className="rounded-xl border-border/50 shadow-sm overflow-hidden">
+        <CardHeader className="bg-muted/30 pb-4">
+          <CardTitle className="text-lg font-semibold text-foreground">Supports du département</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {loading && (
+            <div className="p-12 text-center text-muted-foreground">
+              <div className="h-8 w-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin mx-auto mb-4" />
+              Chargement des supports...
+            </div>
+          )}
+          {error && <div className="p-12 text-center text-rose-500 font-medium">{error}</div>}
+          {!loading && !error && (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/20">
+                    <TableHead className="font-bold">Titre</TableHead>
+                    <TableHead className="font-bold">Enseignant</TableHead>
+                    <TableHead className="font-bold">Date de Dépôt</TableHead>
+                    <TableHead className="font-bold">Statut</TableHead>
+                    <TableHead className="text-right font-bold">Actions</TableHead>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center">
-                    Aucun support soumis ou validé dans votre département.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
-    </Card>
+                </TableHeader>
+                <TableBody>
+                  {supports.length > 0 ? (
+                    supports.map((support) => (
+                      <TableRow key={support.id} className="hover:bg-muted/10 transition-colors">
+                        <TableCell className="font-semibold">{support.titre}</TableCell>
+                        <TableCell>{users[support.enseignantId]?.username || 'Inconnu'}</TableCell>
+                        <TableCell className="text-muted-foreground">{new Date(support.dateDepot).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusBadgeVariant(support.statut)} className="rounded-lg px-2.5 py-0.5 font-medium">
+                            {support.statut}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="rounded-lg hover:bg-primary/10 hover:text-primary gap-2 h-9"
+                            onClick={() => navigate(`/dashboard/dean/support/view/${support.id}`)}
+                          >
+                            <Eye size={16} /> Détails
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-40 text-center text-muted-foreground font-medium">
+                        Aucun support soumis ou validé dans votre département.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

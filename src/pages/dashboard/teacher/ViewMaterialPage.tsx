@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { 
   Download, 
   ArrowLeft, 
   Calendar, 
   FileText, 
   MessageSquare, 
-  ExternalLink, 
   ShieldCheck, 
   Clock, 
   BookOpen,
@@ -49,7 +47,6 @@ const ViewMaterialPage: React.FC = () => {
   const [material, setMaterial] = useState<SupportCours | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const fetchMaterial = async () => {
@@ -85,19 +82,19 @@ const ViewMaterialPage: React.FC = () => {
 
   if (loading) return (
     <div className="flex flex-col h-[70vh] items-center justify-center gap-4 animate-in fade-in duration-500">
-      <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-      <p className="text-muted-foreground font-medium">Préparation du document...</p>
+      <div className="h-10 w-10 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+      <p className="text-muted-foreground font-medium">Chargement du document...</p>
     </div>
   );
 
   if (error || !material) return (
     <div className="flex flex-col items-center justify-center h-[70vh] text-center px-4">
-      <div className="h-20 w-20 rounded-3xl bg-destructive/10 flex items-center justify-center text-destructive mb-6">
-        <AlertCircle size={40} />
+      <div className="h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-4">
+        <AlertCircle size={32} />
       </div>
-      <h2 className="text-2xl font-bold mb-2">Une erreur est survenue</h2>
-      <p className="text-muted-foreground max-w-md mb-8">{error || "Nous n'avons pas pu trouver ce support de cours."}</p>
-      <Button onClick={() => navigate(-1)} variant="outline">
+      <h2 className="text-xl font-bold mb-2">Support introuvable</h2>
+      <p className="text-muted-foreground max-w-md mb-6">{error || "Nous n'avons pas pu charger ce support."}</p>
+      <Button onClick={() => navigate(-1)} variant="outline" className="rounded-lg">
         <ArrowLeft className="mr-2 h-4 w-4" /> Retour
       </Button>
     </div>
@@ -106,178 +103,149 @@ const ViewMaterialPage: React.FC = () => {
   const status = getStatusConfig(material.statut);
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Premium Header Actions */}
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border/50">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           <Button 
             variant="ghost" 
             size="icon" 
-            className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800" 
+            className="rounded-lg hover:bg-muted" 
             onClick={() => navigate(-1)}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{material.titre}</h1>
+              <h1 className="text-2xl font-bold tracking-tight">{material.titre}</h1>
               <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider", status.color)}>
                 <status.icon size={14} />
                 {status.label}
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground font-medium">
-              <span className="flex items-center gap-2"><BookOpen size={16} className="text-primary" /> {material.matiere}</span>
-              <span className="flex items-center gap-2"><GraduationCap size={16} className="text-primary" /> {material.niveau}</span>
-              <span className="flex items-center gap-2"><Calendar size={16} className="text-primary" /> {new Date(material.dateDepot).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-            </div>
+            <p className="text-muted-foreground flex items-center gap-4 text-sm font-medium">
+              <span className="flex items-center gap-1.5"><BookOpen className="h-4 w-4 text-primary" /> {material.matiere}</span>
+              <span className="flex items-center gap-1.5"><GraduationCap className="h-4 w-4 text-primary" /> {material.niveau}</span>
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="lg" className="rounded-xl font-bold gap-2" onClick={handleDownload}>
-            <Download size={18} />
-            Télécharger
-          </Button>
-          <Button size="lg" className="rounded-xl font-bold shadow-glow gap-2" onClick={() => window.open(material.fichierUrl, '_blank')}>
-            <ExternalLink size={18} />
-            Plein écran
+          <Button variant="outline" className="rounded-lg gap-2 h-10 font-semibold" onClick={handleDownload}>
+            <Download className="h-4 w-4" /> Télécharger
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-xl">
-                <MoreVertical size={20} />
+              <Button variant="ghost" size="icon" className="rounded-lg h-10 w-10">
+                <MoreVertical className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl">
-              <DropdownMenuItem className="rounded-lg gap-2 cursor-pointer"><Share2 size={16} /> Partager</DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg gap-2 cursor-pointer"><History size={16} /> Historique</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+              <DropdownMenuItem onClick={handleDownload} className="rounded-lg">
+                <Download className="mr-2 h-4 w-4" /> Télécharger
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-lg">
+                <Share2 className="mr-2 h-4 w-4" /> Partager
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-lg">
+                <History className="mr-2 h-4 w-4" /> Historique
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Viewer */}
-        <div className="lg:col-span-8 space-y-6">
-          <Card className={cn(
-            "overflow-hidden border-border/50 bg-slate-50 dark:bg-slate-900/50 transition-all duration-500",
-            isFullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-[24px] shadow-soft"
-          )}>
-            <div className="bg-white dark:bg-slate-900 px-6 py-4 border-b border-border/50 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                  <FileText size={18} />
-                </div>
-                <span className="font-bold text-sm tracking-tight truncate max-w-[300px]">{material.titre}.pdf</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Preview and Details */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="rounded-xl border-border/50 overflow-hidden shadow-sm">
+            <div className="bg-muted/30 p-4 border-b border-border/50 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                <FileText className="h-4 w-4 text-primary" /> Aperçu du document
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 rounded-lg" 
-                onClick={() => setIsFullscreen(!isFullscreen)}
-              >
-                <Maximize2 size={16} />
+              <Button variant="ghost" size="sm" className="h-8 rounded-lg" onClick={() => window.open(material.fichierUrl, '_blank')}>
+                <Maximize2 className="h-4 w-4" />
               </Button>
             </div>
-            <CardContent className="p-0">
-              {material.fichierUrl ? (
-                <div className={cn(
-                  "relative w-full bg-slate-100 dark:bg-slate-950 flex items-center justify-center",
-                  isFullscreen ? "h-screen" : "h-[750px]"
-                )}>
-                  <iframe 
-                    src={`${material.fichierUrl}#toolbar=0&navpanes=0`} 
-                    className="w-full h-full border-0"
-                    title={`Visualisation de ${material.titre}`}
-                  />
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-32 text-center px-6">
-                  <div className="h-20 w-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-muted-foreground mb-6">
-                    <FileText size={40} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">Document indisponible</h3>
-                  <p className="text-muted-foreground max-w-sm">Le fichier n'est pas encore disponible pour la prévisualisation.</p>
-                </div>
-              )}
+            <CardContent className="p-0 bg-slate-50 dark:bg-slate-900/50">
+              <div className="aspect-[16/9] md:aspect-auto md:h-[700px] w-full">
+                <iframe 
+                  src={`${material.fichierUrl}#toolbar=0`}
+                  className="w-full h-full border-none"
+                  title={material.titre}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl border-border/50 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" /> Description
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground leading-relaxed font-medium">
+                {material.description || "Aucune description fournie pour ce support."}
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Column: Metadata & Remarques */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Description Card */}
-          <Card className="rounded-[24px] border-border/50 shadow-soft overflow-hidden">
-            <div className="p-6 bg-gradient-to-br from-primary/5 to-transparent border-b border-border/50">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <BookOpen size={20} className="text-primary" />
-                Détails du support
-              </h3>
-            </div>
-            <CardContent className="p-6 space-y-6">
-              <div className="space-y-4">
-                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Description</Label>
-                <p className="text-sm leading-relaxed text-foreground/80 font-medium">
-                  {material.description || "Aucune description détaillée n'a été fournie pour ce support de cours."}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Type</Label>
-                  <p className="text-sm font-bold">Document PDF</p>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Taille</Label>
-                  <p className="text-sm font-bold">2.4 MB</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Remarques Card (Conditionnelle) */}
-          {(material.statut === 'VALIDÉ' || material.statut === 'REJETÉ') && material.remarqueDoyen && (
+        {/* Sidebar: Status and Info */}
+        <div className="space-y-6">
+          {material.remarqueDoyen && (
             <Card className={cn(
-              "rounded-[24px] overflow-hidden border-l-4 shadow-soft animate-in zoom-in-95 duration-500",
+              "rounded-xl overflow-hidden border-l-4 shadow-sm",
               material.statut === 'VALIDÉ' ? "border-l-emerald-500 border-border/50" : "border-l-rose-500 border-border/50"
             )}>
-              <div className="p-6 bg-muted/30">
-                <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
-                  <MessageSquare size={20} className={material.statut === 'VALIDÉ' ? "text-emerald-500" : "text-rose-500"} />
+              <CardContent className="p-5 bg-muted/30">
+                <h3 className="text-sm font-bold flex items-center gap-2 mb-3 text-foreground">
+                  <MessageSquare size={16} className={material.statut === 'VALIDÉ' ? "text-emerald-500" : "text-rose-500"} />
                   Retour pédagogique
                 </h3>
-                <div className="relative">
-                  <div className="absolute -left-1 top-0 h-full w-0.5 bg-border/50" />
-                  <p className="pl-4 italic text-sm text-muted-foreground leading-relaxed">
-                    "{material.remarqueDoyen}"
-                  </p>
-                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed font-medium italic">
+                  "{material.remarqueDoyen}"
+                </p>
                 {material.dateValidation && (
-                  <div className="mt-6 pt-4 border-t border-border/20 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                    <span>Décision rendue le</span>
-                    <span>{new Date(material.dateValidation).toLocaleDateString()}</span>
-                  </div>
+                  <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-t border-border/10 pt-3 text-right">
+                    Décidé le {new Date(material.dateValidation).toLocaleDateString()}
+                  </p>
                 )}
-              </div>
+              </CardContent>
             </Card>
           )}
 
-          {/* Quick Help Card */}
-          <Card className="rounded-[24px] border-border/50 bg-primary/5 dark:bg-primary/10 p-6 relative overflow-hidden group border-none">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
-            <div className="relative z-10 space-y-4">
-              <h4 className="font-bold flex items-center gap-2 text-primary">
-                <AlertCircle size={18} />
-                Besoin d'aide ?
-              </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                Si vous rencontrez un problème avec ce document ou sa visualisation, contactez le support technique.
-              </p>
-              <Button variant="outline" size="sm" className="w-full rounded-xl font-bold bg-white/50 dark:bg-slate-900/50 border-primary/20 hover:bg-primary hover:text-white transition-all duration-300">
-                Contacter le support
-              </Button>
-            </div>
+          <Card className="rounded-xl border-border/50 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">Informations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <span className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
+                  <Calendar className="h-4 w-4 text-primary" /> Date de dépôt
+                </span>
+                <span className="text-sm font-bold">
+                  {new Date(material.dateDepot).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <span className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
+                  <Clock className="h-4 w-4 text-primary" /> Statut
+                </span>
+                <div className={cn("px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase border", status.color)}>
+                  {status.label}
+                </div>
+              </div>
+              <div className="pt-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-primary mb-2 uppercase tracking-wider">
+                  <AlertCircle className="h-4 w-4" /> Visibilité
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed font-medium">
+                  Visible par les étudiants une fois validé par le doyen de votre département.
+                </p>
+              </div>
+            </CardContent>
           </Card>
         </div>
       </div>
