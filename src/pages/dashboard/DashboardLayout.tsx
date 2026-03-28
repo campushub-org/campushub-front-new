@@ -2,6 +2,7 @@ import React from 'react';
 import Sidebar, { NavItem } from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { useSocketNotifications } from '@/hooks/useSocketNotifications';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,9 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, navItems }) => {
+  // Initialize real-time notification listener
+  useSocketNotifications();
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
