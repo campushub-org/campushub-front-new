@@ -71,6 +71,13 @@ const DeanNotificationsPage: React.FC = () => {
 
   useEffect(() => {
     fetchNotifications();
+
+    const handleNewNotif = () => {
+      fetchNotifications();
+    };
+
+    window.addEventListener('notification_received', handleNewNotif);
+    return () => window.removeEventListener('notification_received', handleNewNotif);
   }, []);
 
   const handleMarkAsRead = async (userNotificationId: number) => {
