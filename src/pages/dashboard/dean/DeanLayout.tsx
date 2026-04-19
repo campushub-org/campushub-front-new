@@ -9,8 +9,7 @@ const deanNavItems: NavItem[] = [
   { to: '/dashboard/dean/validations', icon: <CheckSquare size={20} />, label: 'Validation Supports' },
 
   { to: '/dashboard/dean/timetable-upload', icon: <Upload size={20} />, label: 'Emplois de temps' },
-  { to: '/dashboard/dean/schedule-courses', icon: <CalendarDays size={20} />, label: 'Emploi du temps - Cours' },
-  { to: '/dashboard/dean/schedule-exams', icon: <CalendarDays size={20} />, label: 'Emploi du temps - Examens' },
+  { to: '/dashboard/dean/schedule', icon: <CalendarDays size={20} />, label: 'Planning Global' },
 ];
 
 const DeanLayout: React.FC = () => {
