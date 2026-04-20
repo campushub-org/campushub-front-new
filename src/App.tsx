@@ -25,8 +25,7 @@ import TeacherLayout from "./pages/dashboard/teacher/TeacherLayout";
 import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
 import SupportPage from "./pages/dashboard/teacher/SupportPage";
 import DepositMaterialPage from "./pages/dashboard/teacher/DepositMaterialPage";
-import AvailabilitiesPage from "./pages/dashboard/teacher/AvailabilitiesPage";
-import TeacherCourseSchedulePage from "./pages/dashboard/teacher/CourseSchedulePage";
+import UnifiedSchedulingPage from "./pages/dashboard/teacher/UnifiedSchedulingPage";
 import TeacherExamSchedulePage from "./pages/dashboard/teacher/ExamSchedulePage";
 import TeacherNotificationsPage from "./pages/dashboard/teacher/NotificationsPage";
 import TeacherProfilePage from "./pages/dashboard/teacher/ProfilePage";
@@ -87,8 +86,7 @@ const App = () => (
                 <Route path="support" element={<SupportPage />} />
                 <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
                 <Route path="deposit-material" element={<DepositMaterialPage />} />
-                <Route path="availabilities" element={<AvailabilitiesPage />} />
-                <Route path="schedule-courses" element={<TeacherCourseSchedulePage />} />
+                <Route path="schedule-unified" element={<UnifiedSchedulingPage />} />
                 <Route path="schedule-exams" element={<TeacherExamSchedulePage />} />
                 <Route path="notifications" element={<TeacherNotificationsPage />} />
                 <Route path="profile" element={<TeacherProfilePage />} />

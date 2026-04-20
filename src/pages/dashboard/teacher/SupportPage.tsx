@@ -18,7 +18,8 @@ import {
   BookOpen,
   GraduationCap,
   ArrowUpRight,
-  Filter
+  Filter,
+  Inbox
 } from 'lucide-react';
 import {
   DropdownMenu,

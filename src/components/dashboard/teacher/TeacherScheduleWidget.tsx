@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, BookOpen, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const scheduleItems = [
   {
@@ -89,10 +90,12 @@ const TeacherScheduleWidget: React.FC = () => {
           ))}
         </div>
         
-        <Button variant="ghost" className="w-full mt-4 text-muted-foreground hover:text-primary transition-colors group">
-          Voir le calendrier complet
-          <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </Button>
+        <Link to="/dashboard/teacher/schedule-unified" className="block w-full">
+          <Button variant="ghost" className="w-full mt-4 text-muted-foreground hover:text-primary transition-colors group">
+            Voir le calendrier complet
+            <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );

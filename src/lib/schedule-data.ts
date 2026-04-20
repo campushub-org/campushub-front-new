@@ -1,4 +1,4 @@
-export type CourseType = "lecture" | "td" | "tp" | "exam" | "meeting"
+export type CourseType = "lecture" | "td" | "tp" | "exam" | "meeting" | "availability"
 
 export interface ScheduleEvent {
   id: string
@@ -170,7 +170,8 @@ export const courseTypeLabels: Record<CourseType, string> = {
   td: "Travaux Dirigés",
   tp: "Travaux Pratiques",
   exam: "Examen",
-  meeting: "Réunion"
+  meeting: "Réunion",
+  availability: "Disponibilité"
 }
 
 export const courseTypeColors: Record<CourseType, { bg: string; border: string; text: string }> = {
@@ -198,6 +199,11 @@ export const courseTypeColors: Record<CourseType, { bg: string; border: string; 
     bg: "bg-violet-500/20", 
     border: "border-l-violet-500", 
     text: "text-violet-400" 
+  },
+  availability: { 
+    bg: "bg-green-500/20", 
+    border: "border-l-green-500", 
+    text: "text-green-400" 
   },
 }
 
