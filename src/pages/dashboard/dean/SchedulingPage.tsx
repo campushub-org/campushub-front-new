@@ -20,6 +20,9 @@ import { ScheduleSidebar } from "@/components/schedule/schedule-sidebar";
 import { sampleEvents, ScheduleEvent, CourseType } from "@/lib/schedule-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
+import api from "@/lib/api";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type ViewMode = "week" | "day" | "month";
 
@@ -31,6 +34,9 @@ const DeanSchedulingPage: React.FC = () => {
   ]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
+  // Real data and loading state
+  const [loading, setLoading] = useState(false);
+  
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
   const [events, setEvents] = useState<ScheduleEvent[]>(sampleEvents);
@@ -40,6 +46,28 @@ const DeanSchedulingPage: React.FC = () => {
   const [history, setHistory] = useState<ScheduleEvent[][]>([sampleEvents]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [pendingChanges, setPendingChanges] = useState(0);
+
+  // Fetch real events from API
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await api.get<ScheduleEvent[]>("/campushub-scheduling-service/api/scheduling/events");
+      if (response.data && response.data.length > 0) {
+        setEvents(response.data);
+        setHistory([response.data]);
+        setHistoryIndex(0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      // Fallback implicitly remains sampleEvents if API fails
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   // Fix pour neutraliser les contraintes du DashboardLayout parent
   // On utilise des marges négatives pour annuler les paddings p-4, p-6, p-8 et le max-w-7xl
@@ -186,10 +214,16 @@ const DeanSchedulingPage: React.FC = () => {
     }
   }, [history, historyIndex]);
 
-  const handleSaveAll = useCallback(() => {
-    setPendingChanges(0);
-    setHistory([events]);
-    setHistoryIndex(0);
+  const handleSaveAll = useCallback(async () => {
+    try {
+      await api.post("/campushub-scheduling-service/api/scheduling/batch-save", events);
+      toast.success("Planning enregistré !");
+      setPendingChanges(0);
+      setHistory([events]);
+      setHistoryIndex(0);
+    } catch (err) {
+      toast.error("Erreur de sauvegarde");
+    }
   }, [events]);
 
   const handleDiscardAll = useCallback(() => {
@@ -254,10 +288,12 @@ const DeanSchedulingPage: React.FC = () => {
                   <TooltipContent side="right">
                     {sidebarOpen ? "Masquer les filtres" : "Afficher les filtres"}
                   </TooltipContent>
-                </Tooltip>
-                <h1 className="text-xl font-semibold tracking-tight">Planning de l'établissement</h1>
-              </div>
-
+                  </Tooltip>
+                  <div className="flex items-center gap-3">
+                  <h1 className="text-xl font-semibold tracking-tight">Planning de l'établissement</h1>
+                  {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                  </div>
+                  </div>
               {/* Mode Édition / Historique */}
               <div className="flex-1 max-w-2xl px-4">
                 <EditModeToolbar
