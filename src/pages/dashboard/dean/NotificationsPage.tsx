@@ -5,14 +5,11 @@ import api from '@/lib/api';
 import { 
   Bell, 
   CheckCircle2, 
-  XCircle, 
-  AlertCircle, 
   Trash2, 
   CheckCheck, 
   Clock, 
-  Info,
   MoreVertical,
-  Inbox
+  Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +20,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Notification {
   id: number;
@@ -71,11 +69,7 @@ const DeanNotificationsPage: React.FC = () => {
 
   useEffect(() => {
     fetchNotifications();
-
-    const handleNewNotif = () => {
-      fetchNotifications();
-    };
-
+    const handleNewNotif = () => fetchNotifications();
     window.addEventListener('notification_received', handleNewNotif);
     return () => window.removeEventListener('notification_received', handleNewNotif);
   }, []);
@@ -92,7 +86,6 @@ const DeanNotificationsPage: React.FC = () => {
   const handleMarkAllAsRead = async () => {
     const unreadIds = notifications.filter(n => !n.isRead).map(n => n.userNotificationId);
     if (unreadIds.length === 0) return;
-
     try {
       await Promise.all(unreadIds.map(id => api.put(`/campushub-notification-service/api/notifications/mark-as-read/${id}`)));
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
@@ -125,180 +118,171 @@ const DeanNotificationsPage: React.FC = () => {
 
   const getNotificationStyle = (status: Notification['statut']) => {
     switch (status) {
-      case 'SOUMIS': return { 
-        icon: Clock, 
-        color: 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20',
-        label: 'Validation requise'
-      };
-      case 'VALIDÉ': return { 
-        icon: CheckCircle2, 
-        color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20',
-        label: 'Approuvé'
-      };
-      default: return { 
-        icon: Bell, 
-        color: 'text-blue-500 bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20',
-        label: 'Système'
-      };
+      case 'SOUMIS': return { icon: Clock, color: 'text-amber-500 bg-amber-50 border-amber-100' };
+      case 'VALIDÉ': return { icon: CheckCircle2, color: 'text-emerald-500 bg-emerald-50 border-emerald-100' };
+      default: return { icon: Bell, color: 'text-blue-500 bg-blue-50 border-blue-100' };
     }
   };
 
   const filteredNotifications = notifications.filter(n => filter === 'ALL' || !n.isRead);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Espace Notifications</h1>
-          <p className="text-muted-foreground">Supervision des activités du département.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="rounded-lg h-10 font-semibold gap-2"
-            onClick={handleMarkAllAsRead}
-            disabled={!notifications.some(n => !n.isRead)}
-          >
-            <CheckCheck size={18} /> Tout lire
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="rounded-lg h-10 font-semibold gap-2 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-            onClick={handleDeleteAll}
-            disabled={notifications.length === 0}
-          >
-            <Trash2 size={18} /> Tout supprimer
-          </Button>
-        </div>
-      </div>
+    <TooltipProvider>
+      <style>{`
+        main:has(#dean-notifications-area) { padding: 0 !important; overflow: hidden !important; }
+        div:has(> #dean-notifications-area).max-w-7xl { max-width: none !important; margin: 0 !important; width: 100% !important; }
+      `}</style>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-xl w-fit border border-border/50">
-        <button
-          onClick={() => setFilter('ALL')}
-          className={cn(
-            "px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200",
-            filter === 'ALL' 
-              ? "bg-background text-primary shadow-sm border border-border/50" 
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          Flux complet ({notifications.length})
-        </button>
-        <button
-          onClick={() => setFilter('UNREAD')}
-          className={cn(
-            "px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 relative",
-            filter === 'UNREAD' 
-              ? "bg-background text-primary shadow-sm border border-border/50" 
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          Non lues ({notifications.filter(n => !n.isRead).length})
-        </button>
-      </div>
-
-      {/* Notifications List */}
-      <Card className="rounded-xl border-border/50 shadow-sm overflow-hidden">
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="p-12 text-center space-y-4">
-              <div className="h-10 w-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
-              <p className="text-muted-foreground font-medium">Récupération des alertes...</p>
+      <div id="dean-notifications-area" className="flex flex-col h-[calc(100vh-4rem)] w-full bg-background overflow-hidden border-t border-border/50">
+        
+        {/* Header Ultra Épuré - Juste le Titre et les Filtres */}
+        <div className="px-6 py-8 space-y-6 shrink-0 bg-background">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Notifications</h1>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 rounded-xl font-bold text-xs uppercase gap-2 border-border/60 hover:bg-muted"
+                onClick={handleMarkAllAsRead}
+                disabled={!notifications.some(n => !n.isRead)}
+              >
+                <CheckCheck size={16} /> Tout marquer lu
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 rounded-xl font-bold text-xs uppercase gap-2 border-rose-100 text-rose-600 hover:bg-rose-50"
+                onClick={handleDeleteAll}
+                disabled={notifications.length === 0}
+              >
+                <Trash2 size={16} /> Tout supprimer
+              </Button>
             </div>
-          ) : filteredNotifications.length > 0 ? (
-            <div className="divide-y divide-border/50">
-              <AnimatePresence mode="popLayout">
-                {filteredNotifications.map((notif) => {
-                  const style = getNotificationStyle(notif.statut);
-                  const Icon = style.icon;
-                  
-                  return (
-                    <motion.div
-                      key={notif.userNotificationId}
-                      layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className={cn(
-                        "group flex items-start gap-4 p-5 transition-all hover:bg-muted/30 relative",
-                        !notif.isRead && "bg-primary/[0.02]"
-                      )}
-                    >
-                      {!notif.isRead && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-                      )}
-                      
-                      <div className={cn("p-2.5 rounded-xl border shrink-0", style.color)}>
-                        <Icon size={20} />
-                      </div>
+          </div>
 
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <h3 className={cn("font-bold text-sm truncate", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
-                            {notif.statut === 'SOUMIS' ? 'Nouveau dossier à valider' : 
-                             notif.statut === 'VALIDÉ' ? 'Dossier archivé' : 'Alerte Système'}
-                          </h3>
-                          <span className="text-[10px] font-semibold text-muted-foreground uppercase whitespace-nowrap bg-muted px-2 py-0.5 rounded-md">
-                            {new Date(notif.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className={cn("text-sm leading-relaxed", !notif.isRead ? "text-muted-foreground" : "text-muted-foreground/60")}>
-                          Un nouveau support <span className="font-semibold">"{notif.titre}"</span> ({notif.matiere}) nécessite votre attention pour le niveau {notif.niveau}.
-                        </p>
+          <div className="flex items-center gap-2 p-1 bg-muted/30 rounded-xl w-fit border border-border/40">
+            <button
+              onClick={() => setFilter('ALL')}
+              className={cn(
+                "px-5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200",
+                filter === 'ALL' 
+                  ? "bg-background text-primary shadow-sm border border-border/50" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Tout ({notifications.length})
+            </button>
+            <button
+              onClick={() => setFilter('UNREAD')}
+              className={cn(
+                "px-5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200",
+                filter === 'UNREAD' 
+                  ? "bg-background text-primary shadow-sm border border-border/50" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Non lues ({notifications.filter(n => !n.isRead).length})
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable List Area */}
+        <div className="flex-1 overflow-auto px-6 pb-12">
+          <div className="max-w-4xl pl-2">
+            {loading ? (
+              <div className="p-12 text-center space-y-4">
+                <div className="h-10 w-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Mise à jour...</p>
+              </div>
+            ) : filteredNotifications.length > 0 ? (
+              <div className="space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {filteredNotifications.map((notif) => {
+                    const style = getNotificationStyle(notif.statut);
+                    const Icon = style.icon;
+                    
+                    return (
+                      <motion.div
+                        key={notif.userNotificationId}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className={cn(
+                          "group flex items-start gap-5 p-6 transition-all bg-card border border-border/60 rounded-2xl relative hover:shadow-md",
+                          !notif.isRead ? "border-primary/20 shadow-sm shadow-primary/5" : "opacity-80"
+                        )}
+                      >
+                        {!notif.isRead && (
+                          <div className="absolute right-6 top-6 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        )}
                         
-                        <div className="flex items-center gap-3 pt-2">
-                          {!notif.isRead && (
-                            <button 
-                              onClick={() => handleMarkAsRead(notif.userNotificationId)}
-                              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-                            >
-                              <CheckCheck size={14} /> Marquer comme lu
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => handleDelete(notif.userNotificationId)}
-                            className="text-xs font-bold text-muted-foreground hover:text-rose-600 flex items-center gap-1 transition-colors"
-                          >
-                            <Trash2 size={14} /> Supprimer
-                          </button>
+                        <div className={cn("p-3 rounded-2xl border shrink-0", style.color)}>
+                          <Icon size={24} />
                         </div>
-                      </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreVertical size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl w-40">
-                          <DropdownMenuItem onClick={() => handleDelete(notif.userNotificationId)} className="rounded-lg gap-2 text-rose-600 focus:text-rose-600">
-                            <Trash2 size={14} /> Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <div className="p-16 text-center space-y-4">
-              <div className="h-16 w-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto text-muted-foreground/30">
-                <Bell size={32} />
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <h3 className={cn("font-bold text-base", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
+                              {notif.statut === 'SOUMIS' ? 'Nouveau dossier à valider' : 
+                               notif.statut === 'VALIDÉ' ? 'Dossier archivé' : 'Alerte Système'}
+                            </h3>
+                            <span className="text-[10px] font-black text-muted-foreground uppercase opacity-40">
+                               • {new Date(notif.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                            </span>
+                          </div>
+                          <p className={cn("text-sm leading-relaxed max-w-2xl", !notif.isRead ? "text-muted-foreground" : "text-muted-foreground/60")}>
+                            L'enseignant a soumis <span className="font-bold">"{notif.titre}"</span> pour le cours de <span className="font-bold">{notif.matiere}</span>.
+                          </p>
+                          
+                          <div className="flex items-center gap-6 pt-2">
+                            {!notif.isRead && (
+                              <button 
+                                onClick={() => handleMarkAsRead(notif.userNotificationId)}
+                                className="text-xs font-black uppercase text-primary hover:underline"
+                              >
+                                Marquer comme lu
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => handleDelete(notif.userNotificationId)}
+                              className="text-xs font-black uppercase text-muted-foreground hover:text-rose-600 transition-colors"
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl w-40">
+                            <DropdownMenuItem onClick={() => handleDelete(notif.userNotificationId)} className="rounded-lg gap-2 text-rose-600 focus:text-rose-600 font-bold text-xs uppercase">
+                              <Trash2 size={14} /> Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold">Rien à signaler</h3>
-                <p className="text-sm text-muted-foreground">Aucune notification à traiter pour le moment.</p>
+            ) : (
+              <div className="h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-border/40 rounded-3xl bg-card/30">
+                <Bell className="h-16 w-16 text-muted-foreground/10 mb-4" />
+                <h3 className="text-lg font-bold text-muted-foreground/60 tracking-tight text-center">Aucune notification</h3>
+                <p className="text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest mt-1">Flux à jour</p>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </TooltipProvider>
   );
 };
 
