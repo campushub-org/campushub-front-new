@@ -229,6 +229,28 @@ export function EventDrawer({
 
             <div className="flex-1 overflow-auto p-4">
               <TabsContent value="general" className="m-0 space-y-4">
+                {/* Level */}
+                <div className="space-y-2">
+                  <Label htmlFor="level" className="text-sm font-medium">
+                    Niveau académique
+                  </Label>
+                  <Select
+                    value={formData.level || "L1"}
+                    onValueChange={(v) => handleChange("level", v)}
+                  >
+                    <SelectTrigger id="level" className="bg-secondary/50">
+                      <SelectValue placeholder="Sélectionner le niveau" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["L1", "L2", "L3", "M1", "M2"].map((lvl) => (
+                        <SelectItem key={lvl} value={lvl}>
+                          {lvl}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-sm font-medium">
