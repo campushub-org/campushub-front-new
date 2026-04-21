@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
   id: number;
@@ -24,30 +26,45 @@ const Header: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+  const fetchUnreadCount = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-      const decoded = decodeToken(token);
-      if (!decoded || !decoded.id) return;
-      const userId = decoded.id;
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.id) return;
+    const userId = decoded.id;
 
-      try {
-        const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
-        const count = response.data.filter(notif => !notif.isRead).length;
-        setUnreadCount(count);
-      } catch (err) {
-        console.error('Error fetching unread notification count:', err);
-      }
-    };
-
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
+    try {
+      const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
+      const count = response.data.filter(notif => !notif.isRead).length;
+      setUnreadCount(count);
+    } catch (err) {
+      console.error('Error fetching unread notification count:', err);
+    }
   }, []);
 
-  // Generate Breadcrumbs from URL
+  useEffect(() => {
+    fetchUnreadCount();
+
+    const handleNewNotification = () => {
+      setUnreadCount(prev => prev + 1);
+    };
+
+    window.addEventListener('notification_received', handleNewNotification);
+    const interval = setInterval(fetchUnreadCount, 120000);
+    
+    return () => {
+      window.removeEventListener('notification_received', handleNewNotification);
+      clearInterval(interval);
+    };
+  }, [fetchUnreadCount]);
+
+  useEffect(() => {
+    if (location.pathname.includes('notifications')) {
+      setUnreadCount(0);
+    }
+  }, [location.pathname]);
+
   const pathnames = location.pathname.split('/').filter((x) => x);
   
   const getBreadcrumbLabel = (name: string) => {
@@ -112,14 +129,30 @@ const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-2">
-        <Link to="./notifications" className="relative">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-muted transition-all">
-            <Bell className="h-[1.2rem] w-[1.2rem] text-muted-foreground" />
-            {unreadCount > 0 && (
-              <span className="absolute right-1.5 top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm animate-in zoom-in">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
+        <Link to="./notifications" className="relative group">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-11 w-11 rounded-full hover:bg-primary/5 transition-all duration-300"
+          >
+            <Bell className={cn(
+              "h-[1.4rem] w-[1.4rem] transition-all duration-300",
+              unreadCount > 0 ? "text-primary fill-primary/5" : "text-muted-foreground group-hover:text-primary"
+            )} />
+            
+            <AnimatePresence>
+              {unreadCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-background bg-primary px-1.5 text-[9px] font-black text-primary-foreground shadow-sm"
+                >
+                  <span className="relative z-10">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                  <span className="absolute inset-0 rounded-full bg-primary/30 animate-pulse" />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Button>
         </Link>
       </div>

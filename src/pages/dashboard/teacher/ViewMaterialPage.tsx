@@ -16,8 +16,11 @@ import {
   MoreVertical,
   Share2,
   History,
-  AlertCircle
+  AlertCircle,
+  Bell,
+  Settings
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { 
@@ -27,6 +30,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export interface SupportCours {
   id: number;

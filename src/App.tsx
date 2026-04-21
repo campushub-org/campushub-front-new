@@ -95,7 +95,7 @@ const App = () => (
               <Route path="dean" element={<DeanLayout />}>
                 <Route index element={<DeanDashboard />} />
                 <Route path="validations" element={<ValidationPage />} />
-                <Route path="validations/view/:materialId" element={<DeanViewMaterialPage />} />
+                <Route path="support/view/:materialId" element={<DeanViewMaterialPage />} />
                 <Route path="timetable-upload" element={<TimetableUploadPage />} /> {/* New route */}
                 <Route path="schedule" element={<DeanSchedulingPage />} />
                 <Route path="schedule-courses" element={<DeanSchedulingPage />} />
