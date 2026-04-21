@@ -201,6 +201,12 @@ const DeanSchedulingPage: React.FC = () => {
 
   return (
     <TooltipProvider>
+      {/* Fix pour bloquer le slide horizontal de la navbar et de la page */}
+      <style>{`
+        html, body { overflow-x: hidden !important; width: 100%; position: relative; }
+        main { overflow-x: hidden !important; }
+      `}</style>
+
       {/* 
         Le conteneur principal utilise des marges négatives pour "manger" le padding du parent DashboardLayout
         et s'étaler sur toute la largeur disponible.
