@@ -93,6 +93,16 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions()
 
+const durationOptions = [
+  { label: "30 min", value: 30 },
+  { label: "1h", value: 60 },
+  { label: "1h30", value: 90 },
+  { label: "2h", value: 120 },
+  { label: "2h30", value: 150 },
+  { label: "3h", value: 180 },
+  { label: "4h", value: 240 },
+]
+
 export function EventDrawer({
   isOpen,
   event,
@@ -109,6 +119,36 @@ export function EventDrawer({
   // Real subjects data state
   const [subjects, setSubjects] = useState<{code: string, name: string}[]>([])
   const [loadingSubjects, setLoadingSubjects] = useState(false)
+  
+  // Real teachers data state
+  const [teachers, setTeachers] = useState<{fullName: string}[]>([])
+  const [loadingTeachers, setLoadingTeachers] = useState(false)
+  
+  // Real rooms data state
+  const [rooms, setRooms] = useState<{nom: string}[]>([])
+  const [loadingRooms, setLoadingRooms] = useState(false)
+
+  // Fetch teachers and rooms based on department (default INFO)
+  useEffect(() => {
+    const fetchDependencies = async () => {
+      setLoadingTeachers(true)
+      setLoadingRooms(true)
+      try {
+        const [teachersRes, roomsRes] = await Promise.all([
+          api.get(`/campushub-user-service/api/users/teachers/department/INFO`),
+          api.get(`/campushub-salle-service/api/salles?filiere=INFO`)
+        ])
+        setTeachers(teachersRes.data)
+        setRooms(roomsRes.data)
+      } catch (err) {
+        console.error("Error fetching dependencies", err)
+      } finally {
+        setLoadingTeachers(false)
+        setLoadingRooms(false)
+      }
+    }
+    fetchDependencies()
+  }, [])
 
   // Fetch subjects when level changes
   useEffect(() => {
@@ -158,7 +198,14 @@ export function EventDrawer({
   }, [event, isNew])
 
   const handleChange = (field: keyof ScheduleEvent, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value }
+      
+      // Si startTime ou endTime change, on recalcule la durée si nécessaire
+      // Note: On ne force pas la recalcul ici pour éviter les boucles, 
+      // la durée est calculée dynamiquement via getCurrentDuration() pour l'affichage.
+      return next
+    })
     setHasChanges(true)
   }
 
@@ -169,11 +216,28 @@ export function EventDrawer({
     }
   }
 
+  const handleDurationChange = (minutes: number) => {
+    if (formData.startTime) {
+      const [h, m] = formData.startTime.split(":").map(Number)
+      const totalMinutes = h * 60 + m + minutes
+      const newH = Math.floor(totalMinutes / 60)
+      const newM = totalMinutes % 60
+      const newEndTime = `${newH.toString().padStart(2, "0")}:${newM.toString().padStart(2, "0")}`
+      
+      setFormData((prev) => ({ ...prev, endTime: newEndTime }))
+      setHasChanges(true)
+    }
+  }
+
+  const getCurrentDuration = () => {
+    if (!formData.startTime || !formData.endTime) return 60
+    const [sh, sm] = formData.startTime.split(":").map(Number)
+    const [eh, em] = formData.endTime.split(":").map(Number)
+    return (eh * 60 + em) - (sh * 60 + sm)
+  }
+
   const calculateDuration = () => {
-    if (!formData.startTime || !formData.endTime) return "0h"
-    const [startH, startM] = formData.startTime.split(":").map(Number)
-    const [endH, endM] = formData.endTime.split(":").map(Number)
-    const minutes = (endH * 60 + endM) - (startH * 60 + startM)
+    const minutes = getCurrentDuration()
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
     return mins > 0 ? `${hours}h${mins}` : `${hours}h`
@@ -265,12 +329,16 @@ export function EventDrawer({
                     value={formData.level || "L1"}
                     onValueChange={(v) => handleChange("level", v)}
                   >
-                    <SelectTrigger id="level" className="bg-secondary/50">
+                    <SelectTrigger id="level" className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
                       <SelectValue placeholder="Sélectionner le niveau" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-blue-500/20">
                       {["L1", "L2", "L3", "M1", "M2"].map((lvl) => (
-                        <SelectItem key={lvl} value={lvl}>
+                        <SelectItem 
+                          key={lvl} 
+                          value={lvl}
+                          className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                        >
                           {lvl}
                         </SelectItem>
                       ))}
@@ -287,17 +355,21 @@ export function EventDrawer({
                     value={formData.title || ""}
                     onValueChange={(v) => handleChange("title", v)}
                   >
-                    <SelectTrigger id="title" className="bg-secondary/50">
+                    <SelectTrigger id="title" className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
                       {loadingSubjects ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                      <SelectValue placeholder="Sélectionner une UE" />
+                      <SelectValue placeholder="Sélectionner une UE" className="text-left" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-w-[calc(100vw-2rem)] sm:max-w-md border-blue-500/20">
                       {subjects.length > 0 ? (
                         subjects.map((sub) => (
-                          <SelectItem key={sub.code} value={sub.name || sub.code || "unknown"}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{sub.name}</span>
-                              <span className="text-[10px] text-muted-foreground">{sub.code}</span>
+                          <SelectItem 
+                            key={sub.code} 
+                            value={sub.name || sub.code || "unknown"}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
+                            <div className="flex flex-col min-w-0 w-full overflow-hidden">
+                              <span className="font-medium truncate w-full">{sub.name}</span>
+                              <span className="text-xs text-muted-foreground truncate w-full">{sub.code}</span>
                             </div>
                           </SelectItem>
                         ))
@@ -343,12 +415,16 @@ export function EventDrawer({
                       value={formData.day?.toString()}
                       onValueChange={(v) => handleChange("day", parseInt(v))}
                     >
-                      <SelectTrigger className="bg-secondary/50">
+                      <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
                         <SelectValue placeholder="Sélectionner" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-blue-500/20">
                         {weekDays.map((day, index) => (
-                          <SelectItem key={day} value={index.toString()}>
+                          <SelectItem 
+                            key={day} 
+                            value={index.toString()}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
                             {day}
                           </SelectItem>
                         ))}
@@ -358,10 +434,28 @@ export function EventDrawer({
 
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Durée</Label>
-                    <div className="flex h-10 items-center rounded-md bg-secondary/50 px-3">
-                      <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">{calculateDuration()}</span>
-                    </div>
+                    <Select
+                      value={getCurrentDuration().toString()}
+                      onValueChange={(v) => handleDurationChange(parseInt(v))}
+                    >
+                      <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
+                        <div className="flex items-center">
+                          <Clock className="mr-2 h-4 w-4 text-blue-400" />
+                          <SelectValue placeholder="Durée" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="border-blue-500/20">
+                        {durationOptions.map((opt) => (
+                          <SelectItem 
+                            key={opt.value} 
+                            value={opt.value.toString()}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -373,12 +467,16 @@ export function EventDrawer({
                       value={formData.startTime}
                       onValueChange={(v) => handleChange("startTime", v)}
                     >
-                      <SelectTrigger className="flex-1 bg-secondary/50">
+                      <SelectTrigger className="flex-1 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
                         <SelectValue placeholder="Début" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-blue-500/20">
                         {timeOptions.map((time) => (
-                          <SelectItem key={`start-${time}`} value={time}>
+                          <SelectItem 
+                            key={`start-${time}`} 
+                            value={time}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
                             {time}
                           </SelectItem>
                         ))}
@@ -386,19 +484,23 @@ export function EventDrawer({
                     </Select>
 
                     <div className="flex h-10 w-10 items-center justify-center">
-                      <GripVertical className="h-4 w-4 rotate-90 text-muted-foreground" />
+                      <GripVertical className="h-4 w-4 rotate-90 text-blue-400/50" />
                     </div>
 
                     <Select
                       value={formData.endTime}
                       onValueChange={(v) => handleChange("endTime", v)}
                     >
-                      <SelectTrigger className="flex-1 bg-secondary/50">
+                      <SelectTrigger className="flex-1 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
                         <SelectValue placeholder="Fin" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-blue-500/20">
                         {timeOptions.map((time) => (
-                          <SelectItem key={`end-${time}`} value={time}>
+                          <SelectItem 
+                            key={`end-${time}`} 
+                            value={time}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
                             {time}
                           </SelectItem>
                         ))}
@@ -416,18 +518,28 @@ export function EventDrawer({
                     Enseignant
                   </Label>
                   <Select
-                    value={formData.professor}
+                    value={formData.professor || ""}
                     onValueChange={(v) => handleChange("professor", v)}
                   >
-                    <SelectTrigger className="bg-secondary/50">
+                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
                       <SelectValue placeholder="Sélectionner un enseignant" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {professors.map((prof) => (
-                        <SelectItem key={prof} value={prof}>
-                          {prof}
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="border-blue-500/20">
+                      {loadingTeachers ? (
+                        <SelectItem value="loading" disabled>Chargement...</SelectItem>
+                      ) : teachers.length > 0 ? (
+                        teachers.map((prof) => (
+                          <SelectItem 
+                            key={prof.fullName} 
+                            value={prof.fullName}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
+                            <span className="truncate">{prof.fullName}</span>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>Aucun enseignant trouvé</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -439,18 +551,28 @@ export function EventDrawer({
                     Salle
                   </Label>
                   <Select
-                    value={formData.room}
+                    value={formData.room || ""}
                     onValueChange={(v) => handleChange("room", v)}
                   >
-                    <SelectTrigger className="bg-secondary/50">
+                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
                       <SelectValue placeholder="Sélectionner une salle" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {rooms.map((room) => (
-                        <SelectItem key={room} value={room}>
-                          {room}
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="border-blue-500/20">
+                      {loadingRooms ? (
+                        <SelectItem value="loading" disabled>Chargement...</SelectItem>
+                      ) : rooms.length > 0 ? (
+                        rooms.map((room) => (
+                          <SelectItem 
+                            key={room.nom} 
+                            value={room.nom}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
+                            <span className="truncate">{room.nom}</span>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>Aucune salle trouvée</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
