@@ -17,6 +17,7 @@ import {
   Tag,
   Save,
   GripVertical,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,6 +42,7 @@ import {
   courseTypeColors,
   weekDays,
 } from "@/lib/schedule-data"
+import api from "@/lib/api"
 
 interface EventDrawerProps {
   isOpen: boolean
@@ -103,6 +105,31 @@ export function EventDrawer({
   const [formData, setFormData] = useState<Partial<ScheduleEvent>>({})
   const [hasChanges, setHasChanges] = useState(false)
   const [activeTab, setActiveTab] = useState("general")
+  
+  // Real subjects data state
+  const [subjects, setSubjects] = useState<{code: string, name: string}[]>([])
+  const [loadingSubjects, setLoadingSubjects] = useState(false)
+
+  // Fetch subjects when level changes
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      const levelStr = formData.level || "L1"
+      const levelMap: Record<string, number> = { "L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5 }
+      
+      setLoadingSubjects(true)
+      try {
+        const response = await api.get(`/campushub-scheduling-service/api/subjects?niveau=${levelMap[levelStr]}`)
+        setSubjects(response.data)
+      } catch (err) {
+        console.error("Error fetching subjects", err)
+      } finally {
+        setLoadingSubjects(false)
+      }
+    }
+    
+    if (isOpen) fetchSubjects()
+  }, [formData.level, isOpen])
+
   const [showRecurrence, setShowRecurrence] = useState(false)
   const [notifications, setNotifications] = useState({
     email: true,
@@ -254,15 +281,31 @@ export function EventDrawer({
                 {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-sm font-medium">
-                    Titre de l&apos;événement
+                    Cours / Matière
                   </Label>
-                  <Input
-                    id="title"
+                  <Select
                     value={formData.title || ""}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                    placeholder="Ex: Algorithmique Avancée"
-                    className="bg-secondary/50"
-                  />
+                    onValueChange={(v) => handleChange("title", v)}
+                  >
+                    <SelectTrigger id="title" className="bg-secondary/50">
+                      {loadingSubjects ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      <SelectValue placeholder="Sélectionner une UE" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjects.length > 0 ? (
+                        subjects.map((sub) => (
+                          <SelectItem key={sub.code} value={sub.name || sub.code || "unknown"}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{sub.name}</span>
+                              <span className="text-[10px] text-muted-foreground">{sub.code}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-subject" disabled>Aucune matière disponible</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Type */}
