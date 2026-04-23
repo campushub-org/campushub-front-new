@@ -164,16 +164,30 @@ const DeanSchedulingPage: React.FC = () => {
     setPendingChanges(prev => prev + 1);
   }, [events, updateHistory]);
 
-  const handleEventSave = useCallback((event: ScheduleEvent) => {
+  const handleEventSave = useCallback((event: ScheduleEvent | ScheduleEvent[]) => {
     let newEvents: ScheduleEvent[];
-    if (isNewEvent) {
-      newEvents = [...events, { ...event, id: `event-${Date.now()}` }];
+    const generateId = () => crypto.randomUUID();
+    
+    if (Array.isArray(event)) {
+      if (isNewEvent) {
+        const seriesEvents = event.map(e => ({ ...e, id: generateId() }));
+        newEvents = [...events, ...seriesEvents];
+      } else {
+        newEvents = events.map(e => {
+          const updated = event.find(ev => ev.id === e.id);
+          return updated || e;
+        });
+      }
     } else {
-      newEvents = events.map(e => e.id === event.id ? event : e);
+      if (isNewEvent) {
+        newEvents = [...events, { ...event, id: generateId() }];
+      } else {
+        newEvents = events.map(e => e.id === event.id ? event : e);
+      }
     }
+    
     setEvents(newEvents);
     updateHistory(newEvents);
-    setPendingChanges(prev => prev + 1);
     setDrawerOpen(false);
     setSelectedEvent(null);
   }, [events, isNewEvent, updateHistory]);
@@ -182,7 +196,6 @@ const DeanSchedulingPage: React.FC = () => {
     const newEvents = events.filter(e => e.id !== eventId);
     setEvents(newEvents);
     updateHistory(newEvents);
-    setPendingChanges(prev => prev + 1);
     setDrawerOpen(false);
     setSelectedEvent(null);
   }, [events, updateHistory]);
@@ -213,25 +226,6 @@ const DeanSchedulingPage: React.FC = () => {
       setEvents(history[historyIndex + 1]);
     }
   }, [history, historyIndex]);
-
-  const handleSaveAll = useCallback(async () => {
-    try {
-      await api.post("/campushub-scheduling-service/api/scheduling/batch-save", events);
-      toast.success("Planning enregistré !");
-      setPendingChanges(0);
-      setHistory([events]);
-      setHistoryIndex(0);
-    } catch (err) {
-      toast.error("Erreur de sauvegarde");
-    }
-  }, [events]);
-
-  const handleDiscardAll = useCallback(() => {
-    setEvents(sampleEvents);
-    setHistory([sampleEvents]);
-    setHistoryIndex(0);
-    setPendingChanges(0);
-  }, []);
 
   return (
     <TooltipProvider>
@@ -304,19 +298,11 @@ const DeanSchedulingPage: React.FC = () => {
                   onRedo={handleRedo}
                   canUndo={historyIndex > 0}
                   canRedo={historyIndex < history.length - 1}
-                  pendingChanges={pendingChanges}
-                  onSaveAll={handleSaveAll}
-                  onDiscardAll={handleDiscardAll}
-                />
+                  hasConflicts={false}
+                  />
               </div>
 
-              {/* Barre de recherche (si nécessaire ici) */}
-              <div className="flex items-center gap-2">
-                <div className="relative hidden xl:block">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input className="h-9 w-56 pl-9 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20" placeholder="Rechercher..." />
-                </div>
-              </div>
+              {/* Barre de recherche supprimée */}
             </div>
 
             {/* Contrôles du Calendrier (Date, Vue) */}
@@ -372,6 +358,7 @@ const DeanSchedulingPage: React.FC = () => {
         <EventDrawer
           isOpen={drawerOpen}
           event={selectedEvent}
+          workingDate={currentDate}
           isNew={isNewEvent}
           onClose={() => {
             setDrawerOpen(false);

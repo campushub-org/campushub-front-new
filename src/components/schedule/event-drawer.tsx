@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { toast } from "sonner"
 import {
   Select,
   SelectContent,
@@ -47,36 +48,13 @@ import api from "@/lib/api"
 interface EventDrawerProps {
   isOpen: boolean
   event: ScheduleEvent | null
+  currentDate: Date
   isNew?: boolean
   onClose: () => void
-  onSave: (event: ScheduleEvent) => void
+  onSave: (event: ScheduleEvent | ScheduleEvent[]) => void
   onDelete?: (eventId: string) => void
   onDuplicate?: (event: ScheduleEvent) => void
 }
-
-const professors = [
-  "Dr. Martin Dupont",
-  "Prof. Sophie Laurent",
-  "M. Thomas Bernard",
-  "Dr. Claire Morel",
-  "Prof. Jean Petit",
-  "Dr. Marie Leroy",
-  "M. Lucas Girard",
-]
-
-const rooms = [
-  "Amphi A",
-  "Amphi B",
-  "Amphi C",
-  "Salle 204",
-  "Salle 205",
-  "Salle 301",
-  "Labo Info 1",
-  "Labo Info 2",
-  "Labo Info 3",
-  "Salle Réunion 1",
-  "Salle Réunion 2",
-]
 
 const generateTimeOptions = () => {
   const times: string[] = []
@@ -107,6 +85,7 @@ export function EventDrawer({
   isOpen,
   event,
   isNew = false,
+  workingDate,
   onClose,
   onSave,
   onDelete,
@@ -116,16 +95,19 @@ export function EventDrawer({
   const [hasChanges, setHasChanges] = useState(false)
   const [activeTab, setActiveTab] = useState("general")
   
+  const [recurrenceFreq, setRecurrenceFreq] = useState("weekly")
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState<string>("")
+  
   // Real subjects data state
   const [subjects, setSubjects] = useState<{code: string, name: string}[]>([])
   const [loadingSubjects, setLoadingSubjects] = useState(false)
   
   // Real teachers data state
-  const [teachers, setTeachers] = useState<{fullName: string}[]>([])
+  const [teachers, setTeachers] = useState<{id: number, fullName: string}[]>([])
   const [loadingTeachers, setLoadingTeachers] = useState(false)
   
   // Real rooms data state
-  const [rooms, setRooms] = useState<{nom: string}[]>([])
+  const [rooms, setRooms] = useState<{id: number, nom: string}[]>([])
   const [loadingRooms, setLoadingRooms] = useState(false)
 
   // Fetch teachers and rooms based on department (default INFO)
@@ -139,6 +121,7 @@ export function EventDrawer({
           api.get(`/campushub-salle-service/api/salles?filiere=INFO`)
         ])
         setTeachers(teachersRes.data)
+        // roomsRes.data contient les objets salles complets avec id et nom
         setRooms(roomsRes.data)
       } catch (err) {
         console.error("Error fetching dependencies", err)
@@ -150,15 +133,16 @@ export function EventDrawer({
     fetchDependencies()
   }, [])
 
-  // Fetch subjects when level changes
+  // Fetch subjects when level or semester changes
   useEffect(() => {
     const fetchSubjects = async () => {
       const levelStr = formData.level || "L1"
       const levelMap: Record<string, number> = { "L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5 }
+      const semester = formData.semester || 1
       
       setLoadingSubjects(true)
       try {
-        const response = await api.get(`/campushub-scheduling-service/api/subjects?niveau=${levelMap[levelStr]}`)
+        const response = await api.get(`/campushub-scheduling-service/api/subjects?niveau=${levelMap[levelStr]}&semestre=${semester}`)
         setSubjects(response.data)
       } catch (err) {
         console.error("Error fetching subjects", err)
@@ -168,7 +152,7 @@ export function EventDrawer({
     }
     
     if (isOpen) fetchSubjects()
-  }, [formData.level, isOpen])
+  }, [formData.level, formData.semester, isOpen])
 
   const [showRecurrence, setShowRecurrence] = useState(false)
   const [notifications, setNotifications] = useState({
@@ -176,6 +160,28 @@ export function EventDrawer({
     push: false,
     sms: false,
   })
+
+  // Real conflict state
+  const [conflict, setConflict] = useState<string | null>(null)
+  
+  useEffect(() => {
+    const checkConflict = async () => {
+      if (!formData.room || !formData.startTime || formData.day === undefined) return
+      
+      console.log("Checking conflict for:", formData);
+      try {
+        const response = await api.post("/campushub-scheduling-service/api/scheduling/check-conflicts", formData)
+        if (response.data === true) {
+          setConflict("Un autre cours est déjà programmé dans cette salle à cette heure.")
+        } else {
+          setConflict(null)
+        }
+      } catch (err) {
+        console.error("Conflict check failed", err)
+      }
+    }
+    checkConflict()
+  }, [formData.room, formData.startTime, formData.day])
 
   useEffect(() => {
     if (event) {
@@ -187,10 +193,14 @@ export function EventDrawer({
         type: "lecture",
         professor: "",
         room: "",
+        teacherId: undefined,
+        roomId: undefined,
         startTime: "08:00",
         endTime: "10:00",
         day: 0,
         description: "",
+        semester: 1,
+        academicYear: "2025-2026",
       })
     }
     setHasChanges(false)
@@ -209,12 +219,65 @@ export function EventDrawer({
     setHasChanges(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (formData.title && formData.type && formData.startTime && formData.endTime) {
-      onSave(formData as ScheduleEvent)
-      setHasChanges(false)
+      try {
+        let payload;
+        let endpoint = "/campushub-scheduling-service/api/scheduling/events";
+        
+        // Nettoyer l'ID temporaire avant l'envoi au backend
+        const cleanFormData = { ...formData };
+        if (cleanFormData.id && cleanFormData.id.startsWith("new-")) {
+          delete cleanFormData.id;
+        }
+
+        if (showRecurrence && recurrenceEndDate) {
+          const seriesId = `serie-${Date.now()}`;
+          const endDate = new Date(recurrenceEndDate);
+          const recurringEvents: ScheduleEvent[] = [];
+          
+          let startDate = new Date(workingDate);
+          const targetDay = formData.day ?? 0;
+          const currentDay = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
+          startDate.setDate(startDate.getDate() + (targetDay - currentDay));
+
+          const step = recurrenceFreq === "daily" ? 1 : (recurrenceFreq === "weekly" ? 7 : 14);
+          
+          let loopDate = new Date(startDate);
+          while (loopDate <= endDate) {
+            recurringEvents.push({
+              ...(cleanFormData as ScheduleEvent),
+              seriesId: seriesId,
+              day: targetDay,
+              academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
+              semester: formData.semester || 1,
+            });
+            loopDate.setDate(loopDate.getDate() + step);
+          }
+          payload = recurringEvents;
+          endpoint = "/campushub-scheduling-service/api/scheduling/batch-save";
+        } else {
+          payload = { 
+            ...cleanFormData, 
+            seriesId: formData.seriesId || null,
+            academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
+            semester: formData.semester || 1
+          };
+        }
+
+        console.log("Payload envoyé au backend :", payload);
+
+        await api.post(endpoint, payload);
+        toast.success("Enregistré avec succès !");
+        onSave(payload as any);
+        onClose();
+        setHasChanges(false);
+      } catch (e) {
+        toast.error("Erreur de sauvegarde");
+        console.error(e);
+      }
     }
-  }
+  };
 
   const handleDurationChange = (minutes: number) => {
     if (formData.startTime) {
@@ -320,6 +383,34 @@ export function EventDrawer({
 
             <div className="flex-1 overflow-auto p-4">
               <TabsContent value="general" className="m-0 space-y-4">
+                {/* Academic Year */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Année Scolaire</Label>
+                  <Select
+                    value={formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`}
+                    onValueChange={(v) => handleChange("academicYear", v)}
+                  >
+                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
+                      <SelectValue placeholder="Sélectionner l'année" />
+                    </SelectTrigger>
+                    <SelectContent className="border-blue-500/20">
+                      {Array.from({ length: 2 }, (_, i) => {
+                        const start = new Date().getFullYear() - 1 + i;
+                        const yearRange = `${start}-${start + 1}`;
+                        return (
+                          <SelectItem 
+                            key={yearRange} 
+                            value={yearRange}
+                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                          >
+                            {yearRange}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Level */}
                 <div className="space-y-2">
                   <Label htmlFor="level" className="text-sm font-medium">
@@ -346,6 +437,30 @@ export function EventDrawer({
                   </Select>
                 </div>
 
+                {/* Semester */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Semestre</Label>
+                  <Select
+                    value={formData.semester?.toString() || "1"}
+                    onValueChange={(v) => handleChange("semester", parseInt(v))}
+                  >
+                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent className="border-blue-500/20">
+                      {[1, 2].map((sem) => (
+                        <SelectItem 
+                          key={sem} 
+                          value={sem.toString()}
+                          className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
+                        >
+                          Semestre {sem}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-sm font-medium">
@@ -353,7 +468,15 @@ export function EventDrawer({
                   </Label>
                   <Select
                     value={formData.title || ""}
-                    onValueChange={(v) => handleChange("title", v)}
+                    onValueChange={(v) => {
+                      const selected = subjects.find(s => s.name === v || s.code === v);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        title: selected?.name || v, 
+                        subjectCode: selected?.code || "" 
+                      }));
+                      setHasChanges(true);
+                    }}
                   >
                     <SelectTrigger id="title" className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
                       {loadingSubjects ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
@@ -518,8 +641,8 @@ export function EventDrawer({
                     Enseignant
                   </Label>
                   <Select
-                    value={formData.professor || ""}
-                    onValueChange={(v) => handleChange("professor", v)}
+                    value={formData.teacherId?.toString() || ""}
+                    onValueChange={(v) => handleChange("teacherId", parseInt(v))}
                   >
                     <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
                       <SelectValue placeholder="Sélectionner un enseignant" />
@@ -530,8 +653,8 @@ export function EventDrawer({
                       ) : teachers.length > 0 ? (
                         teachers.map((prof) => (
                           <SelectItem 
-                            key={prof.fullName} 
-                            value={prof.fullName}
+                            key={prof.id} 
+                            value={prof.id.toString()}
                             className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
                           >
                             <span className="truncate">{prof.fullName}</span>
@@ -551,8 +674,8 @@ export function EventDrawer({
                     Salle
                   </Label>
                   <Select
-                    value={formData.room || ""}
-                    onValueChange={(v) => handleChange("room", v)}
+                    value={formData.roomId?.toString() || ""}
+                    onValueChange={(v) => handleChange("roomId", parseInt(v))}
                   >
                     <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
                       <SelectValue placeholder="Sélectionner une salle" />
@@ -563,8 +686,8 @@ export function EventDrawer({
                       ) : rooms.length > 0 ? (
                         rooms.map((room) => (
                           <SelectItem 
-                            key={room.nom} 
-                            value={room.nom}
+                            key={room.id} 
+                            value={room.id.toString()}
                             className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
                           >
                             <span className="truncate">{room.nom}</span>
@@ -584,7 +707,7 @@ export function EventDrawer({
                     value={formData.description || ""}
                     onChange={(e) => handleChange("description", e.target.value)}
                     placeholder="Ajouter une description..."
-                    className="min-h-[100px] bg-secondary/50"
+                    className="min-h-[100px] bg-blue-500/10 border-blue-500/20 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                   />
                 </div>
 
@@ -624,11 +747,11 @@ export function EventDrawer({
 
               <TabsContent value="options" className="m-0 space-y-4">
                 {/* Recurrence */}
-                <div className="rounded-lg border border-border p-4">
+                <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-secondary p-2">
-                        <Repeat className="h-5 w-5 text-muted-foreground" />
+                      <div className="rounded-lg bg-blue-500/10 p-2">
+                        <Repeat className="h-5 w-5 text-blue-500" />
                       </div>
                       <div>
                         <p className="text-sm font-medium">Récurrence</p>
@@ -637,27 +760,35 @@ export function EventDrawer({
                         </p>
                       </div>
                     </div>
-                    <Switch checked={showRecurrence} onCheckedChange={setShowRecurrence} />
+                    <Switch 
+                        checked={showRecurrence} 
+                        onCheckedChange={setShowRecurrence}
+                        className="data-[state=checked]:bg-blue-500"
+                    />
                   </div>
 
                   {showRecurrence && (
-                    <div className="mt-4 space-y-3 border-t border-border pt-4">
-                      <Select defaultValue="weekly">
-                        <SelectTrigger className="bg-secondary/50">
+                    <div className="mt-4 space-y-3 border-t border-blue-500/10 pt-4">
+                      <Select value={recurrenceFreq} onValueChange={setRecurrenceFreq}>
+                        <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="daily">Quotidien</SelectItem>
-                          <SelectItem value="weekly">Hebdomadaire</SelectItem>
-                          <SelectItem value="biweekly">Bi-hebdomadaire</SelectItem>
-                          <SelectItem value="monthly">Mensuel</SelectItem>
+                        <SelectContent className="border-blue-500/20">
+                          <SelectItem value="daily" className="focus:bg-blue-500/20 focus:text-blue-400">Quotidien</SelectItem>
+                          <SelectItem value="weekly" className="focus:bg-blue-500/20 focus:text-blue-400">Hebdomadaire</SelectItem>
+                          <SelectItem value="biweekly" className="focus:bg-blue-500/20 focus:text-blue-400">Bi-hebdomadaire</SelectItem>
                         </SelectContent>
                       </Select>
 
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <Calendar className="h-4 w-4 text-blue-400" />
                         <span className="text-sm text-muted-foreground">Jusqu&apos;au:</span>
-                        <Input type="date" className="flex-1 bg-secondary/50" />
+                        <Input 
+                            type="date" 
+                            className="bg-blue-500/10 border-blue-500/20 focus:border-blue-500" 
+                            value={recurrenceEndDate}
+                            onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                        />
                       </div>
                     </div>
                   )}
@@ -707,18 +838,17 @@ export function EventDrawer({
                 </div>
 
                 {/* Conflict Warning */}
-                <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="mt-0.5 h-5 w-5 text-amber-500" />
-                    <div>
-                      <p className="text-sm font-medium text-amber-400">Conflit détecté</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        La salle &quot;Amphi A&quot; est déjà réservée pour &quot;Mathématiques&quot; de 8h00 à
-                        10h00.
-                      </p>
+                {conflict && (
+                  <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="mt-0.5 h-5 w-5 text-amber-500" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-400">Conflit détecté</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{conflict}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </TabsContent>
             </div>
           </Tabs>

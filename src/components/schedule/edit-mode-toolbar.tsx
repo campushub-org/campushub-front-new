@@ -35,9 +35,6 @@ interface EditModeToolbarProps {
   canUndo?: boolean
   canRedo?: boolean
   hasConflicts?: boolean
-  pendingChanges?: number
-  onSaveAll?: () => void
-  onDiscardAll?: () => void
 }
 
 export function EditModeToolbar({
@@ -49,15 +46,12 @@ export function EditModeToolbar({
   canUndo = false,
   canRedo = false,
   hasConflicts = false,
-  pendingChanges = 0,
-  onSaveAll,
-  onDiscardAll,
 }: EditModeToolbarProps) {
   return (
     <TooltipProvider>
       <div
         className={cn(
-          "flex items-center gap-2 rounded-xl border p-2 transition-all",
+          "flex items-center gap-2 rounded-xl border p-2 transition-all -ml-20",
           isEditMode
             ? "border-primary/50 bg-primary/10"
             : "border-border bg-card"
@@ -186,46 +180,12 @@ export function EditModeToolbar({
 
         <div className="flex-1" />
 
-        {/* Status & Save */}
-        {isEditMode && (
-          <div className="flex items-center gap-2">
-            {hasConflicts && (
-              <Badge variant="destructive" className="gap-1">
+        {/* Status */}
+        {isEditMode && hasConflicts && (
+            <Badge variant="destructive" className="gap-1 mx-4">
                 <AlertTriangle className="h-3 w-3" />
                 Conflits
-              </Badge>
-            )}
-
-            {pendingChanges > 0 && (
-              <Badge variant="secondary" className="gap-1">
-                <Sparkles className="h-3 w-3" />
-                {pendingChanges} modification{pendingChanges > 1 ? "s" : ""}
-              </Badge>
-            )}
-
-            {pendingChanges > 0 && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1.5 text-muted-foreground"
-                  onClick={onDiscardAll}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Annuler tout</span>
-                </Button>
-
-                <Button
-                  size="sm"
-                  className="h-8 gap-1.5"
-                  onClick={onSaveAll}
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Sauvegarder
-                </Button>
-              </>
-            )}
-          </div>
+            </Badge>
         )}
       </div>
     </TooltipProvider>

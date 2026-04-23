@@ -10,6 +10,12 @@ export interface ScheduleEvent {
   endTime: string
   day: number // 0 = Monday, 4 = Friday
   description?: string
+  teacherId?: number
+  roomId?: number
+  subjectCode?: string
+  seriesId?: string
+  semester?: number
+  academicYear?: string
 }
 
 export interface FilterState {
