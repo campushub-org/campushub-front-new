@@ -106,6 +106,10 @@ export function EventDrawer({
   const [teachers, setTeachers] = useState<{id: number, fullName: string}[]>([])
   const [loadingTeachers, setLoadingTeachers] = useState(false)
   
+  // Assignments for the selected subject
+  const [assignments, setAssignments] = useState<{id: number, teacherName: string, role: string}[]>([])
+  const [loadingAssignments, setLoadingAssignments] = useState(false)
+  
   // Real rooms data state
   const [rooms, setRooms] = useState<{id: number, nom: string}[]>([])
   const [loadingRooms, setLoadingRooms] = useState(false)
@@ -121,7 +125,6 @@ export function EventDrawer({
           api.get(`/campushub-salle-service/api/salles?filiere=INFO`)
         ])
         setTeachers(teachersRes.data)
-        // roomsRes.data contient les objets salles complets avec id et nom
         setRooms(roomsRes.data)
       } catch (err) {
         console.error("Error fetching dependencies", err)
@@ -132,6 +135,26 @@ export function EventDrawer({
     }
     fetchDependencies()
   }, [])
+
+  // Fetch assignments when subject changes
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      if (!formData.subjectCode) {
+        setAssignments([])
+        return
+      }
+      setLoadingAssignments(true)
+      try {
+        const response = await api.get(`/campushub-scheduling-service/api/scheduling/assignments/subject/${formData.subjectCode}`)
+        setAssignments(response.data)
+      } catch (err) {
+        console.error("Error fetching assignments", err)
+      } finally {
+        setLoadingAssignments(false)
+      }
+    }
+    if (isOpen) fetchAssignments()
+  }, [formData.subjectCode, isOpen])
 
   // Fetch subjects when level or semester changes
   useEffect(() => {
@@ -473,7 +496,9 @@ export function EventDrawer({
                       setFormData(prev => ({ 
                         ...prev, 
                         title: selected?.name || v, 
-                        subjectCode: selected?.code || "" 
+                        subjectCode: selected?.code || "",
+                        teacherId: undefined, // Réinitialiser le prof
+                        professor: "" 
                       }));
                       setHasChanges(true);
                     }}
@@ -638,30 +663,42 @@ export function EventDrawer({
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">
                     <User className="mr-1.5 inline h-4 w-4" />
-                    Enseignant
+                    Enseignant (Assignation)
                   </Label>
                   <Select
                     value={formData.teacherId?.toString() || ""}
-                    onValueChange={(v) => handleChange("teacherId", parseInt(v))}
+                    onValueChange={(v) => {
+                      const selected = assignments.find(a => a.id.toString() === v);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        teacherId: parseInt(v),
+                        professor: selected?.teacherName || "" 
+                      }));
+                      setHasChanges(true);
+                    }}
+                    disabled={!formData.subjectCode}
                   >
                     <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
-                      <SelectValue placeholder="Sélectionner un enseignant" />
+                      <SelectValue placeholder={!formData.subjectCode ? "Choisir une UE d'abord" : "Sélectionner un enseignant"} />
                     </SelectTrigger>
                     <SelectContent className="border-blue-500/20">
-                      {loadingTeachers ? (
+                      {loadingAssignments ? (
                         <SelectItem value="loading" disabled>Chargement...</SelectItem>
-                      ) : teachers.length > 0 ? (
-                        teachers.map((prof) => (
+                      ) : assignments.length > 0 ? (
+                        assignments.map((asg) => (
                           <SelectItem 
-                            key={prof.id} 
-                            value={prof.id.toString()}
+                            key={asg.id} 
+                            value={asg.id.toString()}
                             className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
                           >
-                            <span className="truncate">{prof.fullName}</span>
+                            <div className="flex flex-col">
+                              <span className="truncate font-medium">{asg.teacherName}</span>
+                              <span className="text-[10px] opacity-70 uppercase">{asg.role.replace("_", " ")}</span>
+                            </div>
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="none" disabled>Aucun enseignant trouvé</SelectItem>
+                        <SelectItem value="none" disabled>Aucun enseignant assigné</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
