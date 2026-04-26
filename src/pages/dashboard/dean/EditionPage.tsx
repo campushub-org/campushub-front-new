@@ -606,20 +606,18 @@ const EditionPage: React.FC = () => {
                   </div>
 
                   {/* BARRE D'ACTIONS FIXE */}
-                  <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 animate-in slide-in-from-bottom-10 duration-700">
-                    <div className="bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-4 flex items-center justify-between gap-4">
+                  <div className="sticky bottom-0 left-0 w-full bg-background/95 backdrop-blur-xl border-t border-border p-4 flex items-center justify-between gap-4 mt-auto">
                       <Button variant="ghost" className="text-destructive hover:bg-destructive/10 font-bold gap-2" onClick={() => handleDelete(selectedItem.id || selectedItem.code)}>
                         <Trash2 className="h-4 w-4" /> Supprimer
                       </Button>
                       <div className="flex gap-3">
                         <Button variant="outline" className="px-6 rounded-xl font-semibold border-border/60 hover:bg-muted" onClick={() => setViewMode("list")}>Annuler</Button>
-                        <Button className="px-10 rounded-xl font-bold gap-2 shadow-xl shadow-primary/20 h-11" onClick={handleSave} disabled={isSaving}>
+                        <Button className="px-10 rounded-xl font-bold gap-2 shadow-sm shadow-primary/20 h-11" onClick={handleSave} disabled={isSaving}>
                           {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                           Enregistrer les données
                         </Button>
                       </div>
                     </div>
-                  </div>
                 </div>
               )}
             </div>
