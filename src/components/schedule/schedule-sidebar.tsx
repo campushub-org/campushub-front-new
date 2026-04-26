@@ -8,6 +8,8 @@ import { ResourceFilters } from "./resource-filters"
 interface ScheduleSidebarProps {
   events: ScheduleEvent[]
   selectedTypes: CourseType[]
+  allProfessors: string[]
+  allRooms: string[]
   selectedProfessors: string[]
   selectedRooms: string[]
   selectedLevels: string[]
@@ -19,6 +21,8 @@ interface ScheduleSidebarProps {
 export function ScheduleSidebar({
   events,
   selectedTypes,
+  allProfessors,
+  allRooms,
   selectedProfessors,
   selectedRooms,
   selectedLevels,
@@ -99,6 +103,8 @@ export function ScheduleSidebar({
       <div className="rounded-xl border border-border bg-card p-4">
         <ResourceFilters
           events={events}
+          allProfessors={allProfessors}
+          allRooms={allRooms}
           selectedProfessors={selectedProfessors}
           selectedRooms={selectedRooms}
           selectedLevels={selectedLevels}

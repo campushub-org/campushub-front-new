@@ -41,7 +41,7 @@ import DeanSchedulingPage from "./pages/dashboard/dean/SchedulingPage";
 import DeanNotificationsPage from "./pages/dashboard/dean/NotificationsPage";
 import DeanProfilePage from "./pages/dashboard/dean/ProfilePage";
 import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage";
-import TimetableUploadPage from "./pages/dashboard/dean/TimetableUploadPage"; // Import new page
+import EditionPage from "./pages/dashboard/dean/EditionPage";
 
 // Admin Pages
 import AdminLayout from "./pages/dashboard/admin/AdminLayout";
@@ -96,7 +96,7 @@ const App = () => (
                 <Route index element={<DeanDashboard />} />
                 <Route path="validations" element={<ValidationPage />} />
                 <Route path="support/view/:materialId" element={<DeanViewMaterialPage />} />
-                <Route path="timetable-upload" element={<TimetableUploadPage />} /> {/* New route */}
+                <Route path="timetable-upload" element={<EditionPage />} />
                 <Route path="schedule" element={<DeanSchedulingPage />} />
                 <Route path="schedule-courses" element={<DeanSchedulingPage />} />
                 <Route path="schedule-exams" element={<DeanSchedulingPage />} />

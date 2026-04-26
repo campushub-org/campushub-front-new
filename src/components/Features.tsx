@@ -21,8 +21,8 @@ const features = [
     icon: Bell,
     title: "Notifications Temps Réel",
     description: "Alertes instantanées pour les changements d'horaires, nouveaux supports et examens.",
-    gradient: "from-orange-500/10 to-red-500/10",
-    iconColor: "text-orange-500",
+    gradient: "from-blue-500/10 to-indigo-500/10",
+    iconColor: "text-blue-500",
   },
   {
     icon: BarChart,
@@ -42,7 +42,7 @@ const features = [
     icon: Smartphone,
     title: "Expérience Mobile",
     description: "Accédez à CampusHub partout avec une interface optimisée pour tous vos appareils.",
-    gradient: "from-rose-500/10 to-orange-500/10",
+    gradient: "from-purple-500/10 to-blue-500/10",
     iconColor: "text-rose-500",
   },
 ];

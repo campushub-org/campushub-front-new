@@ -9,19 +9,38 @@ interface DayViewProps {
   events: ScheduleEvent[]
   currentDate: Date
   selectedTypes: CourseType[]
+  selectedProfessors?: string[]
+  selectedRooms?: string[]
+  selectedLevels?: string[]
   onEventClick?: (event: ScheduleEvent) => void
 }
 
-export function DayView({ events, currentDate, selectedTypes, onEventClick }: DayViewProps) {
+export function DayView({ 
+  events, 
+  currentDate, 
+  selectedTypes,
+  selectedProfessors = [],
+  selectedRooms = [],
+  selectedLevels = [],
+  onEventClick 
+}: DayViewProps) {
+  const filteredEvents = useMemo(() => {
+    return events.filter((event) => {
+      const typeMatch = selectedTypes.includes(event.type)
+      const professorMatch = selectedProfessors.length === 0 || selectedProfessors.includes(event.professor)
+      const roomMatch = selectedRooms.length === 0 || selectedRooms.includes(event.room)
+      const levelMatch = selectedLevels.length === 0 || (event.level && selectedLevels.includes(event.level))
+      return typeMatch && professorMatch && roomMatch && levelMatch
+    })
+  }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])
+
   const dayIndex = useMemo(() => {
     const day = currentDate.getDay()
-    // Convert Sunday (0) to -1, otherwise day - 1 (Monday = 0)
     return day === 0 ? -1 : day - 1
   }, [currentDate])
 
-  const filteredEvents = useMemo(() => {
-    return events
-      .filter(event => event.day === dayIndex && selectedTypes.includes(event.type))
+  const todaysEvents = filteredEvents
+      .filter((e) => e.day === dayIndex)
       .sort((a, b) => {
         const [aH, aM] = a.startTime.split(":").map(Number)
         const [bH, bM] = b.startTime.split(":").map(Number)

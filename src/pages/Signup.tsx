@@ -39,9 +39,9 @@ const roles = [
     label: "Doyen",
     icon: Shield,
     description: "Validez les supports et superviser le campus",
-    color: "bg-orange-500",
-    lightColor: "bg-orange-50 dark:bg-orange-900/20",
-    borderColor: "border-orange-200 dark:border-orange-800",
+    color: "bg-indigo-500",
+    lightColor: "bg-indigo-50 dark:bg-indigo-900/20",
+    borderColor: "border-indigo-200 dark:border-indigo-800",
   },
 ];
 

@@ -34,7 +34,7 @@ const DeanSchedulingPage: React.FC = () => {
   ]);
   const [selectedProfessors, setSelectedProfessors] = useState<string[]>([]);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
-  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>(["L1"]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Real data and loading state
@@ -43,6 +43,8 @@ const DeanSchedulingPage: React.FC = () => {
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
   const [events, setEvents] = useState<ScheduleEvent[]>(sampleEvents);
+  const [allProfessors, setAllProfessors] = useState<string[]>([]);
+  const [allRooms, setAllRooms] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
   const [isNewEvent, setIsNewEvent] = useState(false);
@@ -54,15 +56,35 @@ const DeanSchedulingPage: React.FC = () => {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get<ScheduleEvent[]>("/campushub-scheduling-service/api/scheduling/events");
-      if (response.data && response.data.length > 0) {
-        setEvents(response.data);
-        setHistory([response.data]);
+      const [eventsRes, teachersRes, roomsRes] = await Promise.all([
+        api.get<ScheduleEvent[]>("/campushub-scheduling-service/api/scheduling/events"),
+        api.get<any[]>("/campushub-user-service/api/users"),
+        api.get<any[]>("/campushub-salle-service/api/salles")
+      ]);
+
+      if (eventsRes.data) {
+        setEvents(eventsRes.data);
+        setHistory([eventsRes.data]);
         setHistoryIndex(0);
       }
+
+      // Filter and map names
+      if (teachersRes.data) {
+        const profNames = teachersRes.data
+          .filter(u => u.role === "TEACHER")
+          .map(u => u.fullName)
+          .sort();
+        setAllProfessors(profNames);
+      }
+
+      if (roomsRes.data) {
+        const roomNames = roomsRes.data
+          .map(r => r.nom)
+          .sort();
+        setAllRooms(roomNames);
+      }
     } catch (err) {
-      console.error("Failed to fetch events:", err);
-      // Fallback implicitly remains sampleEvents if API fails
+      console.error("Failed to fetch data:", err);
     } finally {
       setLoading(false);
     }
@@ -133,11 +155,12 @@ const DeanSchedulingPage: React.FC = () => {
   }, []);
 
   const handleLevelToggle = useCallback((level: string) => {
-    setSelectedLevels(prev =>
-      prev.includes(level)
-        ? prev.filter(l => l !== level)
-        : [...prev, level]
-    );
+    setSelectedLevels(prev => {
+      if (prev.includes(level)) {
+        return prev.length > 1 ? prev.filter(l => l !== level) : prev;
+      }
+      return [...prev, level];
+    });
   }, []);
 
   const handleDayClick = useCallback((date: Date) => {
@@ -281,6 +304,8 @@ const DeanSchedulingPage: React.FC = () => {
             <ScheduleSidebar 
               events={events} 
               selectedTypes={selectedTypes}
+              allProfessors={allProfessors}
+              allRooms={allRooms}
               selectedProfessors={selectedProfessors}
               selectedRooms={selectedRooms}
               selectedLevels={selectedLevels}
@@ -375,6 +400,9 @@ const DeanSchedulingPage: React.FC = () => {
                   events={events}
                   currentDate={currentDate}
                   selectedTypes={selectedTypes}
+                  selectedProfessors={selectedProfessors}
+                  selectedRooms={selectedRooms}
+                  selectedLevels={selectedLevels}
                   onEventClick={handleEventClick}
                 />
               )}
@@ -383,6 +411,9 @@ const DeanSchedulingPage: React.FC = () => {
                   events={events}
                   currentDate={currentDate}
                   selectedTypes={selectedTypes}
+                  selectedProfessors={selectedProfessors}
+                  selectedRooms={selectedRooms}
+                  selectedLevels={selectedLevels}
                   onEventClick={handleEventClick}
                   onDayClick={handleDayClick}
                 />

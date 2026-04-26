@@ -96,7 +96,7 @@ const StudentDashboard: React.FC = () => {
                 Consulter mes supports
               </button>
               <button className="flex items-center gap-3 w-full p-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-left">
-                <div className="h-8 w-8 rounded bg-orange-100 text-orange-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
                   <Zap className="h-4 w-4" />
                 </div>
                 Emploi du temps

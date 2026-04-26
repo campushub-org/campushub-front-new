@@ -14,6 +14,9 @@ interface MonthViewProps {
   events: ScheduleEvent[]
   currentDate: Date
   selectedTypes: CourseType[]
+  selectedProfessors?: string[]
+  selectedRooms?: string[]
+  selectedLevels?: string[]
   onEventClick?: (event: ScheduleEvent) => void
   onDayClick?: (date: Date) => void
 }
@@ -21,10 +24,23 @@ interface MonthViewProps {
 export function MonthView({ 
   events, 
   currentDate, 
-  selectedTypes, 
+  selectedTypes,
+  selectedProfessors = [],
+  selectedRooms = [],
+  selectedLevels = [],
   onEventClick,
   onDayClick 
 }: MonthViewProps) {
+  const filteredEvents = useMemo(() => {
+    return events.filter((event) => {
+      const typeMatch = selectedTypes.includes(event.type)
+      const professorMatch = selectedProfessors.length === 0 || selectedProfessors.includes(event.professor)
+      const roomMatch = selectedRooms.length === 0 || selectedRooms.includes(event.room)
+      const levelMatch = selectedLevels.length === 0 || (event.level && selectedLevels.includes(event.level))
+      return typeMatch && professorMatch && roomMatch && levelMatch
+    })
+  }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])
+
   const calendarDays = useMemo(() => {
     const year = currentDate.getFullYear()
     const month = currentDate.getMonth()
