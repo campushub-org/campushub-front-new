@@ -3,13 +3,29 @@
 import { Clock, TrendingUp, BookOpen, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent, courseTypeLabels, courseTypeColors, CourseType } from "@/lib/schedule-data"
+import { ResourceFilters } from "./resource-filters"
 
 interface ScheduleSidebarProps {
   events: ScheduleEvent[]
   selectedTypes: CourseType[]
+  selectedProfessors: string[]
+  selectedRooms: string[]
+  selectedLevels: string[]
+  onProfessorToggle: (professor: string) => void
+  onRoomToggle: (room: string) => void
+  onLevelToggle: (level: string) => void
 }
 
-export function ScheduleSidebar({ events, selectedTypes }: ScheduleSidebarProps) {
+export function ScheduleSidebar({
+  events,
+  selectedTypes,
+  selectedProfessors,
+  selectedRooms,
+  selectedLevels,
+  onProfessorToggle,
+  onRoomToggle,
+  onLevelToggle
+}: ScheduleSidebarProps) {
   const today = new Date()
   const dayOfWeek = today.getDay()
   const todayIndex = dayOfWeek === 0 ? -1 : dayOfWeek - 1
@@ -77,6 +93,19 @@ export function ScheduleSidebar({ events, selectedTypes }: ScheduleSidebarProps)
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Resource Filters */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <ResourceFilters
+          events={events}
+          selectedProfessors={selectedProfessors}
+          selectedRooms={selectedRooms}
+          selectedLevels={selectedLevels}
+          onProfessorToggle={onProfessorToggle}
+          onRoomToggle={onRoomToggle}
+          onLevelToggle={onLevelToggle}
+        />
       </div>
 
       {/* Type breakdown */}

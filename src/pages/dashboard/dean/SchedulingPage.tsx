@@ -32,6 +32,9 @@ const DeanSchedulingPage: React.FC = () => {
   const [selectedTypes, setSelectedTypes] = useState<CourseType[]>([
     "lecture", "td", "tp", "exam", "meeting"
   ]);
+  const [selectedProfessors, setSelectedProfessors] = useState<string[]>([]);
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Real data and loading state
@@ -110,6 +113,30 @@ const DeanSchedulingPage: React.FC = () => {
       prev.includes(type)
         ? prev.filter(t => t !== type)
         : [...prev, type]
+    );
+  }, []);
+
+  const handleProfessorToggle = useCallback((professor: string) => {
+    setSelectedProfessors(prev =>
+      prev.includes(professor)
+        ? prev.filter(p => p !== professor)
+        : [...prev, professor]
+    );
+  }, []);
+
+  const handleRoomToggle = useCallback((room: string) => {
+    setSelectedRooms(prev =>
+      prev.includes(room)
+        ? prev.filter(r => r !== room)
+        : [...prev, room]
+    );
+  }, []);
+
+  const handleLevelToggle = useCallback((level: string) => {
+    setSelectedLevels(prev =>
+      prev.includes(level)
+        ? prev.filter(l => l !== level)
+        : [...prev, level]
     );
   }, []);
 
@@ -254,6 +281,12 @@ const DeanSchedulingPage: React.FC = () => {
             <ScheduleSidebar 
               events={events} 
               selectedTypes={selectedTypes}
+              selectedProfessors={selectedProfessors}
+              selectedRooms={selectedRooms}
+              selectedLevels={selectedLevels}
+              onProfessorToggle={handleProfessorToggle}
+              onRoomToggle={handleRoomToggle}
+              onLevelToggle={handleLevelToggle}
             />
           </div>
         </aside>
@@ -328,6 +361,9 @@ const DeanSchedulingPage: React.FC = () => {
                   events={events}
                   currentDate={currentDate}
                   selectedTypes={selectedTypes}
+                  selectedProfessors={selectedProfessors}
+                  selectedRooms={selectedRooms}
+                  selectedLevels={selectedLevels}
                   isEditMode={isEditMode}
                   onEventClick={handleEventClick}
                   onEventUpdate={handleEventUpdate}
