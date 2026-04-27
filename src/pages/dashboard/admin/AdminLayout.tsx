@@ -2,11 +2,13 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import DashboardLayout from '../DashboardLayout';
 import { NavItem } from '@/components/dashboard/Sidebar';
-import { LayoutDashboard, Activity, Bell, User } from 'lucide-react';
+import { LayoutDashboard, Activity, Search, Bell, User } from 'lucide-react';
 
 const adminNavItems: NavItem[] = [
   { to: '/dashboard/admin', icon: <LayoutDashboard size={20} />, label: 'Tableau de bord' },
   { to: '/dashboard/admin/activity', icon: <Activity size={20} />, label: 'Suivi Activité' },
+  { to: '/dashboard/admin/schedule-filter', icon: <Search size={20} />, label: 'Filtrage du planning par ressource' },
+
 ];
 
 const AdminLayout: React.FC = () => {
