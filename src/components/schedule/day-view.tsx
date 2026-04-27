@@ -26,10 +26,12 @@ export function DayView({
 }: DayViewProps) {
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
-      const typeMatch = selectedTypes.includes(event.type)
-      const professorMatch = selectedProfessors.length === 0 || selectedProfessors.includes(event.professor)
-      const roomMatch = selectedRooms.length === 0 || selectedRooms.includes(event.room)
-      const levelMatch = selectedLevels.length === 0 || (event.level && selectedLevels.includes(event.level))
+      const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
+      const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
+      const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
+      const levelMatch = selectedLevels.length === 0 || 
+        selectedLevels.includes(`L${event.subjectCode?.replace(/\D/g, '')[0]}`) ||
+        (event.level && selectedLevels.includes(event.level))
       return typeMatch && professorMatch && roomMatch && levelMatch
     })
   }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])
@@ -39,14 +41,15 @@ export function DayView({
     return day === 0 ? -1 : day - 1
   }, [currentDate])
 
-  const todaysEvents = filteredEvents
+  const todaysEvents = useMemo(() => {
+    return filteredEvents
       .filter((e) => e.day === dayIndex)
       .sort((a, b) => {
         const [aH, aM] = a.startTime.split(":").map(Number)
         const [bH, bM] = b.startTime.split(":").map(Number)
         return (aH * 60 + aM) - (bH * 60 + bM)
       })
-  }, [events, dayIndex, selectedTypes])
+  }, [filteredEvents, dayIndex])
 
   const calculateEventPosition = (event: ScheduleEvent) => {
     const [startH, startM] = event.startTime.split(":").map(Number)

@@ -33,10 +33,12 @@ export function MonthView({
 }: MonthViewProps) {
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
-      const typeMatch = selectedTypes.includes(event.type)
-      const professorMatch = selectedProfessors.length === 0 || selectedProfessors.includes(event.professor)
-      const roomMatch = selectedRooms.length === 0 || selectedRooms.includes(event.room)
-      const levelMatch = selectedLevels.length === 0 || (event.level && selectedLevels.includes(event.level))
+      const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
+      const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
+      const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
+      const levelMatch = selectedLevels.length === 0 || 
+        selectedLevels.includes(`L${event.subjectCode?.replace(/\D/g, '')[0]}`) ||
+        (event.level && selectedLevels.includes(event.level))
       return typeMatch && professorMatch && roomMatch && levelMatch
     })
   }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])
@@ -71,10 +73,6 @@ export function MonthView({
     
     return days
   }, [currentDate])
-
-  const filteredEvents = useMemo(() => {
-    return events.filter(event => selectedTypes.includes(event.type))
-  }, [events, selectedTypes])
 
   const getEventsForDate = (date: Date) => {
     const dayOfWeek = date.getDay()

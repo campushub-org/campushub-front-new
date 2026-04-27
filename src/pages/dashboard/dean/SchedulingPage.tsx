@@ -63,6 +63,7 @@ const DeanSchedulingPage: React.FC = () => {
       ]);
 
       if (eventsRes.data) {
+        console.log("Données brutes reçues de l'API events :", eventsRes.data);
         setEvents(eventsRes.data);
         setHistory([eventsRes.data]);
         setHistoryIndex(0);

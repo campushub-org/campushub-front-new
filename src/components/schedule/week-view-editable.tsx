@@ -71,15 +71,16 @@ export function WeekViewEditable({
 
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
-      const typeMatch = selectedTypes.includes(event.type)
-      const professorMatch = selectedProfessors.length === 0 || selectedProfessors.includes(event.professor)
-      const roomMatch = selectedRooms.length === 0 || selectedRooms.includes(event.room)
-      const levelMatch = selectedLevels.length === 0 || (event.level && selectedLevels.includes(event.level))
+      const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
+      const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
+      const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
+      const levelMatch = selectedLevels.length === 0 || 
+        selectedLevels.includes(`L${event.subjectCode?.replace(/\D/g, '')[0]}`) ||
+        (event.level && selectedLevels.includes(event.level))
 
       return typeMatch && professorMatch && roomMatch && levelMatch
     })
   }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])
-
   const getEventsForSlot = (dayIndex: number) => {
     return filteredEvents.filter((event) => event.day === dayIndex)
   }

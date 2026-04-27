@@ -167,7 +167,11 @@ export function ResourceFilters({
         </button>
 
         {expandedSection === "professors" && (
-          <div className="border-t border-border px-3 py-2 space-y-1.5 max-h-48 overflow-y-auto">
+          <div className="border-t border-border px-3 py-2 space-y-1.5 bg-card/20">
+            <div className="flex gap-2 mb-2 pb-2 border-b border-border/30">
+                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => professorsList.forEach(p => !selectedProfessors.includes(p) && onProfessorToggle(p))}>Tout cocher</Button>
+                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => selectedProfessors.forEach(onProfessorToggle)}>Tout décocher</Button>
+            </div>
             {professorsList.length === 0 ? (
               <p className="text-xs text-muted-foreground py-2 text-center">Aucun enseignant trouvé</p>
             ) : (
@@ -223,7 +227,11 @@ export function ResourceFilters({
         </button>
 
         {expandedSection === "rooms" && (
-          <div className="border-t border-border px-3 py-2 space-y-1.5 max-h-48 overflow-y-auto">
+          <div className="border-t border-border px-3 py-2 space-y-1.5 bg-card/20">
+             <div className="flex gap-2 mb-2 pb-2 border-b border-border/30">
+                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => roomsList.forEach(r => !selectedRooms.includes(r) && onRoomToggle(r))}>Tout cocher</Button>
+                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => selectedRooms.forEach(onRoomToggle)}>Tout décocher</Button>
+            </div>
             {roomsList.length === 0 ? (
               <p className="text-xs text-muted-foreground py-2 text-center">Aucune salle trouvée</p>
             ) : (
