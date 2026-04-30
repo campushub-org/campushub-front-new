@@ -72,7 +72,7 @@ const Header: React.FC = () => {
       'dashboard': 'Tableau de bord',
       'teacher': 'Enseignant',
       'student': 'Étudiant',
-      'dean': 'Doyen',
+      'dean': 'Équipe Pédagogique',
       'admin': 'Admin',
       'support': 'Supports',
       'profile': 'Profil',

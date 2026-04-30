@@ -246,7 +246,7 @@ const ViewMaterialPage: React.FC = () => {
                   <AlertCircle className="h-4 w-4" /> Visibilité
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                  Visible par les étudiants une fois validé par le doyen de votre département.
+                  Visible par les étudiants une fois validé par l'équipe Pédagogique de votre département.
                 </p>
               </div>
             </CardContent>

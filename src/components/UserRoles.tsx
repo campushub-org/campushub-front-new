@@ -22,7 +22,7 @@ const roles = [
   },
   {
     icon: UserCheck,
-    title: "Doyens",
+    title: "Équipe Pédagogique",
     description: "Supervisez la planification, validez les ressources et accédez aux statistiques de l'établissement.",
     color: "bg-indigo-500",
     lightColor: "bg-indigo-50",

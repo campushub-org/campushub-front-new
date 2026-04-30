@@ -69,7 +69,7 @@ const ManageSupportsPage: React.FC = () => {
 
         const deanUser = userMap[deanId];
         if (!deanUser || !deanUser.department) {
-          setError("Impossible de trouver le département du doyen.");
+          setError("Impossible de trouver le département de L’équipe Pédagogique.");
           setLoading(false);
           return;
         }

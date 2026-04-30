@@ -260,7 +260,7 @@ const DepositMaterialPage: React.FC = () => {
               Important
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-              Une fois publié, votre support sera soumis à la validation du doyen de votre département avant d'être visible par les étudiants.
+              Une fois publié, votre support sera soumis à la validation de l'équipe Pédagogique de votre département avant d'être visible par les étudiants.
             </p>
             <ul className="text-xs text-muted-foreground space-y-2 list-disc pl-4 font-medium">
               <li>Format PDF uniquement</li>

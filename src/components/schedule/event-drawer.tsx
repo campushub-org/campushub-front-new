@@ -282,7 +282,7 @@ export function EventDrawer({
         } else {
           payload = { 
             ...cleanFormData, 
-            seriesId: formData.seriesId || null,
+            seriesId: formData.seriesId || null ,
             academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
             semester: formData.semester || 1
           };

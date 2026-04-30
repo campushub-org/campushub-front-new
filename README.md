@@ -5,7 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
-> **CampusHub** est une plateforme de gestion académique moderne conçue comme une application SaaS (Software as a Service) haute performance. Elle offre une expérience utilisateur fluide pour les étudiants, les enseignants, les doyens et les administrateurs.
+> **CampusHub** est une plateforme de gestion académique moderne conçue comme une application SaaS (Software as a Service) haute performance. Elle offre une expérience utilisateur fluide pour les étudiants, les enseignants, les équipes pédagogiques et les administrateurs.
 
 ---
 
@@ -22,7 +22,7 @@ CampusHub a été repensé pour s'éloigner des designs e-commerce classiques et
 ### 📊 Tableaux de Bord Intelligents
 - **Enseignants** : Suivi des supports de cours, agenda dynamique et outils de dépôt rapide.
 - **Étudiants** : Vue d'ensemble de la progression, emploi du temps et accès aux ressources pédagogiques.
-- **Doyens** : Console de supervision, validation des documents et statistiques académiques.
+- **Équipes Pédagogiques** : Console de supervision, validation des documents et statistiques académiques.
 - **Admin** : Monitoring des microservices et gestion des ressources système.
 
 ---

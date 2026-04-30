@@ -210,7 +210,7 @@ const DeanProfilePage: React.FC = () => {
           <div className="text-center md:text-left space-y-2">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               <h1 className="text-3xl font-bold tracking-tight">{profileData.fullName}</h1>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">Doyen</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">Équipe Pédagogique</Badge>
             </div>
             <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -243,7 +243,7 @@ const DeanProfilePage: React.FC = () => {
             <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50">
               <div>
                 <CardTitle className="text-xl">Informations professionnelles</CardTitle>
-                <CardDescription>Gérez les détails de votre profil de doyen.</CardDescription>
+                <CardDescription>Gérez les détails du profil Équipe Pédagogique.</CardDescription>
               </div>
               <Button variant={isEditingProfile ? "default" : "outline"} onClick={isEditingProfile ? handleSaveProfile : handleEditToggle} className="gap-2" disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isEditingProfile ? <Save size={16} /> : <PencilLine size={16} />}

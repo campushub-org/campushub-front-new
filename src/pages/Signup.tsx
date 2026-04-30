@@ -36,7 +36,7 @@ const roles = [
   },
   {
     id: "DEAN",
-    label: "Doyen",
+    label: "Équipe Pédagogique",
     icon: Shield,
     description: "Validez les supports et superviser le campus",
     color: "bg-indigo-500",

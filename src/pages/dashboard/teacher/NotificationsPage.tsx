@@ -235,7 +235,7 @@ const TeacherNotificationsPage: React.FC = () => {
                             </span>
                           </div>
                           <p className={cn("text-sm leading-relaxed max-w-2xl", !notif.isRead ? "text-muted-foreground" : "text-muted-foreground/60")}>
-                            Le doyen a mis à jour votre support <span className="font-bold">"{notif.titre}"</span> ({notif.matiere}).
+                            L'équipe Pédagogique a mis à jour votre support <span className="font-bold">"{notif.titre}"</span> ({notif.matiere}).
                           </p>
                           
                           <div className="flex items-center gap-6 pt-2">
