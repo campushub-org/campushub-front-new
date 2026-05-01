@@ -103,4 +103,4 @@ Le projet utilise un système de variables CSS (`hsl`) pour permettre le changem
 Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
 
 ---
-<p align="center">Fait avec ❤️ pour CampusHub</p>
+<p align="center">Fait avec ❤️ pour CampusHub project M1</p>
