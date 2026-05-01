@@ -439,6 +439,12 @@ const EditionPage: React.FC = () => {
                              <FormGroup label="Département" icon={<Building className="h-4 w-4" />}>
                                <Input value={selectedItem.department || ""} onChange={v => setSelectedItem({...selectedItem, department: v.target.value})} placeholder="INFO, MATH, etc." />
                              </FormGroup>
+                             <FormGroup label="Numéro de bureau" icon={<MapPin className="h-4 w-4" />}>
+                               <Input value={selectedItem.officeNumber || ""} onChange={v => setSelectedItem({...selectedItem, officeNumber: v.target.value})} placeholder="Ex: B-204" />
+                             </FormGroup>
+                             <FormGroup label="Photo de profil (URL)" icon={<Monitor className="h-4 w-4" />}>
+                               <Input value={selectedItem.profilePictureUrl || ""} onChange={v => setSelectedItem({...selectedItem, profilePictureUrl: v.target.value})} placeholder="https://..." />
+                             </FormGroup>
                              {!selectedItem.id && (
                                <FormGroup label="Mot de passe temporaire" icon={<Lock className="h-4 w-4" />}>
                                  <Input type="password" value={selectedItem.password || ""} onChange={v => setSelectedItem({...selectedItem, password: v.target.value})} placeholder="••••••••" />
