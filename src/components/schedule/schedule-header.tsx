@@ -165,12 +165,6 @@ export function ScheduleHeader({
           <Download className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Exporter</span>
         </Button>
-
-        {/* Add event button */}
-        <Button size="sm" className="h-8 gap-1.5">
-          <Plus className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Ajouter</span>
-        </Button>
       </div>
     </div>
   )
