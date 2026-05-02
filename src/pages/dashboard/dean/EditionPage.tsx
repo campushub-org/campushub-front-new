@@ -148,6 +148,18 @@ const EditionPage: React.FC = () => {
     setViewMode("detail");
   };
 
+  const handleAdd = () => {
+    let defaults = {};
+    switch (activeEntity) {
+      case "teachers": defaults = { role: "TEACHER", department: "INFO", officeNumber: "", grade: "Professeur" }; break;
+      case "rooms": defaults = { actif: true, capacite: 50, batiment: "Bâtiment Principal" }; break;
+      case "subjects": defaults = { credits: 6, niveau: 1, semester: 1, category: "Fundamental" }; break;
+      case "assignments": defaults = { role: "COURSE_LECTURER" }; break;
+    }
+    setSelectedItem(defaults);
+    setViewMode("detail");
+  };
+
   const handleSave = async () => {
     if (!selectedItem) return;
     
@@ -305,7 +317,7 @@ const EditionPage: React.FC = () => {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={() => {setSelectedItem({ actif: true }); setViewMode("detail");}}>
+                  <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
                     <Plus className="h-4 w-4" />
                     <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
                   </Button>
@@ -363,7 +375,7 @@ const EditionPage: React.FC = () => {
                                 <p className="font-bold text-sm text-foreground">
                                   {item.fullName || item.nom || item.name || item.teacherName}
                                 </p>
-                                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                <div className="text-xs text-muted-foreground flex items-center gap-2">
                                   {activeEntity === "assignments" ? (
                                      <>
                                        <span className="font-semibold text-primary">{item.subjectCode}</span>
@@ -373,7 +385,7 @@ const EditionPage: React.FC = () => {
                                   ) : (
                                      item.email || item.code || item.subjectCode || item.batiment
                                   )}
-                                </p>
+                                </div>
                               </div>
                             </div>
                           </TableCell>

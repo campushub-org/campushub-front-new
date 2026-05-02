@@ -36,9 +36,11 @@ export function MonthView({
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
       const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
       const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
-      const levelMatch = selectedLevels.length === 0 || 
-        selectedLevels.includes(`L${event.subjectCode?.replace(/\D/g, '')[0]}`) ||
-        (event.level && selectedLevels.includes(event.level))
+      const levelMatch = selectedLevels.length === 0 || (() => {
+        const digit = event.subjectCode?.replace(/\D/g, '')[0]
+        const deducedLevel = digit === '4' ? "M1" : (digit === '5' ? "M2" : `L${digit}`)
+        return selectedLevels.includes(deducedLevel) || (event.level && selectedLevels.includes(event.level))
+      })()
       return typeMatch && professorMatch && roomMatch && levelMatch
     })
   }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])

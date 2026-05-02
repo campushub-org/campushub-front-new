@@ -218,4 +218,4 @@ export const timeSlots = [
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ]
 
-export const weekDays = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+export const weekDays = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]

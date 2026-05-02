@@ -20,7 +20,7 @@ export function WeekView({ events, currentDate, selectedTypes, onEventClick }: W
     const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1)
     startOfWeek.setDate(diff)
     
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek)
       date.setDate(startOfWeek.getDate() + i)
       dates.push(date)
@@ -74,7 +74,7 @@ export function WeekView({ events, currentDate, selectedTypes, onEventClick }: W
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
       {/* Header row with days */}
-      <div className="grid grid-cols-[60px_repeat(5,1fr)] border-b border-border bg-secondary/30">
+      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border bg-secondary/30">
         <div className="border-r border-border p-3" />
         {weekDays.map((day, index) => (
           <div
@@ -100,7 +100,7 @@ export function WeekView({ events, currentDate, selectedTypes, onEventClick }: W
       </div>
 
       {/* Time grid */}
-      <div className="relative grid grid-cols-[60px_repeat(5,1fr)] flex-1 overflow-auto">
+      <div className="relative grid grid-cols-[60px_repeat(7,1fr)] flex-1 overflow-auto">
         {/* Time labels column */}
         <div className="border-r border-border">
           {timeSlots.map((time) => (

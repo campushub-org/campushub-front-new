@@ -61,7 +61,7 @@ export function WeekViewEditable({
     const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1)
     startOfWeek.setDate(diff)
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek)
       date.setDate(startOfWeek.getDate() + i)
       dates.push(date)
@@ -74,9 +74,11 @@ export function WeekViewEditable({
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
       const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
       const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
-      const levelMatch = selectedLevels.length === 0 || 
-        selectedLevels.includes(`L${event.subjectCode?.replace(/\D/g, '')[0]}`) ||
-        (event.level && selectedLevels.includes(event.level))
+      const levelMatch = selectedLevels.length === 0 || (() => {
+        const digit = event.subjectCode?.replace(/\D/g, '')[0]
+        const deducedLevel = digit === '4' ? "M1" : (digit === '5' ? "M2" : `L${digit}`)
+        return selectedLevels.includes(deducedLevel) || (event.level && selectedLevels.includes(event.level))
+      })()
 
       return typeMatch && professorMatch && roomMatch && levelMatch
     })
@@ -234,7 +236,7 @@ export function WeekViewEditable({
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
       {/* Header row with days */}
-      <div className="grid grid-cols-[60px_repeat(5,1fr)] border-b border-border bg-secondary/30">
+      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border bg-secondary/30">
         <div className="border-r border-border p-3" />
         {weekDays.map((day, index) => (
           <div
@@ -262,7 +264,7 @@ export function WeekViewEditable({
       {/* Time grid */}
       <div
         ref={gridRef}
-        className="relative grid grid-cols-[60px_repeat(5,1fr)] flex-1 overflow-auto"
+        className="relative grid grid-cols-[60px_repeat(7,1fr)] flex-1 overflow-auto"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
