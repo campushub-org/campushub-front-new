@@ -299,13 +299,13 @@ export function WeekViewEditable({
                   <div
                     key={time}
                     className={cn(
-                      "relative h-16 border-b border-border/50 transition-colors pointer-events-auto z-20",
+                      "relative h-16 border-b border-border/50 transition-colors pointer-events-auto z-10",
                       isEditMode && "cursor-pointer hover:bg-primary/10",
                       isHovered && isEditMode && "bg-primary/15 border-2 border-dashed border-primary/30"
                     )}
                     onMouseEnter={() => isEditMode && setHoveredSlot({ day: dayIndex, hour })}
                     onMouseLeave={() => setHoveredSlot(null)}
-                    onClick={() => handleSlotClick(dayIndex, hour)}
+                    onClick={() => isEditMode && onCreateEvent?.(dayIndex, time)}
                   >
                     {isHovered && isEditMode && (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -339,13 +339,14 @@ export function WeekViewEditable({
                     <div
                       key={event.id}
                       className={cn(
-                        "absolute left-1 right-1 transition-opacity",
+                        "absolute left-1 right-1 transition-opacity z-20",
                         isDragging && "opacity-80 z-20"
                       )}
                       style={{
                         top: `${position.top}px`,
                         height: `${position.height}px`,
                       }}
+                      onClick={() => onEventClick?.(event)}
                     >
                       <EventCardEditable
                         event={displayEvent}

@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent, timeSlots, CourseType, weekDays } from "@/lib/schedule-data"
 import { EventCard } from "./event-card"
+import { Plus } from "lucide-react"
 
 interface DayViewProps {
   events: ScheduleEvent[]
@@ -12,7 +13,9 @@ interface DayViewProps {
   selectedProfessors?: string[]
   selectedRooms?: string[]
   selectedLevels?: string[]
+  isEditMode?: boolean
   onEventClick?: (event: ScheduleEvent) => void
+  onCreateEvent?: (day: number, startTime: string) => void
 }
 
 export function DayView({ 
@@ -22,8 +25,12 @@ export function DayView({
   selectedProfessors = [],
   selectedRooms = [],
   selectedLevels = [],
-  onEventClick 
+  isEditMode = false,
+  onEventClick,
+  onCreateEvent 
 }: DayViewProps) {
+  const [hoveredHour, setHoveredHour] = useState<number | null>(null)
+  
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
@@ -133,12 +140,32 @@ export function DayView({
             isToday() && "bg-primary/5"
           )}>
             {/* Hour grid lines */}
-            {timeSlots.map((time) => (
-              <div
-                key={time}
-                className="h-20 border-b border-border/50"
-              />
-            ))}
+            {timeSlots.map((time, idx) => {
+              const hour = 8 + idx;
+              const isHovered = hoveredHour === hour;
+              return (
+                <div
+                  key={time}
+                  className={cn(
+                    "h-20 border-b border-border/50 transition-colors relative",
+                    isEditMode && "cursor-pointer hover:bg-primary/10",
+                    isEditMode && isHovered && "bg-primary/15"
+                  )}
+                  onMouseEnter={() => isEditMode && setHoveredHour(hour)}
+                  onMouseLeave={() => setHoveredHour(null)}
+                  onClick={() => isEditMode && onCreateEvent?.(dayIndex, time)}
+                >
+                  {isEditMode && isHovered && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                       <div className="flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary animate-in zoom-in-95 duration-200">
+                          <Plus className="h-4 w-4" />
+                          Ajouter
+                       </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
 
             {/* Events */}
             <div className="absolute inset-0 p-2">
