@@ -12,9 +12,7 @@ import {
   Calendar,
   AlertCircle,
   Repeat,
-  Users,
   Bell,
-  Tag,
   Save,
   GripVertical,
   Loader2,
@@ -746,39 +744,6 @@ export function EventDrawer({
                     placeholder="Ajouter une description..."
                     className="min-h-[100px] bg-blue-500/10 border-blue-500/20 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                   />
-                </div>
-
-                {/* Tags */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    <Tag className="mr-1.5 inline h-4 w-4" />
-                    Tags
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">Obligatoire</Badge>
-                    <Badge variant="outline">Semestre 1</Badge>
-                    <Badge variant="outline">L3 Info</Badge>
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                      + Ajouter
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Capacity */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    <Users className="mr-1.5 inline h-4 w-4" />
-                    Capacité
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      className="w-20 bg-secondary/50"
-                      defaultValue={30}
-                    />
-                    <span className="text-sm text-muted-foreground">étudiants inscrits</span>
-                  </div>
                 </div>
               </TabsContent>
 
