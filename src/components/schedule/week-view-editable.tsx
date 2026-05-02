@@ -299,9 +299,9 @@ export function WeekViewEditable({
                   <div
                     key={time}
                     className={cn(
-                      "relative h-16 border-b border-border/50 transition-colors",
+                      "relative h-16 border-b border-border/50 transition-colors pointer-events-auto z-20",
                       isEditMode && "cursor-pointer hover:bg-primary/10",
-                      isHovered && isEditMode && "bg-primary/15"
+                      isHovered && isEditMode && "bg-primary/15 border-2 border-dashed border-primary/30"
                     )}
                     onMouseEnter={() => isEditMode && setHoveredSlot({ day: dayIndex, hour })}
                     onMouseLeave={() => setHoveredSlot(null)}
