@@ -33,7 +33,7 @@ const Hero = () => {
                 ))}
               </div>
               <span className="text-sm font-medium text-foreground">
-                Déjà adopté par +50 universités
+                Modélisé pour l'université de Yaoundé I
               </span>
             </motion.div>
 
