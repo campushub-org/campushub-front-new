@@ -57,10 +57,12 @@ const CTA = () => {
             <div className="mt-20 pt-12 border-t border-white/10">
               <p className="text-white/40 text-sm font-bold uppercase tracking-widest mb-10">Partenaires de confiance</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center justify-items-center opacity-40 grayscale contrast-125">
-                {[1, 2, 3, 4].map((i) => (
+                {[1].map((i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded bg-white" />
-                    <span className="text-xl font-bold text-white tracking-tighter">UNIVERSITY {i}</span>
+                    <div className="w-8 h-8 rounded bg-white">
+                      <img src="./logoUY1.png" alt="Université de Yaoundé I" className="w-full h-full object-contain rounded-full" />
+                    </div>
+                    <span className="text-xl font-bold text-white tracking-tighter">UY1</span>
                   </div>
                 ))}
               </div>
