@@ -313,6 +313,8 @@ const DeanSchedulingPage: React.FC = () => {
               onProfessorToggle={handleProfessorToggle}
               onRoomToggle={handleRoomToggle}
               onLevelToggle={handleLevelToggle}
+              isLoading={loading}
+              onRefresh={fetchEvents}
             />
           </div>
         </aside>
@@ -404,7 +406,9 @@ const DeanSchedulingPage: React.FC = () => {
                   selectedProfessors={selectedProfessors}
                   selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
+                  isEditMode={isEditMode}
                   onEventClick={handleEventClick}
+                  onCreateEvent={handleCreateEvent}
                 />
               )}
               {viewMode === "month" && (
