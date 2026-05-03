@@ -9,6 +9,8 @@ import Signin from "./pages/Signin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/dashboard/Dashboard";
+import SlotReservationPage from './pages/dashboard/teacher/SlotReservationPage';
+
 
 // Student Pages
 import StudentLayout from "./pages/dashboard/student/StudentLayout";
@@ -87,7 +89,8 @@ const App = () => (
                 <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
                 <Route path="deposit-material" element={<DepositMaterialPage />} />
                 <Route path="schedule-unified" element={<UnifiedSchedulingPage />} />
-                <Route path="schedule-exams" element={<TeacherExamSchedulePage />} />
+                <Route path="schedule-exams" element={<TeacherExamSchedulePage  />}/>
+                <Route path="reservation" element={<SlotReservationPage />} />
                 <Route path="notifications" element={<TeacherNotificationsPage />} />
                 <Route path="profile" element={<TeacherProfilePage />} />
               </Route>

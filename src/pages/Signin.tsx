@@ -56,11 +56,13 @@ const Signin = () => {
         const token = response.data.token;
         localStorage.setItem("token", token);
 
-        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+const decodedToken = JSON.parse(atob(token.split('.')[1]));
         const role = decodedToken.role.toLowerCase();
         const userId = decodedToken.id;
 
         localStorage.setItem('userRole', role);
+        localStorage.setItem('userId', String(userId));
+        localStorage.setItem('userName', decodedToken.name || decodedToken.username || decodedToken.sub || "Enseignant");
 
         try {
           const userProfileResponse = await api.get(`/campushub-user-service/api/users/${userId}`, {
