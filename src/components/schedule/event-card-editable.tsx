@@ -90,7 +90,7 @@ export function EventCardEditable({
             "font-bold leading-tight text-foreground/90 tracking-tight break-words line-clamp-2",
             isVeryShort ? "text-[9px]" : isShort ? "text-[10px]" : "text-xs"
           )}>
-            {event.title}
+            {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
           </p>
           
           {!isShort && (
@@ -149,8 +149,10 @@ export function EventCardEditable({
         <TooltipContent side="right" className="z-[100] p-0 border-none bg-transparent shadow-2xl overflow-hidden">
           <Card className="w-64 border-l-4 overflow-hidden" style={{ borderLeftColor: 'currentColor' }}>
             <CardHeader className={cn("p-3 pb-2", colors.bg)}>
-              <div className="flex justify-between items-start gap-2">
-                <p className="font-bold text-sm leading-tight">{event.title}</p>
+              <div className="flex justify-between items-start gap-2 text-left">
+                <p className="font-bold text-sm leading-tight">
+                  {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+                </p>
                 <Badge variant="outline" className={cn("text-[9px] h-4 font-bold uppercase", colors.bg, colors.text)}>
                   {courseTypeLabels[event.type]}
                 </Badge>

@@ -44,16 +44,18 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
               )}
             >
               <p className="truncate text-xs font-medium text-foreground">
-                {event.title}
+                {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
               </p>
               <p className="mt-0.5 text-[10px] text-muted-foreground">
                 {event.startTime} - {event.endTime}
               </p>
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right" className="max-w-xs">
+          <TooltipContent side="right" className="max-w-xs text-left">
             <div className="space-y-1">
-              <p className="font-medium">{event.title}</p>
+              <p className="font-medium">
+                {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+              </p>
               <p className="text-xs text-muted-foreground">{courseTypeLabels[event.type]}</p>
               <div className="flex items-center gap-1 text-xs">
                 <User className="h-3 w-3" />
@@ -88,7 +90,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
             "font-medium text-foreground line-clamp-1",
             isShort ? "text-xs" : "text-sm"
           )}>
-            {event.title}
+            {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
           </p>
           
           {!isShort && (
