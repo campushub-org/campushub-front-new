@@ -101,6 +101,61 @@ export function WeekViewEditable({
     return { top, height: Math.max(height - 4, 40) }
   }
 
+  // Algorithme pour calculer la largeur et la position horizontale des événements en cas de superposition
+  const eventLayouts = useMemo(() => {
+    const layouts: Record<string, { left: string; width: string }> = {}
+    
+    for (let day = 0; day < 7; day++) {
+      const dayEvents = filteredEvents.filter(e => e.day === day)
+        .map(e => {
+          const [sh, sm] = e.startTime.split(":").map(Number)
+          const [eh, em] = e.endTime.split(":").map(Number)
+          return { ...e, startMin: sh * 60 + sm, endMin: eh * 60 + em }
+        })
+        .sort((a, b) => a.startMin - b.startMin || (b.endMin - b.startMin) - (a.endMin - a.startMin))
+
+      const groups: any[][] = []
+      let currentGroup: any[] = []
+      let groupEnd = -1
+
+      dayEvents.forEach(event => {
+        if (event.startMin >= groupEnd) {
+          if (currentGroup.length > 0) groups.push(currentGroup)
+          currentGroup = [event]
+          groupEnd = event.endMin
+        } else {
+          currentGroup.push(event)
+          groupEnd = Math.max(groupEnd, event.endMin)
+        }
+      })
+      if (currentGroup.length > 0) groups.push(currentGroup)
+
+      groups.forEach(group => {
+        const columns: number[] = []
+        const results: any[] = []
+
+        group.forEach(event => {
+          let colIndex = columns.findIndex(end => event.startMin >= end)
+          if (colIndex === -1) {
+            colIndex = columns.length
+            columns.push(event.endMin)
+          } else {
+            columns[colIndex] = event.endMin
+          }
+          results.push({ id: event.id, colIndex })
+        })
+
+        results.forEach(res => {
+          layouts[res.id] = {
+            left: `${(res.colIndex / columns.length) * 100}%`,
+            width: `${(1 / columns.length) * 100}%`
+          }
+        })
+      })
+    }
+    return layouts
+  }, [filteredEvents])
+
   const isToday = (date: Date) => {
     const today = new Date()
     return date.toDateString() === today.toDateString()
@@ -339,12 +394,14 @@ export function WeekViewEditable({
                     <div
                       key={event.id}
                       className={cn(
-                        "absolute left-1 right-1 transition-opacity z-20",
+                        "absolute transition-opacity z-20",
                         isDragging && "opacity-80 z-20"
                       )}
                       style={{
                         top: `${position.top}px`,
                         height: `${position.height}px`,
+                        left: eventLayouts[event.id]?.left || "1px",
+                        width: eventLayouts[event.id]?.width ? `calc(${eventLayouts[event.id].width} - 2px)` : "calc(100% - 2px)",
                       }}
                       onClick={() => onEventClick?.(event)}
                     >
