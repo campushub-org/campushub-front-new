@@ -161,5 +161,105 @@
       "support": "Technical Support",
       "blog": "Academic Blog"
     }
+  },
+  "auth": {
+    "signin_title": "Welcome back!",
+    "signin_description": "Sign in to access your workspace.",
+    "username_label": "Username",
+    "password_label": "Password",
+    "password_forgot": "Forgot?",
+    "password_placeholder": "••••••••",
+    "username_placeholder": "your.name",
+    "signin_button": "Sign In",
+    "signing_in": "Signing in...",
+    "no_account": "Don't have an account yet?",
+    "signup_link": "Sign Up",
+    "or": "Or",
+    "error_empty": "Please fill in all fields.",
+    "error_invalid": "Invalid username or password.",
+    "secure_platform": "Secure Platform",
+    "marketing_title": "Academic management reinvented for ",
+    "marketing_title_highlight": "your success.",
+    "marketing_description": "Join a community of excellence and take advantage of smart tools for your studies."
+  },
+  "signup": {
+    "title": "Create your account",
+    "description": "Join the academic elite and manage your future.",
+    "choose_role": "Choose this role",
+    "step_of": "Step {{current}} of {{total}}",
+    "change_role": "Change role",
+    "form": {
+      "first_name": "First Name",
+      "first_name_placeholder": "John",
+      "last_name": "Last Name",
+      "last_name_placeholder": "Doe",
+      "username": "Username (Nickname)",
+      "username_placeholder": "j.doe",
+      "username_hint": "Automatically generated from your name",
+      "department": "Department",
+      "department_placeholder": "Choose...",
+      "email": "Academic Email",
+      "email_placeholder": "john.doe@univ.edu",
+      "academic_details": "Academic Details",
+      "student_number": "Student Number",
+      "student_number_placeholder": "Ex: 2024-001",
+      "office_number": "Office Number",
+      "office_number_placeholder": "Ex: B205",
+      "grade": "Grade / Title",
+      "grade_placeholder": "Your grade",
+      "password": "Password",
+      "confirm_password": "Confirm",
+      "submit": "Create my account",
+      "submitting": "Creating...",
+      "already_registered": "Already registered?",
+      "signin_link": "Sign In"
+    },
+    "roles": {
+      "student": {
+        "label": "Student",
+        "description": "Access materials and your schedules",
+        "signup_title": "Student Registration"
+      },
+      "teacher": {
+        "label": "Teacher",
+        "description": "Manage your courses and pedagogical materials",
+        "signup_title": "Teacher Registration"
+      },
+      "dean": {
+        "label": "Pedagogical Team",
+        "description": "Validate materials and supervise the campus",
+        "signup_title": "Pedagogical Team Registration"
+      }
+    },
+    "messages": {
+      "error_password_mismatch": "Passwords do not match!",
+      "success_registration": "Registration successful! Redirecting...",
+      "error_generic": "Error during registration."
+    },
+    "departments": {
+      "cs": "Computer Science",
+      "math": "Mathematics",
+      "phys": "Physics",
+      "chem": "Chemistry",
+      "bio": "Biology",
+      "law": "Law",
+      "econ": "Economics",
+      "mgt": "Management",
+      "lit": "Modern Literature",
+      "hist": "History",
+      "geo": "Geography",
+      "med": "Medicine",
+      "pharm": "Pharmacy",
+      "arch": "Architecture"
+    },
+    "grades": {
+      "prof": "Professor",
+      "assoc_prof": "Associate Professor",
+      "assistant": "Assistant",
+      "phd": "PhD Student",
+      "ta": "Teaching Assistant",
+      "contract": "Contract Teacher",
+      "edu_eng": "Educational Engineer"
+    }
   }
 }

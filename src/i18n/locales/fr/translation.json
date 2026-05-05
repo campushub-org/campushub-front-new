@@ -161,5 +161,105 @@
       "support": "Support technique",
       "blog": "Blog académique"
     }
+  },
+  "auth": {
+    "signin_title": "Bon retour !",
+    "signin_description": "Connectez-vous pour accéder à votre espace.",
+    "username_label": "Nom d'utilisateur",
+    "password_label": "Mot de passe",
+    "password_forgot": "Oublié ?",
+    "password_placeholder": "••••••••",
+    "username_placeholder": "votre.nom",
+    "signin_button": "Se connecter",
+    "signing_in": "Connexion...",
+    "no_account": "Pas encore de compte ?",
+    "signup_link": "S'inscrire",
+    "or": "Ou",
+    "error_empty": "Veuillez remplir tous les champs.",
+    "error_invalid": "Nom d'utilisateur ou mot de passe incorrect.",
+    "secure_platform": "Plateforme Sécurisée",
+    "marketing_title": "La gestion académique réinventée pour ",
+    "marketing_title_highlight": "votre succès.",
+    "marketing_description": "Rejoignez une communauté d'excellence et profitez d'outils intelligents pour vos études."
+  },
+  "signup": {
+    "title": "Créer votre compte",
+    "description": "Rejoignez l'élite académique et gérez votre avenir.",
+    "choose_role": "Choisir ce rôle",
+    "step_of": "Étape {{current}} sur {{total}}",
+    "change_role": "Changer de rôle",
+    "form": {
+      "first_name": "Prénom",
+      "first_name_placeholder": "Jean",
+      "last_name": "Nom",
+      "last_name_placeholder": "Dupont",
+      "username": "Nom d'utilisateur (Pseudo)",
+      "username_placeholder": "j.dupont",
+      "username_hint": "Généré automatiquement à partir de votre nom",
+      "department": "Département",
+      "department_placeholder": "Choisir...",
+      "email": "Email Académique",
+      "email_placeholder": "jean.dupont@univ.edu",
+      "academic_details": "Détails académiques",
+      "student_number": "Numéro d'étudiant",
+      "student_number_placeholder": "Ex: 2024-001",
+      "office_number": "Numéro de bureau",
+      "office_number_placeholder": "Ex: B205",
+      "grade": "Grade / Titre",
+      "grade_placeholder": "Votre grade",
+      "password": "Mot de passe",
+      "confirm_password": "Confirmation",
+      "submit": "Créer mon compte",
+      "submitting": "Création...",
+      "already_registered": "Déjà inscrit ?",
+      "signin_link": "Se connecter"
+    },
+    "roles": {
+      "student": {
+        "label": "Étudiant",
+        "description": "Accédez aux supports et vos emplois du temps",
+        "signup_title": "Inscription Étudiant"
+      },
+      "teacher": {
+        "label": "Enseignant",
+        "description": "Gérez vos cours et supports pédagogiques",
+        "signup_title": "Inscription Enseignant"
+      },
+      "dean": {
+        "label": "Équipe Pédagogique",
+        "description": "Validez les supports et superviser le campus",
+        "signup_title": "Inscription Équipe Pédagogique"
+      }
+    },
+    "messages": {
+      "error_password_mismatch": "Les mots de passe ne correspondent pas !",
+      "success_registration": "Inscription réussie ! Redirection...",
+      "error_generic": "Erreur lors de l'inscription."
+    },
+    "departments": {
+      "cs": "Informatique",
+      "math": "Mathématiques",
+      "phys": "Physique",
+      "chem": "Chimie",
+      "bio": "Biologie",
+      "law": "Droit",
+      "econ": "Économie",
+      "mgt": "Gestion",
+      "lit": "Lettres Modernes",
+      "hist": "Histoire",
+      "geo": "Géographie",
+      "med": "Médecine",
+      "pharm": "Pharmacie",
+      "arch": "Architecture"
+    },
+    "grades": {
+      "prof": "Professeur",
+      "assoc_prof": "Maître de Conférences",
+      "assistant": "Assistant",
+      "phd": "Doctorant",
+      "ta": "Chargé de TD",
+      "contract": "Vacataire",
+      "edu_eng": "Ingénieur Pédagogique"
+    }
   }
 }
