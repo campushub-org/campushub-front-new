@@ -1,0 +1,165 @@
+{
+  "common": {
+    "welcome": "Bienvenue sur CampusHub",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "notifications": "Notifications",
+    "search": "Rechercher...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement..."
+  },
+  "academic": {
+    "courses": "Cours",
+    "schedule": "Emploi du temps",
+    "exams": "Examens",
+    "grades": "Notes",
+    "attendance": "Présence",
+    "materials": "Supports de cours",
+    "planning": "Planning",
+    "students": "Étudiants",
+    "teachers": "Enseignants"
+  },
+  "roles": {
+    "admin": "Administrateur",
+    "teacher": "Enseignant",
+    "student": "Étudiant",
+    "dean": "Doyen"
+  },
+  "navbar": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "about": "À propos",
+    "contact": "Contact",
+    "signin": "Se connecter",
+    "signup": "S'inscrire"
+  },
+  "hero": {
+    "badge": "Modélisé pour l'université de Yaoundé I",
+    "title_part1": "L'excellence académique",
+    "title_part2": "en un clic",
+    "description": "CampusHub est la plateforme tout-en-un qui révolutionne la planification des examens, la gestion des cours et la vie étudiante.",
+    "cta_start": "Démarrer maintenant",
+    "cta_features": "Découvrir les fonctions",
+    "check_no_install": "Sans installation",
+    "check_support": "Support 24/7",
+    "mockup_alt": "Tableau de bord CampusHub",
+    "floating_planning_label": "Planning",
+    "floating_planning_desc": "Zéro conflit détecté",
+    "floating_alerts_label": "Alertes",
+    "floating_alerts_desc": "Notification envoyée",
+    "floating_rating": "4.9/5"
+  },
+  "problems": {
+    "title_part1": "Fini le chaos administratif.",
+    "title_part2": "Passez à la vitesse supérieure.",
+    "description": "CampusHub transforme vos processus archaïques en expériences fluides et automatisées.",
+    "before_label": "Avant",
+    "after_label": "Après",
+    "list": [
+      {
+        "before": "Planification manuelle laborieuse",
+        "after": "Automatisation totale en quelques secondes"
+      },
+      {
+        "before": "Conflits d'horaires et de salles",
+        "after": "Zéro conflit garanti par notre algorithme"
+      },
+      {
+        "before": "Supports de cours éparpillés",
+        "after": "Espace pédagogique centralisé et validé"
+      },
+      {
+        "before": "Étudiants mal informés",
+        "after": "Notifications push et SMS en temps réel"
+      }
+    ]
+  },
+  "features": {
+    "badge": "Puissant & Intuitif",
+    "title": "Tout pour votre établissement",
+    "description": "Une suite complète d'outils conçus pour simplifier la vie des étudiants, enseignants et administrateurs.",
+    "learn_more": "En savoir plus",
+    "list": [
+      {
+        "title": "Planification Intelligente",
+        "description": "Algorithme automatique qui élimine les conflits d'horaires et optimise l'utilisation des salles."
+      },
+      {
+        "title": "Gestion des Cours",
+        "description": "Supports pédagogiques centralisés avec un workflow de validation intégré et intuitif."
+      },
+      {
+        "title": "Notifications Temps Réel",
+        "description": "Alertes instantanées pour les changements d'horaires, nouveaux supports et examens."
+      },
+      {
+        "title": "Analyses & Rapports",
+        "description": "Tableaux de bord détaillés pour suivre l'assiduité et l'occupation des ressources."
+      },
+      {
+        "title": "Sécurité Maximale",
+        "description": "Protection des données académiques avec des standards de chiffrement de haut niveau."
+      },
+      {
+        "title": "Expérience Mobile",
+        "description": "Accédez à CampusHub partout avec une interface optimisée pour tous vos appareils."
+      }
+    ]
+  },
+  "roles_section": {
+    "badge": "Écosystème",
+    "title": "Une expérience sur mesure",
+    "description": "CampusHub s'adapte à chaque utilisateur avec des interfaces optimisées pour leurs besoins spécifiques.",
+    "learn_more": "En savoir plus",
+    "list": [
+      {
+        "title": "Étudiants",
+        "description": "Accédez à vos supports de cours, consultez vos emplois du temps et recevez vos alertes d'examen."
+      },
+      {
+        "title": "Enseignants",
+        "description": "Déposez vos cours, gérez vos disponibilités et suivez les validations de vos supports."
+      },
+      {
+        "title": "Équipe Pédagogique",
+        "description": "Supervisez la planification, validez les ressources et accédez aux statistiques de l'établissement."
+      },
+      {
+        "title": "Administrateurs",
+        "description": "Gerez les comptes, configurez les salles et maintenez l'infrastructure du campus."
+      }
+    ]
+  },
+  "cta": {
+    "badge": "Prêt pour le futur ?",
+    "title": "Réinventez la gestion de votre campus dès aujourd'hui.",
+    "description": "Rejoignez les universités qui font confiance à CampusHub pour moderniser leur infrastructure académique.",
+    "button": "Créer un compte gratuit",
+    "trial": "Essai de 30 jours inclus",
+    "partners": "Partenaires de confiance",
+    "partner_name": "Université de Yaoundé I"
+  },
+  "footer": {
+    "description": "La plateforme de référence pour la gestion académique moderne. Simplifiez, automatisez et transformez votre établissement.",
+    "product": "Produit",
+    "resources": "Ressources",
+    "contact": "Contact",
+    "copyright": "© 2026 CampusHub. Tous droits réservés. Conçu pour l'excellence.",
+    "privacy": "Confidentialité",
+    "legal": "Mentions légales",
+    "cookies": "Cookies",
+    "links": {
+      "features": "Fonctionnalités",
+      "comparison": "Comparaison",
+      "roles": "Rôles",
+      "pricing": "Tarifs",
+      "docs": "Documentation",
+      "guide": "Guide d'utilisation",
+      "support": "Support technique",
+      "blog": "Blog académique"
+    }
+  }
+}

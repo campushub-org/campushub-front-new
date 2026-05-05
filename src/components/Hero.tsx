@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calendar, BookOpen, Bell, ArrowRight, Star, CheckCircle2 } from "lucide-react";
 import newHeroImage from "@/assets/Capture d’écran de 2025-12-04 02-31-05.png";
+import { useTranslation } from "react-i18next";
 
 const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-slate-50/50 dark:bg-slate-950/50">
       {/* Abstract Background Decoration */}
@@ -33,7 +36,7 @@ const Hero = () => {
                 ))}
               </div>
               <span className="text-sm font-medium text-foreground">
-                Modélisé pour l'université de Yaoundé I
+                {t("hero.badge")}
               </span>
             </motion.div>
 
@@ -43,9 +46,9 @@ const Hero = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-5xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-foreground"
             >
-              L'excellence académique{" "}
+              {t("hero.title_part1")}{" "}
               <span className="bg-gradient-hero bg-clip-text text-transparent">
-                en un clic
+                {t("hero.title_part2")}
               </span>
             </motion.h1>
 
@@ -55,7 +58,7 @@ const Hero = () => {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-xl text-muted-foreground max-w-xl leading-relaxed"
             >
-              CampusHub est la plateforme tout-en-un qui révolutionne la planification des examens, la gestion des cours et la vie étudiante.
+              {t("hero.description")}
             </motion.p>
 
             <motion.div
@@ -66,12 +69,12 @@ const Hero = () => {
             >
               <Button size="lg" className="h-14 px-8 text-lg font-semibold shadow-glow group" asChild>
                 <a href="/signup">
-                  Démarrer maintenant
+                  {t("hero.cta_start")}
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Button>
               <Button variant="outline" size="lg" className="h-14 px-8 text-lg font-semibold" asChild>
-                <a href="#features">Découvrir les fonctions</a>
+                <a href="#features">{t("hero.cta_features")}</a>
               </Button>
             </motion.div>
 
@@ -83,11 +86,11 @@ const Hero = () => {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-medium">Sans installation</span>
+                <span className="text-sm font-medium">{t("hero.check_no_install")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-medium">Support 24/7</span>
+                <span className="text-sm font-medium">{t("hero.check_support")}</span>
               </div>
             </motion.div>
           </motion.div>
@@ -102,7 +105,7 @@ const Hero = () => {
             <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card p-2 transform perspective-1000 rotate-y-[-5deg]">
               <img
                 src={newHeroImage}
-                alt="CampusHub Dashboard"
+                alt={t("hero.mockup_alt")}
                 className="w-full h-auto rounded-xl"
               />
             </div>
@@ -117,8 +120,8 @@ const Hero = () => {
                 <Calendar className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Planning</p>
-                <p className="text-sm font-bold text-foreground">Zéro conflit détecté</p>
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("hero.floating_planning_label")}</p>
+                <p className="text-sm font-bold text-foreground">{t("hero.floating_planning_desc")}</p>
               </div>
             </motion.div>
 
@@ -131,8 +134,8 @@ const Hero = () => {
                 <Bell className="w-6 h-6 text-accent" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Alertes</p>
-                <p className="text-sm font-bold text-foreground">Notification envoyée</p>
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("hero.floating_alerts_label")}</p>
+                <p className="text-sm font-bold text-foreground">{t("hero.floating_alerts_desc")}</p>
               </div>
             </motion.div>
 
@@ -144,7 +147,7 @@ const Hero = () => {
               <div className="h-8 w-8 rounded-full bg-yellow-400 flex items-center justify-center">
                 <Star className="w-4 h-4 text-white fill-white" />
               </div>
-              <span className="text-sm font-bold pr-2">4.9/5</span>
+              <span className="text-sm font-bold pr-2">{t("hero.floating_rating")}</span>
             </motion.div>
             
             {/* Background Blob */}

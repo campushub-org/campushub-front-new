@@ -1,26 +1,12 @@
 import { motion } from "framer-motion";
 import { XCircle, CheckCircle2, ArrowRight } from "lucide-react";
-
-const problems = [
-  {
-    before: "Planification manuelle laborieuse",
-    after: "Automatisation totale en quelques secondes",
-  },
-  {
-    before: "Conflits d'horaires et de salles",
-    after: "Zéro conflit garanti par notre algorithme",
-  },
-  {
-    before: "Supports de cours éparpillés",
-    after: "Espace pédagogique centralisé et validé",
-  },
-  {
-    before: "Étudiants mal informés",
-    after: "Notifications push et SMS en temps réel",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const Problems = () => {
+  const { t } = useTranslation();
+  
+  const problemList = t("problems.list", { returnObjects: true }) as Array<{before: string, after: string}>;
+
   return (
     <section className="py-32 bg-white dark:bg-slate-950 overflow-hidden">
       <div className="container mx-auto px-6">
@@ -33,15 +19,15 @@ const Problems = () => {
             className="flex-1"
           >
             <h2 className="text-4xl lg:text-6xl font-bold text-foreground mb-8 tracking-tight">
-              Fini le chaos administratif. <br />
-              <span className="text-primary italic">Passez à la vitesse supérieure.</span>
+              {t("problems.title_part1")} <br />
+              <span className="text-primary italic">{t("problems.title_part2")}</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-lg">
-              CampusHub transforme vos processus archaïques en expériences fluides et automatisées.
+              {t("problems.description")}
             </p>
             
             <div className="space-y-6">
-              {problems.map((item, index) => (
+              {problemList.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 10 }}
@@ -68,13 +54,13 @@ const Problems = () => {
           >
             <div className="bg-slate-50 dark:bg-slate-900 rounded-[32px] p-8 lg:p-12 border border-border shadow-soft relative z-10">
               <div className="space-y-8">
-                {problems.map((problem, index) => (
+                {problemList.map((problem, index) => (
                   <div key={index} className="relative">
                     <div className="grid grid-cols-1 md:grid-cols-[1fr,40px,1fr] gap-4 items-center">
                       <div className="p-4 rounded-xl bg-white dark:bg-slate-800 border border-destructive/20 shadow-sm opacity-60">
                         <div className="flex items-center gap-2 mb-1">
                           <XCircle className="w-4 h-4 text-destructive" />
-                          <span className="text-[10px] font-bold uppercase text-destructive tracking-widest">Avant</span>
+                          <span className="text-[10px] font-bold uppercase text-destructive tracking-widest">{t("problems.before_label")}</span>
                         </div>
                         <p className="text-sm font-medium text-muted-foreground line-through decoration-destructive/30">{problem.before}</p>
                       </div>
@@ -86,7 +72,7 @@ const Problems = () => {
                       <div className="p-4 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20 shadow-medium transform hover:scale-105 transition-transform duration-300">
                         <div className="flex items-center gap-2 mb-1">
                           <CheckCircle2 className="w-4 h-4 text-primary" />
-                          <span className="text-[10px] font-bold uppercase text-primary tracking-widest">Après</span>
+                          <span className="text-[10px] font-bold uppercase text-primary tracking-widest">{t("problems.after_label")}</span>
                         </div>
                         <p className="text-sm font-bold text-foreground">{problem.after}</p>
                       </div>

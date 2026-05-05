@@ -1,0 +1,165 @@
+{
+  "common": {
+    "welcome": "Welcome to CampusHub",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "notifications": "Notifications",
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading..."
+  },
+  "academic": {
+    "courses": "Courses",
+    "schedule": "Schedule",
+    "exams": "Exams",
+    "grades": "Grades",
+    "attendance": "Attendance",
+    "materials": "Course Materials",
+    "planning": "Planning",
+    "students": "Students",
+    "teachers": "Teachers"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "teacher": "Teacher",
+    "student": "Student",
+    "dean": "Dean"
+  },
+  "navbar": {
+    "home": "Home",
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact",
+    "signin": "Sign In",
+    "signup": "Sign Up"
+  },
+  "hero": {
+    "badge": "Designed for University of Yaounde I",
+    "title_part1": "Academic excellence",
+    "title_part2": "at your fingertips",
+    "description": "CampusHub is the all-in-one platform that revolutionizes exam scheduling, course management, and student life.",
+    "cta_start": "Get started now",
+    "cta_features": "Explore features",
+    "check_no_install": "No installation",
+    "check_support": "24/7 Support",
+    "mockup_alt": "CampusHub Dashboard",
+    "floating_planning_label": "Planning",
+    "floating_planning_desc": "Zero conflicts detected",
+    "floating_alerts_label": "Alerts",
+    "floating_alerts_desc": "Notification sent",
+    "floating_rating": "4.9/5"
+  },
+  "problems": {
+    "title_part1": "End administrative chaos.",
+    "title_part2": "Shift to top speed.",
+    "description": "CampusHub transforms your archaic processes into smooth, automated experiences.",
+    "before_label": "Before",
+    "after_label": "After",
+    "list": [
+      {
+        "before": "Laborious manual planning",
+        "after": "Total automation in seconds"
+      },
+      {
+        "before": "Schedule and room conflicts",
+        "after": "Zero conflict guaranteed by our algorithm"
+      },
+      {
+        "before": "Scattered course materials",
+        "after": "Centralized and validated pedagogical space"
+      },
+      {
+        "before": "Poorly informed students",
+        "after": "Real-time push and SMS notifications"
+      }
+    ]
+  },
+  "features": {
+    "badge": "Powerful & Intuitive",
+    "title": "Everything for your institution",
+    "description": "A complete suite of tools designed to simplify the lives of students, teachers, and administrators.",
+    "learn_more": "Learn more",
+    "list": [
+      {
+        "title": "Smart Planning",
+        "description": "Automated algorithm that eliminates schedule conflicts and optimizes room usage."
+      },
+      {
+        "title": "Course Management",
+        "description": "Centralized pedagogical materials with an integrated and intuitive validation workflow."
+      },
+      {
+        "title": "Real-time Notifications",
+        "description": "Instant alerts for schedule changes, new materials, and exams."
+      },
+      {
+        "title": "Analytics & Reports",
+        "description": "Detailed dashboards to track attendance and resource occupancy."
+      },
+      {
+        "title": "Maximum Security",
+        "description": "Protection of academic data with high-level encryption standards."
+      },
+      {
+        "title": "Mobile Experience",
+        "description": "Access CampusHub everywhere with an interface optimized for all your devices."
+      }
+    ]
+  },
+  "roles_section": {
+    "badge": "Ecosystem",
+    "title": "A tailored experience",
+    "description": "CampusHub adapts to each user with interfaces optimized for their specific needs.",
+    "learn_more": "Learn more",
+    "list": [
+      {
+        "title": "Students",
+        "description": "Access your course materials, view your schedules and receive your exam alerts."
+      },
+      {
+        "title": "Teachers",
+        "description": "Upload your courses, manage your availability and track your material validations."
+      },
+      {
+        "title": "Pedagogical Team",
+        "description": "Supervise planning, validate resources and access institution statistics."
+      },
+      {
+        "title": "Administrators",
+        "description": "Manage accounts, configure rooms and maintain campus infrastructure."
+      }
+    ]
+  },
+  "cta": {
+    "badge": "Ready for the future?",
+    "title": "Reinvent your campus management today.",
+    "description": "Join the universities that trust CampusHub to modernize their academic infrastructure.",
+    "button": "Create a free account",
+    "trial": "30-day trial included",
+    "partners": "Trusted partners",
+    "partner_name": "University of Yaounde I"
+  },
+  "footer": {
+    "description": "The leading platform for modern academic management. Simplify, automate, and transform your institution.",
+    "product": "Product",
+    "resources": "Resources",
+    "contact": "Contact",
+    "copyright": "© 2026 CampusHub. All rights reserved. Designed for excellence.",
+    "privacy": "Privacy",
+    "legal": "Legal Notice",
+    "cookies": "Cookies",
+    "links": {
+      "features": "Features",
+      "comparison": "Comparison",
+      "roles": "Roles",
+      "pricing": "Pricing",
+      "docs": "Documentation",
+      "guide": "User Guide",
+      "support": "Technical Support",
+      "blog": "Academic Blog"
+    }
+  }
+}

@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,9 +20,9 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: "Problèmes", href: "#problems" },
-    { name: "Fonctionnalités", href: "#features" },
-    { name: "Rôles", href: "#roles" },
+    { name: t("navbar.home"), href: "#" },
+    { name: t("navbar.features"), href: "#features" },
+    { name: t("navbar.about"), href: "#about" },
   ];
 
   return (
@@ -55,21 +58,25 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
+          <LanguageSwitcher />
           <Button variant="ghost" size="sm" asChild>
-            <a href="/signin">Connexion</a>
+            <a href="/signin">{t("navbar.signin")}</a>
           </Button>
           <Button size="sm" className="shadow-medium" asChild>
-            <a href="/signup">S'inscrire</a>
+            <a href="/signup">{t("navbar.signup")}</a>
           </Button>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden p-2 text-foreground"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X /> : <Menu />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <button
+            className="p-2 text-foreground"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Nav */}
@@ -95,10 +102,10 @@ const Navbar = () => {
               <hr className="border-border" />
               <div className="flex flex-col gap-3 pt-2">
                 <Button variant="outline" className="w-full" asChild>
-                  <a href="/signin">Connexion</a>
+                  <a href="/signin">{t("navbar.signin")}</a>
                 </Button>
                 <Button className="w-full" asChild>
-                  <a href="/signup">S'inscrire</a>
+                  <a href="/signup">{t("navbar.signup")}</a>
                 </Button>
               </div>
             </div>
