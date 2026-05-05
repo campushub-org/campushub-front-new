@@ -9,7 +9,18 @@
     "search": "Rechercher...",
     "save": "Enregistrer",
     "cancel": "Annuler",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "all_week": "Toute la semaine",
+    "online": "En ligne"
   },
   "academic": {
     "courses": "Cours",
@@ -316,6 +327,138 @@
     },
     "upcoming_exams": {
       "title": "Examens à Venir"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Tout lire",
+      "delete_all": "Tout supprimer",
+      "filter_all": "Tout",
+      "filter_unread": "Non lues",
+      "loading": "Chargement des notifications...",
+      "new_material": "Nouveau support de cours",
+      "material_info": "Information sur un support",
+      "academic_update": "Mise à jour académique",
+      "content_template": "Le support \"{{title}}\" pour votre cours de {{subject}} vient d'être mis à jour.",
+      "mark_as_read": "Lu",
+      "delete": "Supprimer",
+      "empty_title": "Aucune nouvelle",
+      "empty_desc": "Vous êtes à jour",
+      "messages": {
+        "error_load": "Impossible de charger les notifications.",
+        "error_update": "Échec de la mise à jour.",
+        "error_delete": "Échec de la suppression.",
+        "success_mark_all": "Toutes les notifications lues.",
+        "success_delete": "Notification supprimée.",
+        "success_delete_all": "Notifications vidées."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Étudiant",
+        "student_number": "N° {{number}}"
+      },
+      "tabs": {
+        "my_profile": "Mon Profil",
+        "preferences": "Préférences",
+        "security": "Sécurité"
+      },
+      "personal": {
+        "title": "Informations personnelles",
+        "description": "Gérez vos informations de scolarité.",
+        "save": "Enregistrer",
+        "edit": "Modifier",
+        "full_name": "Nom complet",
+        "username": "Nom d'utilisateur",
+        "email": "Email institutionnel",
+        "department": "Filière / Département",
+        "student_number_label": "Numéro d'étudiant"
+      },
+      "preferences": {
+        "title": "Apparence & Affichage",
+        "description": "Personnalisez votre interface CampusHub.",
+        "theme_title": "Thème de l'application",
+        "theme_light": "Clair",
+        "theme_dark": "Sombre",
+        "theme_system": "Système"
+      },
+      "security": {
+        "change_password_title": "Changer le mot de passe",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmation",
+        "update_password": "Mettre à jour le mot de passe",
+        "danger_zone": "Zone de danger",
+        "danger_desc": "La suppression de votre compte est définitive.",
+        "delete_account": "Supprimer le compte",
+        "logout": "Se déconnecter"
+      },
+      "dialogs": {
+        "image_title": "Nouvelle photo de profil",
+        "image_desc": "Ajustez le cadrage si nécessaire avant de confirmer votre nouvelle photo.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "delete_title": "Supprimer mon compte",
+        "delete_desc": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+        "confirm_pass": "Confirmez votre mot de passe"
+      },
+      "messages": {
+        "error_auth": "Authentification requise.",
+        "error_token": "Token invalide.",
+        "error_load": "Impossible de charger le profil.",
+        "success_update": "Profil mis à jour !",
+        "error_update": "Échec de la mise à jour.",
+        "success_image": "Photo mise à jour !",
+        "error_upload": "Erreur de téléversement.",
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "success_password": "Mot de passe mis à jour !",
+        "error_delete": "Erreur lors de la suppression du compte."
+      }
+    },
+    "courses": {
+      "title": "Catalogue des Supports",
+      "description": "Accédez à vos ressources pédagogiques validées par la faculté.",
+      "search_placeholder": "Rechercher un cours, une matière...",
+      "filter_all_levels": "Tous les niveaux",
+      "view_button": "Consulter",
+      "empty_title": "Aucun support trouvé",
+      "empty_desc": "Ajustez vos filtres ou votre recherche pour trouver ce que vous cherchez.",
+      "error_load": "Impossible de charger les supports de cours.",
+      "view": {
+        "loading": "Chargement du cours...",
+        "not_found_title": "Cours introuvable",
+        "not_found_desc": "Nous n'avons pas pu charger ce support.",
+        "back_to_catalog": "Retour au catalogue",
+        "download": "Télécharger",
+        "reader_title": "Lecteur de document",
+        "description_title": "Description",
+        "no_description": "Aucune description fournie pour ce support.",
+        "details_title": "Détails",
+        "uploaded_at": "Mis en ligne le",
+        "subject": "Matière",
+        "level": "Niveau",
+        "disclaimer": "Ce support est mis à disposition par la faculté pour votre usage pédagogique personnel.",
+        "success_download": "Téléchargement démarré",
+        "error_load": "Impossible de charger le support de cours."
+      }
+    },
+    "schedule": {
+      "courses_title": "Emploi du Temps - Cours",
+      "exams_title": "Emploi du Temps - Examens",
+      "download": "Télécharger l'emploi du temps",
+      "day": "Jour",
+      "time": "Heure",
+      "course": "Cours",
+      "room": "Salle",
+      "exam": "Examen",
+      "date": "Date",
+      "exams_choice": "Choisir un type d'examen",
+      "cc_title": "Contrôle Continu (CC)",
+      "cc_desc": "Consulter les modalités des contrôles continus.",
+      "sn_title": "Session Normale (SN)",
+      "sn_desc": "Consulter l'emploi du temps des examens finaux.",
+      "not_available": "L'emploi du temps pour cette session n'est pas encore disponible.",
+      "subject": "Matière",
+      "download_short": "Télécharger"
     }
   }
 }

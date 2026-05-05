@@ -35,6 +35,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/components/ThemeProvider';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface UserProfile {
   id: number;
@@ -48,6 +49,7 @@ interface UserProfile {
 }
 
 const StudentProfilePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -84,14 +86,14 @@ const StudentProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError("Authentification requise.");
+        setError(t('student.profile.messages.error_auth'));
         setLoading(false);
         return;
       }
 
       const decoded = decodeToken(token);
       if (!decoded || !decoded.id) {
-        setError("Token invalide.");
+        setError(t('student.profile.messages.error_token'));
         setLoading(false);
         return;
       }
@@ -107,13 +109,13 @@ const StudentProfilePage: React.FC = () => {
         }
       } catch (err) {
         console.error(err);
-        setError("Impossible de charger le profil.");
+        setError(t('student.profile.messages.error_load'));
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, []);
+  }, [t]);
 
   const handleEditToggle = () => {
     if (isEditingProfile) {
@@ -129,10 +131,10 @@ const StudentProfilePage: React.FC = () => {
       const response = await api.put<UserProfile>(`/campushub-user-service/api/users/${profileData.id}`, editableProfileData);
       setProfileData(response.data);
       setEditableProfileData(response.data);
-      toast.success("Profil mis à jour !");
+      toast.success(t('student.profile.messages.success_update'));
       setIsEditingProfile(false);
     } catch (err) {
-      toast.error("Échec de la mise à jour.");
+      toast.error(t('student.profile.messages.error_update'));
     } finally {
       setLoading(false);
     }
@@ -171,9 +173,9 @@ const StudentProfilePage: React.FC = () => {
       setProfileData(prev => prev ? { ...prev, profilePictureUrl: newProfilePictureUrl } : null);
       localStorage.setItem('userProfileImage', newProfilePictureUrl);
       window.dispatchEvent(new Event('profileImageUpdated'));
-      toast.success("Photo mise à jour !");
+      toast.success(t('student.profile.messages.success_image'));
     } catch (err) {
-      toast.error("Erreur de téléversement.");
+      toast.error(t('student.profile.messages.error_upload'));
     } finally {
       setIsImageUploadConfirmDialogOpen(false);
       setPendingImageFile(null);
@@ -184,13 +186,13 @@ const StudentProfilePage: React.FC = () => {
   const handlePasswordChange = async (e: FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      setPasswordChangeError("Les mots de passe ne correspondent pas.");
+      setPasswordChangeError(t('student.profile.messages.password_mismatch'));
       return;
     }
     setIsChangingPassword(true);
     try {
       await api.put(`/campushub-user-service/api/users/${profileData?.id}/change-password`, { currentPassword, newPassword });
-      toast.success("Mot de passe mis à jour !");
+      toast.success(t('student.profile.messages.success_password'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
@@ -230,7 +232,7 @@ const StudentProfilePage: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               <h1 className="text-3xl font-bold tracking-tight">{profileData.fullName}</h1>
               <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">
-                Étudiant
+                {t('student.profile.header.badge')}
               </Badge>
             </div>
             <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
@@ -244,7 +246,7 @@ const StudentProfilePage: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5 text-sm bg-background/50 px-3 py-1 rounded-full border border-border/50">
                 <GraduationCap className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="font-medium">N° {profileData.studentNumber}</span>
+                <span className="font-medium">{t('student.profile.header.student_number', { number: profileData.studentNumber })}</span>
               </div>
             </div>
           </div>
@@ -255,13 +257,13 @@ const StudentProfilePage: React.FC = () => {
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="w-full justify-start bg-transparent h-auto p-0 border-b border-border/50 rounded-none mb-8 gap-8">
           <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
-            Mon Profil
+            {t('student.profile.tabs.my_profile')}
           </TabsTrigger>
           <TabsTrigger value="preferences" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
-            Préférences
+            {t('student.profile.tabs.preferences')}
           </TabsTrigger>
           <TabsTrigger value="security" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
-            Sécurité
+            {t('student.profile.tabs.security')}
           </TabsTrigger>
         </TabsList>
 
@@ -269,8 +271,8 @@ const StudentProfilePage: React.FC = () => {
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50">
               <div>
-                <CardTitle className="text-xl">Informations personnelles</CardTitle>
-                <CardDescription>Gérez vos informations de scolarité.</CardDescription>
+                <CardTitle className="text-xl">{t('student.profile.personal.title')}</CardTitle>
+                <CardDescription>{t('student.profile.personal.description')}</CardDescription>
               </div>
               <Button 
                 variant={isEditingProfile ? "default" : "outline"} 
@@ -279,13 +281,13 @@ const StudentProfilePage: React.FC = () => {
                 disabled={loading}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isEditingProfile ? <Save size={16} /> : <PencilLine size={16} />}
-                {isEditingProfile ? "Enregistrer" : "Modifier"}
+                {isEditingProfile ? t('student.profile.personal.save') : t('student.profile.personal.edit')}
               </Button>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-sm font-semibold">Nom complet</Label>
+                  <Label htmlFor="fullName" className="text-sm font-semibold">{t('student.profile.personal.full_name')}</Label>
                   <Input 
                     id="fullName" 
                     value={editableProfileData?.fullName} 
@@ -295,19 +297,19 @@ const StudentProfilePage: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-sm font-semibold">Nom d'utilisateur</Label>
+                  <Label htmlFor="username" className="text-sm font-semibold">{t('student.profile.personal.username')}</Label>
                   <Input id="username" value={profileData.username} readOnly className="h-11 bg-muted/30 border-border/50 focus-visible:ring-0 opacity-70" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-semibold">Email institutionnel</Label>
+                  <Label htmlFor="email" className="text-sm font-semibold">{t('student.profile.personal.email')}</Label>
                   <Input id="email" type="email" value={editableProfileData?.email} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department" className="text-sm font-semibold">Filière / Département</Label>
+                  <Label htmlFor="department" className="text-sm font-semibold">{t('student.profile.personal.department')}</Label>
                   <Input id="department" value={editableProfileData?.department} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="studentNumber" className="text-sm font-semibold">Numéro d'étudiant</Label>
+                  <Label htmlFor="studentNumber" className="text-sm font-semibold">{t('student.profile.personal.student_number_label')}</Label>
                   <Input id="studentNumber" value={profileData.studentNumber} readOnly className="h-11 bg-muted/30 border-border/50 focus-visible:ring-0 opacity-70" />
                 </div>
               </div>
@@ -318,17 +320,17 @@ const StudentProfilePage: React.FC = () => {
         <TabsContent value="preferences" className="mt-0 space-y-6">
           <Card className="border-border/50 shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/50 bg-muted/10">
-              <CardTitle className="text-xl">Apparence & Affichage</CardTitle>
-              <CardDescription>Personnalisez votre interface CampusHub.</CardDescription>
+              <CardTitle className="text-xl">{t('student.profile.preferences.title')}</CardTitle>
+              <CardDescription>{t('student.profile.preferences.description')}</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-8">
               <div className="space-y-4">
-                <Label className="text-base font-bold">Thème de l'application</Label>
+                <Label className="text-base font-bold">{t('student.profile.preferences.theme_title')}</Label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { id: 'light', label: 'Clair', icon: Sun },
-                    { id: 'dark', label: 'Sombre', icon: Moon },
-                    { id: 'system', label: 'Système', icon: Monitor }
+                    { id: 'light', label: t('student.profile.preferences.theme_light'), icon: Sun },
+                    { id: 'dark', label: t('student.profile.preferences.theme_dark'), icon: Moon },
+                    { id: 'system', label: t('student.profile.preferences.theme_system'), icon: Monitor }
                   ].map((t) => (
                     <button
                       key={t.id}
@@ -362,13 +364,13 @@ const StudentProfilePage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <ShieldCheck className="text-primary h-5 w-5" />
-                    Changer le mot de passe
+                    {t('student.profile.security.change_password_title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                      <Label htmlFor="currentPassword">{t('student.profile.security.current_password')}</Label>
                       <div className="relative group">
                         <Input
                           id="currentPassword"
@@ -389,7 +391,7 @@ const StudentProfilePage: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                        <Label htmlFor="newPassword">{t('student.profile.security.new_password')}</Label>
                         <div className="relative group">
                           <Input
                             id="newPassword"
@@ -409,7 +411,7 @@ const StudentProfilePage: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirmNewPassword">Confirmation</Label>
+                        <Label htmlFor="confirmNewPassword">{t('student.profile.security.confirm_password')}</Label>
                         <div className="relative group">
                           <Input
                             id="confirmNewPassword"
@@ -432,7 +434,7 @@ const StudentProfilePage: React.FC = () => {
                     {passwordChangeError && <p className="text-destructive text-xs font-medium">{passwordChangeError}</p>}
                     <Button type="submit" disabled={isChangingPassword} className="w-full md:w-auto mt-2">
                       {isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Mettre à jour le mot de passe
+                      {t('student.profile.security.update_password')}
                     </Button>
                   </form>
                 </CardContent>
@@ -444,15 +446,15 @@ const StudentProfilePage: React.FC = () => {
                 <CardHeader className="bg-destructive/10">
                   <CardTitle className="text-lg text-destructive flex items-center gap-2">
                     <Trash2 size={18} />
-                    Zone de danger
+                    {t('student.profile.security.danger_zone')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-4">
                   <p className="text-sm text-destructive/80 leading-relaxed font-medium">
-                    La suppression de votre compte est définitive.
+                    {t('student.profile.security.danger_desc')}
                   </p>
                   <Button variant="destructive" className="w-full" onClick={() => setIsDeleteAccountDialogOpen(true)}>
-                    Supprimer le compte
+                    {t('student.profile.security.delete_account')}
                   </Button>
                 </CardContent>
               </Card>
@@ -460,7 +462,7 @@ const StudentProfilePage: React.FC = () => {
               <Card className="border-border/50">
                 <CardContent className="p-4">
                   <Button variant="outline" className="w-full justify-between" onClick={() => { localStorage.clear(); navigate('/signin'); }}>
-                    Se déconnecter
+                    {t('student.profile.security.logout')}
                     <LogOut size={16} />
                   </Button>
                 </CardContent>
@@ -474,18 +476,18 @@ const StudentProfilePage: React.FC = () => {
       <Dialog open={isImageUploadConfirmDialogOpen} onOpenChange={setIsImageUploadConfirmDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Nouvelle photo de profil</DialogTitle>
+            <DialogTitle>{t('student.profile.dialogs.image_title')}</DialogTitle>
             <DialogDescription>
-              Ajustez le cadrage si nécessaire avant de confirmer votre nouvelle photo.
+              {t('student.profile.dialogs.image_desc')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-6">
             {pendingImageFile && <img src={URL.createObjectURL(pendingImageFile)} alt="Preview" className="h-48 w-48 rounded-2xl object-cover shadow-2xl border-4 border-background" />}
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>{t('student.profile.dialogs.cancel')}</Button>
             <Button onClick={confirmImageChange} disabled={isUploadingImage}>
-              {isUploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Confirmer"}
+              {isUploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('student.profile.dialogs.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -494,18 +496,18 @@ const StudentProfilePage: React.FC = () => {
       <Dialog open={isDeleteAccountDialogOpen} onOpenChange={setIsDeleteAccountDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-destructive">Supprimer mon compte</DialogTitle>
+            <DialogTitle className="text-destructive">{t('student.profile.dialogs.delete_title')}</DialogTitle>
             <DialogDescription>
-              Cette action est irréversible. Toutes vos données seront définitivement supprimées.
+              {t('student.profile.dialogs.delete_desc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <Label htmlFor="deletePass">Confirmez votre mot de passe</Label>
+            <Label htmlFor="deletePass">{t('student.profile.dialogs.confirm_pass')}</Label>
             <Input id="deletePass" type="password" value={deleteConfirmationPassword} onChange={(e) => setDeleteConfirmationPassword(e.target.value)} />
             {deleteAccountError && <p className="text-destructive text-xs">{deleteAccountError}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)} disabled={isDeletingAccount}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)} disabled={isDeletingAccount}>{t('student.profile.dialogs.cancel')}</Button>
             <Button variant="destructive" onClick={async () => {
               if (!profileData) return;
               setIsDeletingAccount(true);
@@ -514,13 +516,13 @@ const StudentProfilePage: React.FC = () => {
                 localStorage.clear(); 
                 navigate('/signin');
               } catch(e:any) { 
-                setDeleteAccountError(e.response?.data?.message || "Erreur lors de la suppression du compte."); 
+                setDeleteAccountError(e.response?.data?.message || t('student.profile.messages.error_delete')); 
               } finally { 
                 setIsDeletingAccount(false); 
               }
             }} disabled={!deleteConfirmationPassword || isDeletingAccount}>
               {isDeletingAccount ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-              Supprimer mon compte
+              {t('student.profile.security.delete_account')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -540,3 +542,4 @@ const Badge = ({ children, variant = "default", className }: any) => {
 };
 
 export default StudentProfilePage;
+

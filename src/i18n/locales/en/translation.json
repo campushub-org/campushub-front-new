@@ -9,7 +9,18 @@
     "search": "Search...",
     "save": "Save",
     "cancel": "Cancel",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "all_week": "All week",
+    "online": "Online"
   },
   "academic": {
     "courses": "Courses",
@@ -316,6 +327,138 @@
     },
     "upcoming_exams": {
       "title": "Upcoming Exams"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Read All",
+      "delete_all": "Delete All",
+      "filter_all": "All",
+      "filter_unread": "Unread",
+      "loading": "Loading notifications...",
+      "new_material": "New Course Material",
+      "material_info": "Material Information",
+      "academic_update": "Academic Update",
+      "content_template": "The material \"{{title}}\" for your {{subject}} course has just been updated.",
+      "mark_as_read": "Read",
+      "delete": "Delete",
+      "empty_title": "No news",
+      "empty_desc": "You are up to date",
+      "messages": {
+        "error_load": "Unable to load notifications.",
+        "error_update": "Update failed.",
+        "error_delete": "Deletion failed.",
+        "success_mark_all": "All notifications marked as read.",
+        "success_delete": "Notification deleted.",
+        "success_delete_all": "Notifications cleared."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Student",
+        "student_number": "No. {{number}}"
+      },
+      "tabs": {
+        "my_profile": "My Profile",
+        "preferences": "Preferences",
+        "security": "Security"
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Manage your schooling information.",
+        "save": "Save",
+        "edit": "Edit",
+        "full_name": "Full Name",
+        "username": "Username",
+        "email": "Institutional Email",
+        "department": "Major / Department",
+        "student_number_label": "Student Number"
+      },
+      "preferences": {
+        "title": "Appearance & Display",
+        "description": "Customize your CampusHub interface.",
+        "theme_title": "Application Theme",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System"
+      },
+      "security": {
+        "change_password_title": "Change Password",
+        "current_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm",
+        "update_password": "Update Password",
+        "danger_zone": "Danger Zone",
+        "danger_desc": "Deleting your account is permanent.",
+        "delete_account": "Delete Account",
+        "logout": "Log Out"
+      },
+      "dialogs": {
+        "image_title": "New Profile Picture",
+        "image_desc": "Adjust the framing if necessary before confirming your new photo.",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "delete_title": "Delete My Account",
+        "delete_desc": "This action is irreversible. All your data will be permanently deleted.",
+        "confirm_pass": "Confirm your password"
+      },
+      "messages": {
+        "error_auth": "Authentication required.",
+        "error_token": "Invalid token.",
+        "error_load": "Unable to load profile.",
+        "success_update": "Profile updated!",
+        "error_update": "Update failed.",
+        "success_image": "Photo updated!",
+        "error_upload": "Upload error.",
+        "password_mismatch": "Passwords do not match.",
+        "success_password": "Password updated!",
+        "error_delete": "Error during account deletion."
+      }
+    },
+    "courses": {
+      "title": "Support Catalog",
+      "description": "Access your pedagogical resources validated by the faculty.",
+      "search_placeholder": "Search for a course, a subject...",
+      "filter_all_levels": "All levels",
+      "view_button": "View",
+      "empty_title": "No supports found",
+      "empty_desc": "Adjust your filters or search to find what you're looking for.",
+      "error_load": "Unable to load course materials.",
+      "view": {
+        "loading": "Loading course...",
+        "not_found_title": "Course not found",
+        "not_found_desc": "We could not load this material.",
+        "back_to_catalog": "Back to catalog",
+        "download": "Download",
+        "reader_title": "Document Reader",
+        "description_title": "Description",
+        "no_description": "No description provided for this material.",
+        "details_title": "Details",
+        "uploaded_at": "Uploaded on",
+        "subject": "Subject",
+        "level": "Level",
+        "disclaimer": "This material is provided by the faculty for your personal pedagogical use.",
+        "success_download": "Download started",
+        "error_load": "Unable to load course material."
+      }
+    },
+    "schedule": {
+      "courses_title": "Timetable - Courses",
+      "exams_title": "Timetable - Exams",
+      "download": "Download timetable",
+      "day": "Day",
+      "time": "Time",
+      "course": "Course",
+      "room": "Room",
+      "exam": "Exam",
+      "date": "Date",
+      "exams_choice": "Choose an exam type",
+      "cc_title": "Continuous Assessment (CC)",
+      "cc_desc": "Consult continuous assessment terms.",
+      "sn_title": "Normal Session (SN)",
+      "sn_desc": "Consult the final exam timetable.",
+      "not_available": "The timetable for this session is not yet available.",
+      "subject": "Subject",
+      "download_short": "Download"
     }
   }
 }
