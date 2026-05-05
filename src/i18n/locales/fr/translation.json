@@ -261,5 +261,61 @@
       "contract": "Vacataire",
       "edu_eng": "Ingénieur Pédagogique"
     }
+  },
+  "dashboard": {
+    "search_placeholder": "Rechercher...",
+    "command_input": "Tapez une commande ou recherchez...",
+    "no_results": "Aucun résultat trouvé.",
+    "suggestions": "Suggestions",
+    "settings": "Paramètres",
+    "system": "Système",
+    "light_mode": "Mode Clair",
+    "dark_mode": "Mode Sombre",
+    "notifications": {
+      "title": "Notifications",
+      "no_unread": "Aucune notification non lue",
+      "mark_as_read": "Tout marquer comme lu",
+      "view_all": "Voir toutes les notifications"
+    }
+  },
+  "sidebar": {
+    "main_menu": "Menu Principal",
+    "my_account": "Mon Compte",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "student": {
+    "welcome": "Salut, Étudiant ! 🎓",
+    "subtitle": "Voici un aperçu de ton parcours académique actuel.",
+    "stats": {
+      "courses": "Cours Suivis",
+      "courses_desc": "Semestre actuel",
+      "gpa": "Moyenne Générale",
+      "gpa_desc": "Top 15% de la promo",
+      "attendance": "Présences",
+      "attendance_desc": "Excellente assiduité",
+      "exams": "Examens à venir",
+      "exams_desc": "Dans les 30 jours"
+    },
+    "quick_access": {
+      "title": "Accès Rapide",
+      "view_materials": "Consulter mes supports",
+      "view_schedule": "Emploi du temps"
+    },
+    "progress": {
+      "title": "Progression Globale",
+      "completed": "Cours Complétés",
+      "ongoing": "Cours en cours"
+    },
+    "quick_view": {
+      "title": "Aperçu Rapide",
+      "new_materials": "Nouveaux supports",
+      "next_exam": "Prochain examen",
+      "unread_messages": "Messages non lus",
+      "days_left": "Dans {{count}} jours"
+    },
+    "upcoming_exams": {
+      "title": "Examens à Venir"
+    }
   }
 }

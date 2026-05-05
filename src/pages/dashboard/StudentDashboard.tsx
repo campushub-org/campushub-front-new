@@ -1,13 +1,13 @@
 import React from 'react';
 import { 
-  GraduationCap, 
   BookOpen, 
   Calendar, 
   Trophy,
   Activity,
   Zap
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 // Widgets for Student Dashboard
 import UpcomingExamsWidget from '@/components/dashboard/student/UpcomingExamsWidget';
@@ -32,44 +32,46 @@ const StatsCard = ({ title, value, icon: Icon, description, color }: any) => (
 );
 
 const StudentDashboard: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Salut, Étudiant ! 🎓</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("student.welcome")}</h1>
         <p className="text-muted-foreground mt-1">
-          Voici un aperçu de ton parcours académique actuel.
+          {t("student.subtitle")}
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard 
-          title="Cours Suivis" 
+          title={t("student.stats.courses")} 
           value="6" 
           icon={BookOpen} 
-          description="Semestre actuel"
+          description={t("student.stats.courses_desc")}
           color="bg-blue-100 text-blue-600"
         />
         <StatsCard 
-          title="Moyenne Générale" 
+          title={t("student.stats.gpa")} 
           value="14.5" 
           icon={Trophy} 
-          description="Top 15% de la promo"
+          description={t("student.stats.gpa_desc")}
           color="bg-amber-100 text-amber-600"
         />
         <StatsCard 
-          title="Présences" 
+          title={t("student.stats.attendance")} 
           value="95%" 
           icon={Activity} 
-          description="Excellent assiduité"
+          description={t("student.stats.attendance_desc")}
           color="bg-emerald-100 text-emerald-600"
         />
         <StatsCard 
-          title="Examens à venir" 
+          title={t("student.stats.exams")} 
           value="3" 
           icon={Calendar} 
-          description="Dans les 30 jours"
+          description={t("student.stats.exams_desc")}
           color="bg-purple-100 text-purple-600"
         />
       </div>
@@ -86,20 +88,20 @@ const StudentDashboard: React.FC = () => {
           <OverallProgressWidget />
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle className="text-lg">Accès Rapide</CardTitle>
+              <CardTitle className="text-lg">{t("student.quick_access.title")}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2">
               <button className="flex items-center gap-3 w-full p-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-left">
                 <div className="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center">
                   <BookOpen className="h-4 w-4" />
                 </div>
-                Consulter mes supports
+                {t("student.quick_access.view_materials")}
               </button>
               <button className="flex items-center gap-3 w-full p-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-left">
                 <div className="h-8 w-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
                   <Zap className="h-4 w-4" />
                 </div>
-                Emploi du temps
+                {t("student.quick_access.view_schedule")}
               </button>
             </CardContent>
           </Card>

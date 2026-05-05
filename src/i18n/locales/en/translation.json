@@ -261,5 +261,61 @@
       "contract": "Contract Teacher",
       "edu_eng": "Educational Engineer"
     }
+  },
+  "dashboard": {
+    "search_placeholder": "Search...",
+    "command_input": "Type a command or search...",
+    "no_results": "No results found.",
+    "suggestions": "Suggestions",
+    "settings": "Settings",
+    "system": "System",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode",
+    "notifications": {
+      "title": "Notifications",
+      "no_unread": "No unread notifications",
+      "mark_as_read": "Mark all as read",
+      "view_all": "View all notifications"
+    }
+  },
+  "sidebar": {
+    "main_menu": "Main Menu",
+    "my_account": "My Account",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "student": {
+    "welcome": "Hi, Student! 🎓",
+    "subtitle": "Here is an overview of your current academic progress.",
+    "stats": {
+      "courses": "Courses Taken",
+      "courses_desc": "Current semester",
+      "gpa": "General Average",
+      "gpa_desc": "Top 15% of the class",
+      "attendance": "Attendance",
+      "attendance_desc": "Excellent attendance",
+      "exams": "Upcoming Exams",
+      "exams_desc": "Within 30 days"
+    },
+    "quick_access": {
+      "title": "Quick Access",
+      "view_materials": "Consult my materials",
+      "view_schedule": "Timetable"
+    },
+    "progress": {
+      "title": "Overall Progress",
+      "completed": "Completed Courses",
+      "ongoing": "Ongoing Courses"
+    },
+    "quick_view": {
+      "title": "Quick Overview",
+      "new_materials": "New materials",
+      "next_exam": "Next exam",
+      "unread_messages": "Unread messages",
+      "days_left": "In {{count}} days"
+    },
+    "upcoming_exams": {
+      "title": "Upcoming Exams"
+    }
   }
 }
