@@ -460,5 +460,299 @@
       "subject": "Subject",
       "download_short": "Download"
     }
+  },
+  "teacher": {
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Mark All as Read",
+      "delete_all": "Delete All",
+      "filter_all": "All",
+      "filter_unread": "Unread",
+      "loading": "Updating...",
+      "approved": "Support Approved",
+      "rejected": "Correction Requested",
+      "update": "Update",
+      "content_template": "The Pedagogical Team has updated your support \"{{title}}\" ({{subject}}).",
+      "mark_as_read": "Mark as Read",
+      "delete": "Delete",
+      "empty_title": "No messages",
+      "empty_desc": "Your inbox is empty",
+      "messages": {
+        "error_load": "Unable to load notifications.",
+        "error_update": "Update failed.",
+        "error_delete": "Deletion failed.",
+        "success_mark_all": "All notifications marked as read.",
+        "success_delete": "Notification deleted.",
+        "success_delete_all": "Notifications cleared."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Professor"
+      },
+      "tabs": {
+        "my_profile": "My Profile",
+        "preferences": "Preferences",
+        "security": "Security"
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Manage the details of your public identity.",
+        "save": "Save",
+        "edit": "Edit",
+        "full_name": "Full Name",
+        "username": "Username",
+        "department": "Department",
+        "office_number": "Office Number",
+        "grade": "Grade / Academic Title"
+      },
+      "preferences": {
+        "title": "Appearance & Display",
+        "description": "Customize your CampusHub interface.",
+        "theme_title": "Application Theme",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System",
+        "email_notifs": "Email Notifications",
+        "email_notifs_desc": "Receive daily summaries of academic activity."
+      },
+      "security": {
+        "change_password_title": "Change Password",
+        "current_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm",
+        "update_password": "Update Password",
+        "danger_zone": "Danger Zone",
+        "danger_desc": "Deleting your account is permanent. All your data will be erased.",
+        "delete_account": "Delete Account",
+        "logout": "Log Out"
+      },
+      "dialogs": {
+        "image_title": "New Profile Picture",
+        "image_desc": "Adjust the framing if necessary before confirming.",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "delete_title": "Are you absolutely sure?",
+        "delete_desc": "This action is irreversible. To confirm, enter your password below.",
+        "confirm_pass": "Password",
+        "confirm_delete": "Confirm Deletion",
+        "deleting": "Deleting..."
+      },
+      "messages": {
+        "error_auth": "Authentication required.",
+        "error_token": "Invalid token.",
+        "error_load": "Unable to load profile.",
+        "success_update": "Profile updated!",
+        "error_update": "Update failed.",
+        "success_image": "Photo updated!",
+        "error_upload": "Upload error.",
+        "password_mismatch": "Passwords do not match.",
+        "success_password": "Password updated!",
+        "error_generic": "Error."
+      }
+    },
+    "dashboard": {
+      "welcome": "Hello, Professor 👋",
+      "subtitle": "Here is what's happening in your courses today.",
+      "stats": {
+        "materials": "Course Materials",
+        "upcoming_courses": "Upcoming Courses",
+        "validated": "Validated",
+        "pending": "Pending",
+        "weekly_trend": "+{{count}} this week",
+        "today": "Today",
+        "success_rate": "{{percent}}% success rate",
+        "attention_required": "Requires your attention"
+      },
+      "quick_actions": {
+        "title": "Quick Actions",
+        "desc": "Access frequent tools",
+        "deposit": "Upload new material",
+        "availability": "Manage my availability"
+      },
+      "widgets": {
+        "materials": {
+          "title": "My Course Materials",
+          "desc": "List of your recently added documents",
+          "view_all": "View all",
+          "table": {
+            "course": "Course",
+            "material": "Material",
+            "date": "Date",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "View",
+            "download": "Download",
+            "delete": "Delete"
+          },
+          "statuses": {
+            "validated": "Validated",
+            "pending": "Pending",
+            "rejected": "Rejected"
+          }
+        },
+        "schedule": {
+          "title": "Agenda & Exams",
+          "desc": "Your next interventions",
+          "view_full": "View full calendar",
+          "types": {
+            "course": "Course",
+            "exam": "Exam"
+          },
+          "relative_days": {
+            "today": "Today",
+            "tomorrow": "Tomorrow"
+          }
+        },
+        "validation": {
+          "title": "Validation Status",
+          "pending": "Pending supports",
+          "validated": "Validated supports",
+          "rejected": "Rejected supports"
+        }
+      },
+      "deposit_drawer": {
+        "title": "New Material",
+        "desc": "Fill in the information to publish a new course material.",
+        "success_title": "Upload successful!",
+        "success_desc": "Your document is now pending validation.",
+        "form": {
+          "title_label": "Material Title",
+          "title_placeholder": "Ex: Linear Algebra - Chapter 1",
+          "description_label": "Description",
+          "description_placeholder": "Briefly describe the content...",
+          "level_label": "Level",
+          "level_placeholder": "Level",
+          "subject_label": "Subject",
+          "subject_placeholder": "Ex: Mathematics I",
+          "file_label": "Material File",
+          "file_click": "Click or drag a file",
+          "file_hint": "PDF, DOCX, ZIP (Max 10MB)"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "submit": "Publish material",
+          "submitting": "Sending...",
+          "error_auth": "Authentication required",
+          "error_upload": "Error during material upload",
+          "success": "Material uploaded successfully!"
+        }
+      }
+    },
+    "support": {
+      "title": "My Course Materials",
+      "description": "Manage your pedagogical catalog and track validation status.",
+      "search_placeholder": "Search for a material...",
+      "new_button": "New material",
+      "view_details": "View details",
+      "empty_title": "No material uploaded",
+      "empty_desc": "Start by uploading your first material for your students.",
+      "empty_button": "Upload my first material",
+      "actions": {
+        "submit": "Submit for validation",
+        "details": "Details",
+        "delete": "Delete"
+      },
+      "statuses": {
+        "validated": "Approved",
+        "rejected": "To correct",
+        "pending": "Pending",
+        "draft": "Draft"
+      },
+      "dialogs": {
+        "delete_title": "Delete this material?",
+        "delete_desc": "This action is irreversible. The file will be permanently deleted.",
+        "cancel": "Cancel",
+        "confirm_delete": "Delete"
+      },
+      "messages": {
+        "error_load": "Error loading materials",
+        "success_submit": "Material submitted for validation",
+        "success_delete": "Material deleted",
+        "error_action": "Operation failed"
+      },
+      "view": {
+        "loading": "Loading document...",
+        "not_found_title": "Material not found",
+        "not_found_desc": "We could not load this material.",
+        "back": "Back",
+        "download": "Download",
+        "share": "Share",
+        "history": "History",
+        "preview_title": "Document preview",
+        "description_title": "Description",
+        "no_description": "No description provided for this material.",
+        "feedback_title": "Pedagogical feedback",
+        "feedback_date": "Decided on {{date}}",
+        "info_title": "Information",
+        "upload_date": "Upload date",
+        "status_label": "Status",
+        "visibility_title": "Visibility",
+        "visibility_desc": "Visible to students once validated by your department's Pedagogical team.",
+        "success_download": "Download started",
+        "error_load": "Unable to load course material."
+      },
+      "deposit": {
+        "title": "Upload a Support",
+        "description": "Create a new pedagogical resource for your students.",
+        "details_title": "Document details",
+        "form": {
+          "title_label": "Support Title",
+          "title_placeholder": "Ex: Linear Algebra - Chapter 1",
+          "subject_label": "Subject",
+          "subject_placeholder": "Ex: Mathematics",
+          "level_label": "Study level",
+          "level_placeholder": "Choose a level",
+          "description_label": "Description",
+          "description_placeholder": "Briefly summarize the content of this material..."
+        },
+        "file": {
+          "title": "Source File",
+          "select_pdf": "Select a PDF",
+          "max_size": "Maximum 20MB",
+          "change_file": "Change file",
+          "browse_files": "Browse files"
+        },
+        "important": {
+          "title": "Important",
+          "desc": "Once published, your material will be submitted for validation by your department's Pedagogical team before being visible to students.",
+          "rule1": "PDF format only",
+          "rule2": "Verified pedagogical content",
+          "rule3": "Visible to students after validation"
+        },
+        "buttons": {
+          "submit": "Publish support",
+          "submitting": "Processing..."
+        },
+        "messages": {
+          "pdf_only": "Only PDF files are accepted.",
+          "fill_all": "Please fill in all fields and select a file.",
+          "invalid_session": "Invalid session.",
+          "success": "Support uploaded successfully!",
+          "error": "Error during support upload. Please try again."
+        }
+      }
+    }
+  },
+  "schedule": {
+    "courses_title": "Timetable - Courses",
+    "exams_title": "Timetable - Exams",
+    "download": "Download timetable",
+    "day": "Day",
+    "time": "Time",
+    "course": "Course",
+    "room": "Room",
+    "exam": "Exam",
+    "date": "Date",
+    "exams_choice": "Choose an exam type",
+    "cc_title": "Continuous Assessment (CC)",
+    "cc_desc": "Consult continuous assessment terms.",
+    "sn_title": "Normal Session (SN)",
+    "sn_desc": "Consult the final exam timetable.",
+    "not_available": "The timetable for this session is not yet available.",
+    "subject": "Subject",
+    "download_short": "Download"
   }
 }

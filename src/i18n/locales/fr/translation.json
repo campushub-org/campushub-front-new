@@ -460,5 +460,280 @@
       "subject": "Matière",
       "download_short": "Télécharger"
     }
+  },
+  "teacher": {
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Tout marquer lu",
+      "delete_all": "Tout supprimer",
+      "filter_all": "Tout",
+      "filter_unread": "Non lues",
+      "loading": "Mise à jour...",
+      "approved": "Support Approuvé",
+      "rejected": "Correction demandée",
+      "update": "Mise à jour",
+      "content_template": "L'équipe Pédagogique a mis à jour votre support \"{{title}}\" ({{subject}}).",
+      "mark_as_read": "Marquer comme lu",
+      "delete": "Supprimer",
+      "empty_title": "Aucun message",
+      "empty_desc": "Votre boîte est vide",
+      "messages": {
+        "error_load": "Impossible de charger les notifications.",
+        "error_update": "Échec de la mise à jour.",
+        "error_delete": "Échec de la suppression.",
+        "success_mark_all": "Toutes les notifications lues.",
+        "success_delete": "Notification supprimée.",
+        "success_delete_all": "Notifications vidées."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Professeur"
+      },
+      "tabs": {
+        "my_profile": "Mon Profil",
+        "preferences": "Préférences",
+        "security": "Sécurité"
+      },
+      "personal": {
+        "title": "Informations personnelles",
+        "description": "Gérez les détails de votre identité publique.",
+        "save": "Enregistrer",
+        "edit": "Modifier",
+        "full_name": "Nom complet",
+        "username": "Nom d'utilisateur",
+        "department": "Département",
+        "office_number": "Numéro de bureau",
+        "grade": "Grade / Titre académique"
+      },
+      "preferences": {
+        "title": "Apparence & Affichage",
+        "description": "Personnalisez votre interface CampusHub.",
+        "theme_title": "Thème de l'application",
+        "theme_light": "Clair",
+        "theme_dark": "Sombre",
+        "theme_system": "Système",
+        "email_notifs": "Notifications Email",
+        "email_notifs_desc": "Recevoir des résumés quotidiens de l'activité académique."
+      },
+      "security": {
+        "change_password_title": "Changer le mot de passe",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmation",
+        "update_password": "Mettre à jour le mot de passe",
+        "danger_zone": "Zone de danger",
+        "danger_desc": "La suppression de votre compte est définitive. Toutes vos données seront effacées.",
+        "delete_account": "Supprimer le compte",
+        "logout": "Se déconnecter"
+      },
+      "dialogs": {
+        "image_title": "Nouvelle photo de profil",
+        "image_desc": "Ajustez le cadrage si nécessaire avant de confirmer.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "delete_title": "Êtes-vous absolument sûr ?",
+        "delete_desc": "Cette action est irréversible. Pour confirmer, saisissez votre mot de passe ci-dessous.",
+        "confirm_pass": "Mot de passe",
+        "confirm_delete": "Confirmer la suppression",
+        "deleting": "Suppression..."
+      },
+      "messages": {
+        "error_auth": "Authentification requise.",
+        "error_token": "Token invalide.",
+        "error_load": "Impossible de charger le profil.",
+        "success_update": "Profil mis à jour !",
+        "error_update": "Échec de la mise à jour.",
+        "success_image": "Photo mise à jour !",
+        "error_upload": "Erreur de téléversement.",
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "success_password": "Mot de passe mis à jour !",
+        "error_generic": "Erreur."
+      }
+    },
+    "dashboard": {
+      "welcome": "Bonjour, Professeur 👋",
+      "subtitle": "Voici ce qui se passe dans vos cours aujourd'hui.",
+      "stats": {
+        "materials": "Supports de Cours",
+        "upcoming_courses": "Cours à Venir",
+        "validated": "Validés",
+        "pending": "En Attente",
+        "weekly_trend": "+{{count}} cette semaine",
+        "today": "Aujourd'hui",
+        "success_rate": "{{percent}}% de réussite",
+        "attention_required": "Requiert votre attention"
+      },
+      "quick_actions": {
+        "title": "Actions Rapides",
+        "desc": "Accédez aux outils fréquents",
+        "deposit": "Déposer un nouveau support",
+        "availability": "Gérer mes disponibilités"
+      },
+      "widgets": {
+        "materials": {
+          "title": "Mes Supports de Cours",
+          "desc": "Liste de vos documents récemment ajoutés",
+          "view_all": "Voir tout",
+          "table": {
+            "course": "Cours",
+            "material": "Support",
+            "date": "Date",
+            "status": "Statut",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "Voir",
+            "download": "Télécharger",
+            "delete": "Supprimer"
+          },
+          "statuses": {
+            "validated": "Validé",
+            "pending": "En attente",
+            "rejected": "Rejeté"
+          }
+        },
+        "schedule": {
+          "title": "Agenda & Examens",
+          "desc": "Vos prochaines interventions",
+          "view_full": "Voir le calendrier complet",
+          "types": {
+            "course": "Cours",
+            "exam": "Examen"
+          },
+          "relative_days": {
+            "today": "Aujourd'hui",
+            "tomorrow": "Demain"
+          }
+        },
+        "validation": {
+          "title": "Statut des Validations",
+          "pending": "Supports en attente",
+          "validated": "Supports validés",
+          "rejected": "Supports rejetés"
+        }
+      },
+      "deposit_drawer": {
+        "title": "Nouveau Support",
+        "desc": "Remplissez les informations pour publier un nouveau support de cours.",
+        "success_title": "Publication réussie !",
+        "success_desc": "Votre document est maintenant en attente de validation.",
+        "form": {
+          "title_label": "Titre du Support",
+          "title_placeholder": "Ex: Algèbre Linéaire - Chapitre 1",
+          "description_label": "Description",
+          "description_placeholder": "Décrivez brièvement le contenu...",
+          "level_label": "Niveau",
+          "level_placeholder": "Niveau",
+          "subject_label": "Matière",
+          "subject_placeholder": "Ex: Mathématiques I",
+          "file_label": "Fichier du Support",
+          "file_click": "Cliquez ou glissez un fichier",
+          "file_hint": "PDF, DOCX, ZIP (Max 10MB)"
+        },
+        "buttons": {
+          "cancel": "Annuler",
+          "submit": "Publier le support",
+          "submitting": "Envoi...",
+          "error_auth": "Authentification requise",
+          "error_upload": "Erreur lors du dépôt du support",
+          "success": "Support déposé avec succès !"
+        }
+      }
+    },
+    "support": {
+      "title": "Mes Supports de Cours",
+      "description": "Gérez votre catalogue pédagogique et suivez l'état des validations.",
+      "search_placeholder": "Rechercher un support...",
+      "new_button": "Nouveau support",
+      "view_details": "Voir les détails",
+      "empty_title": "Aucun support déposé",
+      "empty_desc": "Commencez par déposer votre premier support de cours pour vos étudiants.",
+      "empty_button": "Déposer mon premier support",
+      "actions": {
+        "submit": "Soumettre pour validation",
+        "details": "Détails",
+        "delete": "Supprimer"
+      },
+      "statuses": {
+        "validated": "Approuvé",
+        "rejected": "À corriger",
+        "pending": "En attente",
+        "draft": "Brouillon"
+      },
+      "dialogs": {
+        "delete_title": "Supprimer ce support ?",
+        "delete_desc": "Cette action est irréversible. Le fichier sera définitivement supprimé.",
+        "cancel": "Annuler",
+        "confirm_delete": "Supprimer"
+      },
+      "messages": {
+        "error_load": "Erreur de chargement des supports",
+        "success_submit": "Support soumis pour validation",
+        "success_delete": "Support supprimé",
+        "error_action": "L'opération a échoué"
+      },
+      "view": {
+        "loading": "Chargement du document...",
+        "not_found_title": "Support introuvable",
+        "not_found_desc": "Nous n'avons pas pu charger ce support.",
+        "back": "Retour",
+        "download": "Télécharger",
+        "share": "Partager",
+        "history": "Historique",
+        "preview_title": "Aperçu du document",
+        "description_title": "Description",
+        "no_description": "Aucune description fournie pour ce support.",
+        "feedback_title": "Retour pédagogique",
+        "feedback_date": "Décidé le {{date}}",
+        "info_title": "Informations",
+        "upload_date": "Date de dépôt",
+        "status_label": "Statut",
+        "visibility_title": "Visibilité",
+        "visibility_desc": "Visible par les étudiants une fois validé par l'équipe Pédagogique de votre département.",
+        "success_download": "Téléchargement démarré",
+        "error_load": "Impossible de charger le support de cours."
+      },
+      "deposit": {
+        "title": "Déposer un Support",
+        "description": "Créez une nouvelle ressource pédagogique pour vos étudiants.",
+        "details_title": "Détails du document",
+        "form": {
+          "title_label": "Titre du Support",
+          "title_placeholder": "Ex: Algèbre Linéaire - Chapitre 1",
+          "subject_label": "Matière",
+          "subject_placeholder": "Ex: Mathématiques",
+          "level_label": "Niveau d'études",
+          "level_placeholder": "Choisir un niveau",
+          "description_label": "Description",
+          "description_placeholder": "Résumez brièvement le contenu de ce support..."
+        },
+        "file": {
+          "title": "Fichier Source",
+          "select_pdf": "Sélectionner un PDF",
+          "max_size": "Maximum 20MB",
+          "change_file": "Changer de fichier",
+          "browse_files": "Parcourir les fichiers"
+        },
+        "important": {
+          "title": "Important",
+          "desc": "Une fois publié, votre support sera soumis à la validation de l'équipe Pédagogique de votre département avant d'être visible par les étudiants.",
+          "rule1": "Format PDF uniquement",
+          "rule2": "Contenu pédagogique vérifié",
+          "rule3": "Visible par les étudiants après validation"
+        },
+        "buttons": {
+          "submit": "Publier le support",
+          "submitting": "Traitement en cours..."
+        },
+        "messages": {
+          "pdf_only": "Seuls les fichiers PDF sont acceptés.",
+          "fill_all": "Veuillez remplir tous les champs et sélectionner un fichier.",
+          "invalid_session": "Session invalide.",
+          "success": "Support déposé avec succès !",
+          "error": "Erreur lors du dépôt du support. Veuillez réessayer."
+        }
+      }
+    }
   }
 }

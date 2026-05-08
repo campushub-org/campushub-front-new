@@ -10,33 +10,45 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-
-const materials = [
-  { course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 1', status: 'Validé', date: '20 Mai 2024' },
-  { course: 'Physique des Ondes', title: 'Cours Electromagnétisme', status: 'En attente', date: '18 Mai 2024' },
-  { course: 'Programmation Avancée', title: 'TP React - Intro', status: 'Rejeté', date: '15 Mai 2024' },
-  { course: 'Chimie Organique', title: 'Réactions Acido-Basiques', status: 'Validé', date: '10 Mai 2024' },
-];
+import { useTranslation } from 'react-i18next';
 
 const CourseMaterialsWidget: React.FC = () => {
+  const { t } = useTranslation();
+
+  const materials = [
+    { course: 'Mathématiques I', title: 'Algèbre Linéaire - Chap. 1', status: 'Validé', date: '20 Mai 2024' },
+    { course: 'Physique des Ondes', title: 'Cours Electromagnétisme', status: 'En attente', date: '18 Mai 2024' },
+    { course: 'Programmation Avancée', title: 'TP React - Intro', status: 'Rejeté', date: '15 Mai 2024' },
+    { course: 'Chimie Organique', title: 'Réactions Acido-Basiques', status: 'Validé', date: '10 Mai 2024' },
+  ];
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'Validé': return t('teacher.dashboard.widgets.materials.statuses.validated');
+      case 'En attente': return t('teacher.dashboard.widgets.materials.statuses.pending');
+      case 'Rejeté': return t('teacher.dashboard.widgets.materials.statuses.rejected');
+      default: return status;
+    }
+  };
+
   return (
     <Card className="border-border/50 shadow-sm overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="space-y-1">
-          <CardTitle className="text-xl">Mes Supports de Cours</CardTitle>
-          <CardDescription>Liste de vos documents récemment ajoutés</CardDescription>
+          <CardTitle className="text-xl">{t('teacher.dashboard.widgets.materials.title')}</CardTitle>
+          <CardDescription>{t('teacher.dashboard.widgets.materials.desc')}</CardDescription>
         </div>
-        <Button variant="outline" size="sm">Voir tout</Button>
+        <Button variant="outline" size="sm">{t('teacher.dashboard.widgets.materials.view_all')}</Button>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="w-[180px] px-6">Cours</TableHead>
-              <TableHead>Support</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead className="text-right px-6">Actions</TableHead>
+              <TableHead className="w-[180px] px-6">{t('teacher.dashboard.widgets.materials.table.course')}</TableHead>
+              <TableHead>{t('teacher.dashboard.widgets.materials.table.material')}</TableHead>
+              <TableHead>{t('teacher.dashboard.widgets.materials.table.date')}</TableHead>
+              <TableHead>{t('teacher.dashboard.widgets.materials.table.status')}</TableHead>
+              <TableHead className="text-right px-6">{t('teacher.dashboard.widgets.materials.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -60,7 +72,7 @@ const CourseMaterialsWidget: React.FC = () => {
                     }
                     className="font-medium px-2 py-0.5"
                   >
-                    {item.status}
+                    {getStatusLabel(item.status)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right px-6">
@@ -73,15 +85,15 @@ const CourseMaterialsWidget: React.FC = () => {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem className="cursor-pointer">
                         <Eye className="mr-2 h-4 w-4" />
-                        Voir
+                        {t('teacher.dashboard.widgets.materials.actions.view')}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="cursor-pointer">
                         <Download className="mr-2 h-4 w-4" />
-                        Télécharger
+                        {t('teacher.dashboard.widgets.materials.actions.download')}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer">
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Supprimer
+                        {t('teacher.dashboard.widgets.materials.actions.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -96,3 +108,4 @@ const CourseMaterialsWidget: React.FC = () => {
 };
 
 export default CourseMaterialsWidget;
+
