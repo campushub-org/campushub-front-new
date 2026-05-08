@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/components/ThemeProvider';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface UserProfile {
   id: number;
@@ -44,6 +45,7 @@ interface UserProfile {
 }
 
 const DeanProfilePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -77,13 +79,13 @@ const DeanProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError("Authentification requise.");
+        setError(t("dean.profile.messages.error_auth"));
         setLoading(false);
         return;
       }
       const decoded = decodeToken(token);
       if (!decoded || !decoded.id) {
-        setError("Token invalide.");
+        setError(t("dean.profile.messages.error_token"));
         setLoading(false);
         return;
       }
@@ -95,13 +97,13 @@ const DeanProfilePage: React.FC = () => {
           setProfileImage(response.data.profilePictureUrl);
         }
       } catch (err) {
-        setError("Impossible de charger le profil.");
+        setError(t("dean.profile.messages.error_load"));
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, []);
+  }, [t]);
 
   const handleEditToggle = () => {
     if (isEditingProfile) setEditableProfileData(profileData);
@@ -115,10 +117,10 @@ const DeanProfilePage: React.FC = () => {
       const response = await api.put<UserProfile>(`/campushub-user-service/api/users/${profileData.id}`, editableProfileData);
       setProfileData(response.data);
       setEditableProfileData(response.data);
-      toast.success("Profil mis à jour !");
+      toast.success(t("dean.profile.messages.success_update"));
       setIsEditingProfile(false);
     } catch (err) {
-      toast.error("Échec de la mise à jour.");
+      toast.error(t("dean.profile.messages.error_update"));
     } finally {
       setLoading(false);
     }
@@ -157,9 +159,9 @@ const DeanProfilePage: React.FC = () => {
       setProfileData(prev => prev ? { ...prev, profilePictureUrl: newUrl } : null);
       localStorage.setItem('userProfileImage', newUrl);
       window.dispatchEvent(new Event('profileImageUpdated'));
-      toast.success("Photo mise à jour !");
+      toast.success(t("dean.profile.messages.success_image"));
     } catch (err) {
-      toast.error("Erreur de téléversement.");
+      toast.error(t("dean.profile.messages.error_upload"));
     } finally {
       setIsImageUploadConfirmDialogOpen(false);
       setPendingImageFile(null);
@@ -170,23 +172,23 @@ const DeanProfilePage: React.FC = () => {
   const handlePasswordChange = async (e: FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      setPasswordChangeError("Les mots de passe ne correspondent pas.");
+      setPasswordChangeError(t("dean.profile.messages.password_mismatch"));
       return;
     }
     setIsChangingPassword(true);
     try {
       await api.put(`/campushub-user-service/api/users/${profileData?.id}/change-password`, { currentPassword, newPassword });
-      toast.success("Mot de passe mis à jour !");
+      toast.success(t("dean.profile.messages.success_password"));
       setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword('');
     } catch (err: any) {
-      setPasswordChangeError(err.response?.data?.message || "Erreur.");
+      setPasswordChangeError(err.response?.data?.message || t("dean.profile.messages.error_generic"));
     } finally {
       setIsChangingPassword(false);
     }
   };
 
   if (loading && !profileData) return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-  if (error) return <Alert variant="destructive"><AlertTitle>Erreur</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error) return <Alert variant="destructive"><AlertTitle>{t("dean.profile.messages.error_generic")}</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
   if (!profileData) return null;
 
   return (
@@ -210,7 +212,7 @@ const DeanProfilePage: React.FC = () => {
           <div className="text-center md:text-left space-y-2">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               <h1 className="text-3xl font-bold tracking-tight">{profileData.fullName}</h1>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">Équipe Pédagogique</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">{t("dean.profile.header.badge")}</Badge>
             </div>
             <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -233,43 +235,43 @@ const DeanProfilePage: React.FC = () => {
       {/* Tabs */}
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="w-full justify-start bg-transparent h-auto p-0 border-b border-border/50 rounded-none mb-8 gap-8">
-          <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">Mon Profil</TabsTrigger>
-          <TabsTrigger value="preferences" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">Préférences</TabsTrigger>
-          <TabsTrigger value="security" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">Sécurité</TabsTrigger>
+          <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">{t("dean.profile.tabs.my_profile")}</TabsTrigger>
+          <TabsTrigger value="preferences" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">{t("dean.profile.tabs.preferences")}</TabsTrigger>
+          <TabsTrigger value="security" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">{t("dean.profile.tabs.security")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-0 space-y-6">
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50">
               <div>
-                <CardTitle className="text-xl">Informations professionnelles</CardTitle>
-                <CardDescription>Gérez les détails du profil Équipe Pédagogique.</CardDescription>
+                <CardTitle className="text-xl">{t("dean.profile.personal.title")}</CardTitle>
+                <CardDescription>{t("dean.profile.personal.description")}</CardDescription>
               </div>
               <Button variant={isEditingProfile ? "default" : "outline"} onClick={isEditingProfile ? handleSaveProfile : handleEditToggle} className="gap-2" disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isEditingProfile ? <Save size={16} /> : <PencilLine size={16} />}
-                {isEditingProfile ? "Enregistrer" : "Modifier"}
+                {isEditingProfile ? t("dean.profile.personal.save") : t("dean.profile.personal.edit")}
               </Button>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-sm font-semibold">Nom complet</Label>
+                  <Label htmlFor="fullName" className="text-sm font-semibold">{t("dean.profile.personal.full_name")}</Label>
                   <Input id="fullName" value={editableProfileData?.fullName} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-sm font-semibold">Nom d'utilisateur</Label>
+                  <Label htmlFor="username" className="text-sm font-semibold">{t("dean.profile.personal.username")}</Label>
                   <Input id="username" value={profileData.username} readOnly className="h-11 bg-muted/30 border-border/50 focus-visible:ring-0 opacity-70" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department" className="text-sm font-semibold">Département / Faculté</Label>
+                  <Label htmlFor="department" className="text-sm font-semibold">{t("dean.profile.personal.department")}</Label>
                   <Input id="department" value={editableProfileData?.department} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="officeNumber" className="text-sm font-semibold">Numéro de bureau</Label>
+                  <Label htmlFor="officeNumber" className="text-sm font-semibold">{t("dean.profile.personal.office_number")}</Label>
                   <Input id="officeNumber" value={editableProfileData?.officeNumber} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="grade" className="text-sm font-semibold">Grade académique</Label>
+                  <Label htmlFor="grade" className="text-sm font-semibold">{t("dean.profile.personal.grade")}</Label>
                   <Input id="grade" value={editableProfileData?.grade} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
               </div>
@@ -280,17 +282,17 @@ const DeanProfilePage: React.FC = () => {
         <TabsContent value="preferences" className="mt-0 space-y-6">
           <Card className="border-border/50 shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/50 bg-muted/10">
-              <CardTitle className="text-xl">Apparence & Affichage</CardTitle>
-              <CardDescription>Personnalisez votre interface CampusHub.</CardDescription>
+              <CardTitle className="text-xl">{t("dean.profile.preferences.title")}</CardTitle>
+              <CardDescription>{t("dean.profile.preferences.description")}</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-8">
               <div className="space-y-4">
-                <Label className="text-base font-bold">Thème de l'application</Label>
+                <Label className="text-base font-bold">{t("dean.profile.preferences.theme_title")}</Label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { id: 'light', label: 'Clair', icon: Sun },
-                    { id: 'dark', label: 'Sombre', icon: Moon },
-                    { id: 'system', label: 'Système', icon: Monitor }
+                    { id: 'light', label: t("dean.profile.preferences.theme_light"), icon: Sun },
+                    { id: 'dark', label: t("dean.profile.preferences.theme_dark"), icon: Moon },
+                    { id: 'system', label: t("dean.profile.preferences.theme_system"), icon: Monitor }
                   ].map((t) => (
                     <button key={t.id} onClick={() => setTheme(t.id as any)} className={cn("flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all group", theme === t.id ? "border-primary bg-primary/5 text-primary shadow-sm" : "border-border/50 hover:border-border hover:bg-muted/30")}>
                       <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center transition-colors", theme === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-muted/80")}>
@@ -309,11 +311,11 @@ const DeanProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <Card className="border-border/50 shadow-sm">
-                <CardHeader><CardTitle className="text-xl flex items-center gap-2"><ShieldCheck className="text-primary h-5 w-5" /> Sécurité du compte</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-xl flex items-center gap-2"><ShieldCheck className="text-primary h-5 w-5" /> {t("dean.profile.security.title")}</CardTitle></CardHeader>
                 <CardContent>
                   <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                      <Label htmlFor="currentPassword">{t("dean.profile.security.current_password")}</Label>
                       <div className="relative group">
                         <Input
                           id="currentPassword"
@@ -334,7 +336,7 @@ const DeanProfilePage: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                        <Label htmlFor="newPassword">{t("dean.profile.security.new_password")}</Label>
                         <div className="relative group">
                           <Input
                             id="newPassword"
@@ -354,7 +356,7 @@ const DeanProfilePage: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirmNewPassword">Confirmation</Label>
+                        <Label htmlFor="confirmNewPassword">{t("dean.profile.security.confirm_password")}</Label>
                         <div className="relative group">
                           <Input
                             id="confirmNewPassword"
@@ -375,20 +377,20 @@ const DeanProfilePage: React.FC = () => {
                       </div>
                     </div>
                     {passwordChangeError && <p className="text-destructive text-xs font-medium">{passwordChangeError}</p>}
-                    <Button type="submit" disabled={isChangingPassword}>{isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Mettre à jour</Button>
+                    <Button type="submit" disabled={isChangingPassword}>{isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {t("dean.profile.security.update_password")}</Button>
                   </form>
                 </CardContent>
               </Card>
             </div>
             <div className="space-y-6">
               <Card className="border-destructive/20 bg-destructive/5 overflow-hidden">
-                <CardHeader className="bg-destructive/10"><CardTitle className="text-lg text-destructive flex items-center gap-2"><Trash2 size={18} /> Zone de danger</CardTitle></CardHeader>
+                <CardHeader className="bg-destructive/10"><CardTitle className="text-lg text-destructive flex items-center gap-2"><Trash2 size={18} /> {t("dean.profile.security.danger_zone")}</CardTitle></CardHeader>
                 <CardContent className="pt-4 space-y-4">
-                  <p className="text-sm text-destructive/80 font-medium">La suppression est définitive.</p>
-                  <Button variant="destructive" className="w-full" onClick={() => setIsDeleteAccountDialogOpen(true)}>Supprimer le compte</Button>
+                  <p className="text-sm text-destructive/80 font-medium">{t("dean.profile.security.danger_desc")}</p>
+                  <Button variant="destructive" className="w-full" onClick={() => setIsDeleteAccountDialogOpen(true)}>{t("dean.profile.security.delete_account")}</Button>
                 </CardContent>
               </Card>
-              <Card className="border-border/50"><CardContent className="p-4"><Button variant="outline" className="w-full justify-between" onClick={() => { localStorage.clear(); navigate('/signin'); }}>Se déconnecter <LogOut size={16} /></Button></CardContent></Card>
+              <Card className="border-border/50"><CardContent className="p-4"><Button variant="outline" className="w-full justify-between" onClick={() => { localStorage.clear(); navigate('/signin'); }}>{t("dean.profile.security.logout")} <LogOut size={16} /></Button></CardContent></Card>
             </div>
           </div>
         </TabsContent>
@@ -397,33 +399,33 @@ const DeanProfilePage: React.FC = () => {
       {/* Dialogs */}
       <Dialog open={isImageUploadConfirmDialogOpen} onOpenChange={setIsImageUploadConfirmDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader><DialogTitle>Nouvelle photo de profil</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("dean.profile.dialogs.image_title")}</DialogTitle></DialogHeader>
           <div className="flex justify-center py-6">{pendingImageFile && <img src={URL.createObjectURL(pendingImageFile)} alt="Preview" className="h-48 w-48 rounded-2xl object-cover shadow-2xl border-4 border-background ring-1 ring-border/50" />}</div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>Annuler</Button>
-            <Button onClick={confirmImageChange} disabled={isUploadingImage}>{isUploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Confirmer</Button>
+            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>{t("dean.profile.dialogs.cancel")}</Button>
+            <Button onClick={confirmImageChange} disabled={isUploadingImage}>{isUploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}{t("dean.profile.dialogs.confirm")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isDeleteAccountDialogOpen} onOpenChange={setIsDeleteAccountDialogOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle className="text-destructive">Suppression du compte</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-destructive">{t("dean.profile.dialogs.delete_title")}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <Label htmlFor="deletePass">Mot de passe de confirmation</Label>
+            <Label htmlFor="deletePass">{t("dean.profile.dialogs.confirm_pass")}</Label>
             <Input id="deletePass" type="password" value={deleteConfirmationPassword} onChange={(e) => setDeleteConfirmationPassword(e.target.value)} className="border-destructive/30" />
             {deleteAccountError && <p className="text-destructive text-xs font-bold">{deleteAccountError}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)}>{t("dean.profile.dialogs.cancel")}</Button>
             <Button variant="destructive" onClick={async () => {
               setIsDeletingAccount(true);
               try {
                 await api.post(`/campushub-user-service/api/users/${profileData.id}/delete-account-confirm`, { password: deleteConfirmationPassword });
                 localStorage.clear(); navigate('/signin');
-              } catch(e:any) { setDeleteAccountError(e.response?.data?.message || "Erreur."); }
+              } catch(e:any) { setDeleteAccountError(e.response?.data?.message || t("dean.profile.messages.error_delete")); }
               finally { setIsDeletingAccount(false); }
-            }} disabled={!deleteConfirmationPassword || isDeletingAccount}>{isDeletingAccount ? "Suppression..." : "Confirmer"}</Button>
+            }} disabled={!deleteConfirmationPassword || isDeletingAccount}>{isDeletingAccount ? t("teacher.profile.dialogs.deleting") : t("dean.profile.dialogs.confirm")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

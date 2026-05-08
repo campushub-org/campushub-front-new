@@ -3,27 +3,30 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Clock } from 'lucide-react';
-
-const materialsToValidate = [
-  { course: 'Algèbre I', teacher: 'Dr. Dupont', date: '01 Déc 2025', status: 'En attente' },
-  { course: 'Analyse II', teacher: 'Pr. Martin', date: '02 Déc 2025', status: 'En attente' },
-  { course: 'Physique Quantique', teacher: 'Dr. Lefevre', date: '28 Nov 2025', status: 'En attente' },
-];
+import { useTranslation } from 'react-i18next';
 
 const MaterialsToValidateWidget: React.FC = () => {
+  const { t, i18n } = useTranslation();
+
+  const materialsToValidate = [
+    { course: 'Algèbre I', teacher: 'Dr. Dupont', date: `01 ${i18n.language === 'fr' ? 'Déc' : 'Dec'} 2025`, status: t("dean.dashboard.widgets.validation.status.pending") },
+    { course: 'Analyse II', teacher: 'Pr. Martin', date: `02 ${i18n.language === 'fr' ? 'Déc' : 'Dec'} 2025`, status: t("dean.dashboard.widgets.validation.status.pending") },
+    { course: 'Physique Quantique', teacher: 'Dr. Lefevre', date: `28 ${i18n.language === 'fr' ? 'Nov' : 'Nov'} 2025`, status: t("dean.dashboard.widgets.validation.status.pending") },
+  ];
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle>Supports à Valider</CardTitle>
+        <CardTitle>{t("dean.dashboard.widgets.validation.title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Cours</TableHead>
-              <TableHead>Enseignant</TableHead>
-              <TableHead className="text-center">Date Soumission</TableHead>
-              <TableHead className="text-right">Statut</TableHead>
+              <TableHead>{t("dean.dashboard.widgets.validation.table.course")}</TableHead>
+              <TableHead>{t("dean.dashboard.widgets.validation.table.teacher")}</TableHead>
+              <TableHead className="text-center">{t("dean.dashboard.widgets.validation.table.date")}</TableHead>
+              <TableHead className="text-right">{t("dean.dashboard.widgets.validation.table.status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

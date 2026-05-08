@@ -735,5 +735,261 @@
         }
       }
     }
+  },
+  "dean": {
+    "profile": {
+      "header": {
+        "badge": "Équipe Pédagogique"
+      },
+      "tabs": {
+        "my_profile": "Mon Profil",
+        "preferences": "Préférences",
+        "security": "Sécurité"
+      },
+      "personal": {
+        "title": "Informations professionnelles",
+        "description": "Gérez les détails du profil Équipe Pédagogique.",
+        "full_name": "Nom complet",
+        "username": "Nom d'utilisateur",
+        "department": "Département / Faculté",
+        "office_number": "Numéro de bureau",
+        "grade": "Grade académique",
+        "save": "Enregistrer",
+        "edit": "Modifier"
+      },
+      "preferences": {
+        "title": "Apparence & Affichage",
+        "description": "Personnalisez votre interface CampusHub.",
+        "theme_title": "Thème de l'application",
+        "theme_light": "Clair",
+        "theme_dark": "Sombre",
+        "theme_system": "Système"
+      },
+      "security": {
+        "title": "Sécurité du compte",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmation",
+        "update_password": "Mettre à jour le mot de passe",
+        "danger_zone": "Zone de danger",
+        "danger_desc": "La suppression de votre compte est définitive.",
+        "delete_account": "Supprimer le compte",
+        "logout": "Se déconnecter"
+      },
+      "dialogs": {
+        "image_title": "Nouvelle photo de profil",
+        "image_desc": "Ajustez le cadrage si nécessaire avant de confirmer votre nouvelle photo.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "delete_title": "Suppression du compte",
+        "delete_desc": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+        "confirm_pass": "Mot de passe de confirmation"
+      },
+      "messages": {
+        "error_auth": "Authentification requise.",
+        "error_token": "Token invalide.",
+        "error_load": "Impossible de charger le profil.",
+        "success_update": "Profil mis à jour !",
+        "error_update": "Échec de la mise à jour.",
+        "success_image": "Photo mise à jour !",
+        "error_upload": "Erreur de téléversement.",
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "success_password": "Mot de passe mis à jour !",
+        "error_delete": "Erreur lors de la suppression du compte.",
+        "error_generic": "Erreur."
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Tout marquer lu",
+      "delete_all": "Tout supprimer",
+      "filter_all": "Tout",
+      "filter_unread": "Non lues",
+      "loading": "Mise à jour...",
+      "new_dossier": "Nouveau dossier à valider",
+      "archived": "Dossier archivé",
+      "system_alert": "Alerte Système",
+      "content_template": "L'enseignant a soumis \"{{title}}\" pour le cours de {{subject}}.",
+      "mark_as_read": "Marquer comme lu",
+      "delete": "Supprimer",
+      "empty_title": "Aucune notification",
+      "empty_desc": "Flux à jour",
+      "messages": {
+        "error_load": "Impossible de charger les notifications.",
+        "error_update": "Échec de la mise à jour.",
+        "error_delete": "Échec de la suppression.",
+        "error_bulk_delete": "Échec de la suppression groupée.",
+        "error_generic": "Échec de l'opération.",
+        "success_mark_all": "Toutes les notifications lues.",
+        "success_delete": "Notification supprimée.",
+        "success_delete_all": "Notifications vidées."
+      }
+    },
+    "sidebar": {
+      "dashboard": "Tableau de bord",
+      "validations": "Validation Supports",
+      "schedule": "Planning Global",
+      "edition": "Édition"
+    },
+    "dashboard": {
+      "title": "Espace Équipe Pédagogique 🏛️",
+      "subtitle": "Supervision académique et validation des supports.",
+      "actions": {
+        "monthly_report": "Rapport mensuel",
+        "validate_all": "Valider tout"
+      },
+      "stats": {
+        "pending_materials": "Supports en attente",
+        "since_yesterday": "depuis hier",
+        "validation_rate": "Taux de validation",
+        "this_month": "ce mois",
+        "active_teachers": "Enseignants actifs",
+        "this_week": "cette semaine",
+        "planned_exams": "Examens prévus",
+        "next_15_days": "prochains 15 jours"
+      },
+      "widgets": {
+        "reports": {
+          "title": "Rapports & Analyses",
+          "list": {
+            "annual_validation": "Rapport annuel des validations",
+            "student_attendance": "Statistiques d'assiduité étudiants",
+            "planning_conflicts": "Rapport des conflits de planification"
+          },
+          "actions": {
+            "generate": "Générer",
+            "view": "Voir",
+            "download": "Télécharger"
+          }
+        },
+        "planning": {
+          "title": "Aperçu Planification Globale",
+          "stats": {
+            "planned_exams": "Examens Planifiés",
+            "active_courses": "Cours Actifs",
+            "potential_conflicts": "Conflits Potentiels"
+          },
+          "upcoming": {
+            "title": "Prochaines Échéances",
+            "list": {
+              "timetable_validation": "Validation Emploi du Temps Sem. 2",
+              "exam_registration_closure": "Clôture des inscriptions examens"
+            }
+          }
+        },
+        "stats": {
+          "title": "Statistiques Clés",
+          "validated_courses": "Cours Validés",
+          "room_occupancy": "Taux Occ. Salles",
+          "active_teachers": "Enseignants Actifs",
+          "materials_status": "Statut des Supports",
+          "chart": {
+            "validated": "Validés",
+            "pending": "En cours",
+            "rejected": "Rejetés"
+          }
+        },
+        "validation": {
+          "title": "Supports à Valider",
+          "table": {
+            "course": "Cours",
+            "teacher": "Enseignant",
+            "date": "Date Soumission",
+            "status": "Statut"
+          },
+          "status": {
+            "pending": "En attente"
+          }
+        }
+      },
+      "validation_page": {
+        "title": "Validation Académique",
+        "department_label": "Département :",
+        "search_placeholder": "Rechercher un dossier...",
+        "filters": {
+          "all": "Tous les dossiers",
+          "submitted": "Soumis",
+          "validated": "Validé",
+          "rejected": "Rejeté"
+        },
+        "status": {
+          "approved": "Approuvé",
+          "rejected": "Rejeté",
+          "pending": "En attente"
+        },
+        "actions": {
+          "examine": "Examiner"
+        },
+        "empty_title": "Aucun dossier en attente",
+        "empty_desc": "Tous les supports de cours de votre département ont été traités.",
+        "messages": {
+          "error_load": "Impossible de charger les dossiers de validation.",
+          "session_expired": "Session expirée"
+        }
+      },
+      "view_material": {
+        "title": "Détails du Support",
+        "badge": {
+          "validated": "Validé",
+          "draft": "Brouillon",
+          "pending": "À Valider",
+          "rejected": "Rejeté"
+        },
+        "actions": {
+          "download": "Télécharger",
+          "share": "Partager",
+          "history": "Historique",
+          "examine": "Examiner"
+        },
+        "preview_title": "Aperçu du document",
+        "description_title": "Description",
+        "no_description": "Aucune description fournie pour ce support.",
+        "validation_panel": {
+          "title": "Panel de Validation",
+          "feedback_label": "Remarques / Feedback",
+          "feedback_placeholder": "Ajoutez vos commentaires pour l'enseignant...",
+          "reject_button": "Rejeter",
+          "validate_button": "Valider"
+        },
+        "academic_feedback": {
+          "title": "Retour pédagogique",
+          "decided_on": "Décidé le {{date}}"
+        },
+        "info": {
+          "title": "Informations",
+          "upload_date": "Date de dépôt",
+          "status": "Statut",
+          "visibility": "Visibilité",
+          "visibility_desc": "Visible par les étudiants de {{level}} après validation."
+        },
+        "messages": {
+          "error_load": "Impossible de charger le support de cours.",
+          "success_validate": "Support validé avec succès",
+          "success_reject": "Support rejeté",
+          "error_update": "Erreur lors de la mise à jour du statut.",
+          "success_download": "Téléchargement démarré",
+          "not_found": "Support introuvable."
+        }
+      }
+    }
+  },
+  "schedule": {
+    "courses_title": "Emploi du Temps - Cours",
+    "exams_title": "Emploi du Temps - Examens",
+    "download": "Télécharger l'emploi du temps",
+    "day": "Jour",
+    "time": "Heure",
+    "course": "Cours",
+    "room": "Salle",
+    "exam": "Examen",
+    "date": "Date",
+    "exams_choice": "Choisir un type d'examen",
+    "cc_title": "Contrôle Continu (CC)",
+    "cc_desc": "Consulter les modalités des contrôles continus.",
+    "sn_title": "Session Normale (SN)",
+    "sn_desc": "Consulter l'emploi du temps des examens finaux.",
+    "not_available": "L'emploi du temps pour cette session n'est pas encore disponible.",
+    "subject": "Matière",
+    "download_short": "Télécharger"
   }
 }
