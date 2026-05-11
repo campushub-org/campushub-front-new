@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
   id: number;
@@ -35,6 +36,7 @@ interface Notification {
 }
 
 const TeacherNotificationsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'UNREAD'>('ALL');
@@ -62,7 +64,7 @@ const TeacherNotificationsPage: React.FC = () => {
       const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
       setNotifications(response.data.map(n => ({ ...n, isRead: !!n.isRead })));
     } catch (err) {
-      toast.error("Impossible de charger les notifications.");
+      toast.error(t('teacher.notifications.messages.error_load'));
     } finally {
       setLoading(false);
     }
@@ -80,7 +82,7 @@ const TeacherNotificationsPage: React.FC = () => {
       await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${userNotificationId}`);
       setNotifications(prev => prev.map(n => n.userNotificationId === userNotificationId ? { ...n, isRead: true } : n));
     } catch (err) {
-      toast.error("Échec de la mise à jour.");
+      toast.error(t('teacher.notifications.messages.error_update'));
     }
   };
 
@@ -90,9 +92,9 @@ const TeacherNotificationsPage: React.FC = () => {
     try {
       await Promise.all(unreadIds.map(id => api.put(`/campushub-notification-service/api/notifications/mark-as-read/${id}`)));
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      toast.success("Toutes les notifications lues.");
+      toast.success(t('teacher.notifications.messages.success_mark_all'));
     } catch (err) {
-      toast.error("Échec de l'opération.");
+      toast.error(t('teacher.notifications.messages.error_update'));
     }
   };
 
@@ -100,9 +102,9 @@ const TeacherNotificationsPage: React.FC = () => {
     try {
       await api.delete(`/campushub-notification-service/api/notifications/${userNotificationId}`);
       setNotifications(prev => prev.filter(n => n.userNotificationId !== userNotificationId));
-      toast.success("Notification supprimée.");
+      toast.success(t('teacher.notifications.messages.success_delete'));
     } catch (err) {
-      toast.error("Échec de la suppression.");
+      toast.error(t('teacher.notifications.messages.error_delete'));
     }
   };
 
@@ -111,9 +113,9 @@ const TeacherNotificationsPage: React.FC = () => {
     try {
       await Promise.all(notifications.map(n => api.delete(`/campushub-notification-service/api/notifications/${n.userNotificationId}`)));
       setNotifications([]);
-      toast.success("Notifications vidées.");
+      toast.success(t('teacher.notifications.messages.success_delete_all'));
     } catch (err) {
-      toast.error("Échec de la suppression groupée.");
+      toast.error(t('teacher.notifications.messages.error_delete'));
     }
   };
 
@@ -139,7 +141,7 @@ const TeacherNotificationsPage: React.FC = () => {
         {/* Header - Modèle Doyen Simplifié */}
         <div className="px-6 py-8 space-y-6 shrink-0 bg-background">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Notifications</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('teacher.notifications.title')}</h1>
             
             <div className="flex items-center gap-2">
               <Button 
@@ -149,7 +151,7 @@ const TeacherNotificationsPage: React.FC = () => {
                 onClick={handleMarkAllAsRead}
                 disabled={!notifications.some(n => !n.isRead)}
               >
-                <CheckCheck size={16} /> Tout marquer lu
+                <CheckCheck size={16} /> {t('teacher.notifications.mark_all_read')}
               </Button>
               <Button 
                 variant="outline" 
@@ -158,7 +160,7 @@ const TeacherNotificationsPage: React.FC = () => {
                 onClick={handleDeleteAll}
                 disabled={notifications.length === 0}
               >
-                <Trash2 size={16} /> Tout supprimer
+                <Trash2 size={16} /> {t('teacher.notifications.delete_all')}
               </Button>
             </div>
           </div>
@@ -173,7 +175,7 @@ const TeacherNotificationsPage: React.FC = () => {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              Tout ({notifications.length})
+              {t('teacher.notifications.filter_all')} ({notifications.length})
             </button>
             <button
               onClick={() => setFilter('UNREAD')}
@@ -184,7 +186,7 @@ const TeacherNotificationsPage: React.FC = () => {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              Non lues ({notifications.filter(n => !n.isRead).length})
+              {t('teacher.notifications.filter_unread')} ({notifications.filter(n => !n.isRead).length})
             </button>
           </div>
         </div>
@@ -195,7 +197,7 @@ const TeacherNotificationsPage: React.FC = () => {
             {loading ? (
               <div className="p-12 text-center space-y-4">
                 <div className="h-10 w-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Mise à jour...</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t('teacher.notifications.loading')}</p>
               </div>
             ) : filteredNotifications.length > 0 ? (
               <div className="space-y-4">
@@ -227,15 +229,15 @@ const TeacherNotificationsPage: React.FC = () => {
                         <div className="flex-1 min-w-0 space-y-2">
                           <div className="flex items-center justify-between gap-2">
                             <h3 className={cn("font-bold text-base", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
-                              {notif.statut === 'VALIDÉ' ? 'Support Approuvé' : 
-                               notif.statut === 'REJETÉ' ? 'Correction demandée' : 'Mise à jour'}
+                              {notif.statut === 'VALIDÉ' ? t('teacher.notifications.approved') : 
+                               notif.statut === 'REJETÉ' ? t('teacher.notifications.rejected') : t('teacher.notifications.update')}
                             </h3>
                             <span className="text-[10px] font-black text-muted-foreground uppercase opacity-40">
                                • {new Date(notif.createdAt).toLocaleDateString()}
                             </span>
                           </div>
                           <p className={cn("text-sm leading-relaxed max-w-2xl", !notif.isRead ? "text-muted-foreground" : "text-muted-foreground/60")}>
-                            L'équipe Pédagogique a mis à jour votre support <span className="font-bold">"{notif.titre}"</span> ({notif.matiere}).
+                            {t('teacher.notifications.content_template', { title: notif.titre, subject: notif.matiere })}
                           </p>
                           
                           <div className="flex items-center gap-6 pt-2">
@@ -244,14 +246,14 @@ const TeacherNotificationsPage: React.FC = () => {
                                 onClick={() => handleMarkAsRead(notif.userNotificationId)}
                                 className="text-xs font-black uppercase text-primary hover:underline"
                               >
-                                Marquer comme lu
+                                {t('teacher.notifications.mark_as_read')}
                               </button>
                             )}
                             <button 
                               onClick={() => handleDelete(notif.userNotificationId)}
                               className="text-xs font-black uppercase text-muted-foreground hover:text-rose-600 transition-colors"
                             >
-                              Supprimer
+                              {t('teacher.notifications.delete')}
                             </button>
                           </div>
                         </div>
@@ -264,7 +266,7 @@ const TeacherNotificationsPage: React.FC = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="rounded-xl w-40">
                             <DropdownMenuItem onClick={() => handleDelete(notif.userNotificationId)} className="rounded-lg gap-2 text-rose-600 focus:text-rose-600 font-bold text-xs uppercase">
-                              <Trash2 size={14} /> Supprimer
+                              <Trash2 size={14} /> {t('teacher.notifications.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -276,8 +278,8 @@ const TeacherNotificationsPage: React.FC = () => {
             ) : (
               <div className="h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-border/40 rounded-3xl bg-card/30">
                 <Inbox className="h-16 w-16 text-muted-foreground/10 mb-4" />
-                <h3 className="text-lg font-bold text-muted-foreground/60 tracking-tight text-center">Aucun message</h3>
-                <p className="text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest mt-1">Votre boîte est vide</p>
+                <h3 className="text-lg font-bold text-muted-foreground/60 tracking-tight text-center">{t('teacher.notifications.empty_title')}</h3>
+                <p className="text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest mt-1">{t('teacher.notifications.empty_desc')}</p>
               </div>
             )}
           </div>
@@ -288,3 +290,4 @@ const TeacherNotificationsPage: React.FC = () => {
 };
 
 export default TeacherNotificationsPage;
+

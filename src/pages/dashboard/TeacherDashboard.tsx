@@ -8,6 +8,7 @@ import {
   Users
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 // Widgets for Teacher Dashboard
 import CourseMaterialsWidget from '@/components/dashboard/teacher/CourseMaterialsWidget';
@@ -34,44 +35,45 @@ const StatsCard = ({ title, value, icon: Icon, description, trend }: any) => (
 );
 
 const TeacherDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [isDepositDrawerOpen, setIsDepositDrawerOpen] = useState(false);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bonjour, Professeur 👋</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('teacher.dashboard.welcome')}</h1>
         <p className="text-muted-foreground mt-1">
-          Voici ce qui se passe dans vos cours aujourd'hui.
+          {t('teacher.dashboard.subtitle')}
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard 
-          title="Supports de Cours" 
+          title={t('teacher.dashboard.stats.materials')} 
           value="12" 
           icon={BookOpen} 
-          description="+2 cette semaine" 
+          description={t('teacher.dashboard.stats.weekly_trend', { count: 2 })} 
           trend={true}
         />
         <StatsCard 
-          title="Cours à Venir" 
+          title={t('teacher.dashboard.stats.upcoming_courses')} 
           value="4" 
           icon={Clock} 
-          description="Aujourd'hui" 
+          description={t('teacher.dashboard.stats.today')} 
         />
         <StatsCard 
-          title="Validés" 
+          title={t('teacher.dashboard.stats.validated')} 
           value="8" 
           icon={CheckCircle2} 
-          description="92% de réussite" 
+          description={t('teacher.dashboard.stats.success_rate', { percent: 92 })} 
         />
         <StatsCard 
-          title="En Attente" 
+          title={t('teacher.dashboard.stats.pending')} 
           value="3" 
           icon={AlertCircle} 
-          description="Requiert votre attention" 
+          description={t('teacher.dashboard.stats.attention_required')} 
         />
       </div>
 
@@ -87,8 +89,8 @@ const TeacherDashboard: React.FC = () => {
           <TeacherScheduleWidget />
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle className="text-lg">Actions Rapides</CardTitle>
-              <CardDescription>Accédez aux outils fréquents</CardDescription>
+              <CardTitle className="text-lg">{t('teacher.dashboard.quick_actions.title')}</CardTitle>
+              <CardDescription>{t('teacher.dashboard.quick_actions.desc')}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-2">
               <button 
@@ -98,13 +100,13 @@ const TeacherDashboard: React.FC = () => {
                 <div className="h-8 w-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
                   <BookOpen className="h-4 w-4" />
                 </div>
-                Déposer un nouveau support
+                {t('teacher.dashboard.quick_actions.deposit')}
               </button>
               <button className="flex items-center gap-3 w-full p-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-left">
                 <div className="h-8 w-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center">
                   <Clock className="h-4 w-4" />
                 </div>
-                Gérer mes disponibilités
+                {t('teacher.dashboard.quick_actions.availability')}
               </button>
             </CardContent>
           </Card>
@@ -125,3 +127,4 @@ const TeacherDashboard: React.FC = () => {
 };
 
 export default TeacherDashboard;
+

@@ -17,8 +17,10 @@ import api from '@/lib/api';
 import axios from 'axios';
 import { decodeToken } from '@/lib/auth';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const DepositMaterialPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [titre, setTitre] = useState('');
   const [description, setDescription] = useState('');
@@ -31,7 +33,7 @@ const DepositMaterialPage: React.FC = () => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       if (file.type !== 'application/pdf') {
-        toast.error("Seuls les fichiers PDF sont acceptés.");
+        toast.error(t('teacher.support.deposit.messages.pdf_only'));
         return;
       }
       setSelectedFile(file);
@@ -43,21 +45,21 @@ const DepositMaterialPage: React.FC = () => {
     setLoading(true);
 
     if (!titre || !description || !niveau || !matiere || !selectedFile) {
-      toast.error('Veuillez remplir tous les champs et sélectionner un fichier.');
+      toast.error(t('teacher.support.deposit.messages.fill_all'));
       setLoading(false);
       return;
     }
 
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error("Authentification requise.");
+      toast.error(t('teacher.dashboard.deposit_drawer.buttons.error_auth'));
       setLoading(false);
       return;
     }
 
     const decoded = decodeToken(token);
     if (!decoded || !decoded.id) {
-      toast.error("Session invalide.");
+      toast.error(t('teacher.support.deposit.messages.invalid_session'));
       setLoading(false);
       return;
     }
@@ -88,11 +90,11 @@ const DepositMaterialPage: React.FC = () => {
       };
 
       await api.post(`/campushub-support-service/api/supports`, supportData);
-      toast.success("Support déposé avec succès !");
+      toast.success(t('teacher.support.deposit.messages.success'));
       navigate('/dashboard/teacher/support');
     } catch (err) {
       console.error('Erreur lors du dépôt du support:', err);
-      toast.error('Erreur lors du dépôt du support. Veuillez réessayer.');
+      toast.error(t('teacher.support.deposit.messages.error'));
     } finally {
       setLoading(false);
     }
@@ -112,8 +114,8 @@ const DepositMaterialPage: React.FC = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Déposer un Support</h1>
-            <p className="text-muted-foreground">Créez une nouvelle ressource pédagogique pour vos étudiants.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('teacher.support.deposit.title')}</h1>
+            <p className="text-muted-foreground">{t('teacher.support.deposit.description')}</p>
           </div>
         </div>
       </div>
@@ -123,16 +125,16 @@ const DepositMaterialPage: React.FC = () => {
           <Card className="rounded-xl border-border/50 shadow-sm overflow-hidden">
             <CardHeader className="bg-muted/30 pb-4 border-b border-border/10">
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" /> Détails du document
+                <FileText className="h-5 w-5 text-primary" /> {t('teacher.support.deposit.details_title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <form className="space-y-6" id="deposit-form" onSubmit={handleSubmit}>
                 <div className="space-y-2">
-                  <Label htmlFor="titre" className="text-sm font-semibold">Titre du Support</Label>
+                  <Label htmlFor="titre" className="text-sm font-semibold">{t('teacher.support.deposit.form.title_label')}</Label>
                   <Input 
                     id="titre" 
-                    placeholder="Ex: Algèbre Linéaire - Chapitre 1" 
+                    placeholder={t('teacher.support.deposit.form.title_placeholder')} 
                     value={titre}
                     onChange={(e) => setTitre(e.target.value)}
                     className="rounded-lg border-border/50 h-11 focus:ring-primary shadow-sm"
@@ -142,12 +144,12 @@ const DepositMaterialPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="matiere" className="text-sm font-semibold">Matière</Label>
+                    <Label htmlFor="matiere" className="text-sm font-semibold">{t('teacher.support.deposit.form.subject_label')}</Label>
                     <div className="relative group">
                       <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary" />
                       <Input 
                         id="matiere" 
-                        placeholder="Ex: Mathématiques" 
+                        placeholder={t('teacher.support.deposit.form.subject_placeholder')} 
                         value={matiere}
                         onChange={(e) => setMatiere(e.target.value)}
                         className="pl-10 rounded-lg border-border/50 h-11 focus:ring-primary shadow-sm"
@@ -157,10 +159,10 @@ const DepositMaterialPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="niveau" className="text-sm font-semibold">Niveau d'études</Label>
+                    <Label htmlFor="niveau" className="text-sm font-semibold">{t('teacher.support.deposit.form.level_label')}</Label>
                     <Select onValueChange={setNiveau} required>
                       <SelectTrigger className="h-11 rounded-lg border-border/50 shadow-sm">
-                        <SelectValue placeholder="Choisir un niveau" />
+                        <SelectValue placeholder={t('teacher.support.deposit.form.level_placeholder')} />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="L1">Licence 1 (L1)</SelectItem>
@@ -174,10 +176,10 @@ const DepositMaterialPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-sm font-semibold">Description</Label>
+                  <Label htmlFor="description" className="text-sm font-semibold">{t('teacher.support.deposit.form.description_label')}</Label>
                   <Textarea 
                     id="description" 
-                    placeholder="Résumez brièvement le contenu de ce support..." 
+                    placeholder={t('teacher.support.deposit.form.description_placeholder')} 
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="min-h-[120px] rounded-lg border-border/50 focus:ring-primary shadow-sm resize-none"
@@ -194,11 +196,11 @@ const DepositMaterialPage: React.FC = () => {
                     {loading ? (
                       <>
                         <div className="h-4 w-4 border-2 border-white/20 border-t-white animate-spin rounded-full" />
-                        Traitement en cours...
+                        {t('teacher.support.deposit.buttons.submitting')}
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 size={18} /> Publier le support
+                        <CheckCircle2 size={18} /> {t('teacher.support.deposit.buttons.submit')}
                       </>
                     )}
                   </Button>
@@ -212,7 +214,7 @@ const DepositMaterialPage: React.FC = () => {
           <Card className="rounded-xl border-border/50 shadow-sm overflow-hidden border-dashed border-2 bg-muted/5 group hover:bg-muted/10 transition-colors">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
-                <Upload size={16} /> Fichier Source
+                <Upload size={16} /> {t('teacher.support.deposit.file.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 text-center">
@@ -228,8 +230,8 @@ const DepositMaterialPage: React.FC = () => {
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <p className="text-sm font-bold text-foreground">Sélectionner un PDF</p>
-                      <p className="text-[10px] text-muted-foreground">Maximum 20MB</p>
+                      <p className="text-sm font-bold text-foreground">{t('teacher.support.deposit.file.select_pdf')}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('teacher.support.deposit.file.max_size')}</p>
                     </div>
                   )}
                 </div>
@@ -247,7 +249,7 @@ const DepositMaterialPage: React.FC = () => {
                   className="w-full rounded-lg h-10 font-bold border-border/50 group-hover:border-primary/50"
                 >
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    {selectedFile ? 'Changer de fichier' : 'Parcourir les fichiers'}
+                    {selectedFile ? t('teacher.support.deposit.file.change_file') : t('teacher.support.deposit.file.browse_files')}
                   </label>
                 </Button>
               </div>
@@ -257,15 +259,15 @@ const DepositMaterialPage: React.FC = () => {
           <Card className="rounded-xl border-border/50 bg-primary/5 p-6 space-y-4">
             <div className="flex items-center gap-2 text-primary font-bold text-sm">
               <AlertCircle size={18} />
-              Important
+              {t('teacher.support.deposit.important.title')}
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-              Une fois publié, votre support sera soumis à la validation de l'équipe Pédagogique de votre département avant d'être visible par les étudiants.
+              {t('teacher.support.deposit.important.desc')}
             </p>
             <ul className="text-xs text-muted-foreground space-y-2 list-disc pl-4 font-medium">
-              <li>Format PDF uniquement</li>
-              <li>Contenu pédagogique vérifié</li>
-              <li>Visible par les étudiants après validation</li>
+              <li>{t('teacher.support.deposit.important.rule1')}</li>
+              <li>{t('teacher.support.deposit.important.rule2')}</li>
+              <li>{t('teacher.support.deposit.important.rule3')}</li>
             </ul>
           </Card>
         </div>
@@ -275,3 +277,4 @@ const DepositMaterialPage: React.FC = () => {
 };
 
 export default DepositMaterialPage;
+

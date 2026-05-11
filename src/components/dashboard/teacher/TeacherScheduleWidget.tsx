@@ -4,44 +4,53 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, BookOpen, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-
-const scheduleItems = [
-  {
-    type: 'Cours',
-    name: 'Base de Données',
-    date: 'Aujourd\'hui',
-    time: '09:00 - 12:00',
-    room: 'Amphi A',
-    details: 'Cours Magistral',
-    color: 'bg-blue-500'
-  },
-  {
-    type: 'Examen',
-    name: 'Algorithmique II',
-    date: 'Demain',
-    time: '14:00 - 16:00',
-    room: 'Salle C201',
-    details: 'Surveillance Examen',
-    color: 'bg-purple-500'
-  },
-  {
-    type: 'Cours',
-    name: 'Développement Web',
-    date: '12 Jan 2026',
-    time: '10:00 - 13:00',
-    room: 'Salle B102',
-    details: 'Travaux Pratiques',
-    color: 'bg-emerald-500'
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const TeacherScheduleWidget: React.FC = () => {
+  const { t } = useTranslation();
+
+  const scheduleItems = [
+    {
+      type: 'Cours',
+      name: 'Base de Données',
+      date: t('teacher.dashboard.widgets.schedule.relative_days.today'),
+      time: '09:00 - 12:00',
+      room: 'Amphi A',
+      details: 'Cours Magistral',
+      color: 'bg-blue-500'
+    },
+    {
+      type: 'Examen',
+      name: 'Algorithmique II',
+      date: t('teacher.dashboard.widgets.schedule.relative_days.tomorrow'),
+      time: '14:00 - 16:00',
+      room: 'Salle C201',
+      details: 'Surveillance Examen',
+      color: 'bg-purple-500'
+    },
+    {
+      type: 'Cours',
+      name: 'Développement Web',
+      date: '12 Jan 2026',
+      time: '10:00 - 13:00',
+      room: 'Salle B102',
+      details: 'Travaux Pratiques',
+      color: 'bg-emerald-500'
+    },
+  ];
+
+  const getTypeLabel = (type: string) => {
+    return type === 'Cours' 
+      ? t('teacher.dashboard.widgets.schedule.types.course') 
+      : t('teacher.dashboard.widgets.schedule.types.exam');
+  };
+
   return (
     <Card className="border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="space-y-1">
-          <CardTitle className="text-xl">Agenda & Examens</CardTitle>
-          <CardDescription>Vos prochaines interventions</CardDescription>
+          <CardTitle className="text-xl">{t('teacher.dashboard.widgets.schedule.title')}</CardTitle>
+          <CardDescription>{t('teacher.dashboard.widgets.schedule.desc')}</CardDescription>
         </div>
         <CalendarIcon className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
@@ -63,7 +72,7 @@ const TeacherScheduleWidget: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-foreground">{item.name}</span>
                     <Badge variant="secondary" className="text-[10px] h-5 px-1.5 uppercase font-bold tracking-wider">
-                      {item.type}
+                      {getTypeLabel(item.type)}
                     </Badge>
                   </div>
                   <span className="text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded-full">
@@ -92,7 +101,7 @@ const TeacherScheduleWidget: React.FC = () => {
         
         <Link to="/dashboard/teacher/schedule-unified" className="block w-full">
           <Button variant="ghost" className="w-full mt-4 text-muted-foreground hover:text-primary transition-colors group">
-            Voir le calendrier complet
+            {t('teacher.dashboard.widgets.schedule.view_full')}
             <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </Link>
@@ -102,3 +111,4 @@ const TeacherScheduleWidget: React.FC = () => {
 };
 
 export default TeacherScheduleWidget;
+

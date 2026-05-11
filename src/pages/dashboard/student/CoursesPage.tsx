@@ -16,6 +16,7 @@ import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export interface SupportCours {
   id: number;
@@ -29,6 +30,7 @@ export interface SupportCours {
 }
 
 const StudentCoursesPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [courses, setCourses] = useState<SupportCours[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,13 +52,13 @@ const StudentCoursesPage: React.FC = () => {
         // Étudiant : On ne montre que les supports validés
         setCourses(response.data.filter(c => c.statut === 'VALIDÉ'));
       } catch (err) {
-        toast.error("Impossible de charger les supports de cours.");
+        toast.error(t('student.courses.error_load'));
       } finally {
         setLoading(false);
       }
     };
     fetchCourses();
-  }, []);
+  }, [t]);
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.titre.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -72,9 +74,9 @@ const StudentCoursesPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Catalogue des Supports</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('student.courses.title')}</h1>
           <p className="text-muted-foreground">
-            Accédez à vos ressources pédagogiques validées par la faculté.
+            {t('student.courses.description')}
           </p>
         </div>
 
@@ -82,7 +84,7 @@ const StudentCoursesPage: React.FC = () => {
           <div className="relative w-full sm:w-80 group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
-              placeholder="Rechercher un cours, une matière..." 
+              placeholder={t('student.courses.search_placeholder')}
               className="pl-10 h-10 rounded-lg border-border/50 bg-background shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -104,7 +106,7 @@ const StudentCoursesPage: React.FC = () => {
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {lvl === 'Tous' ? 'Tous les niveaux' : lvl}
+            {lvl === 'Tous' ? t('student.courses.filter_all_levels') : lvl}
           </button>
         ))}
       </div>
@@ -142,7 +144,7 @@ const StudentCoursesPage: React.FC = () => {
                       
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6 gap-2">
                         <Button variant="secondary" size="sm" className="rounded-lg font-bold">
-                          Consulter
+                          {t('student.courses.view_button')}
                         </Button>
                         <Button 
                           variant="secondary" 
@@ -177,7 +179,7 @@ const StudentCoursesPage: React.FC = () => {
                       <div className="flex items-center justify-between pt-4 border-t border-border/50">
                         <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                           <Calendar size={14} className="text-primary" /> 
-                          {new Date(item.dateDepot).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+                          {new Date(item.dateDepot).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', year: 'numeric' })}
                         </div>
                         <div className="h-2 w-2 rounded-full bg-emerald-500" />
                       </div>
@@ -191,8 +193,8 @@ const StudentCoursesPage: React.FC = () => {
       ) : (
         <div className="py-24 text-center border-2 border-dashed border-border/50 rounded-2xl bg-muted/5">
           <Search className="h-16 w-16 text-muted-foreground/20 mx-auto mb-4" />
-          <h3 className="text-xl font-bold mb-1">Aucun support trouvé</h3>
-          <p className="text-muted-foreground max-w-xs mx-auto text-sm">Ajustez vos filtres ou votre recherche pour trouver ce que vous cherchez.</p>
+          <h3 className="text-xl font-bold mb-1">{t('student.courses.empty_title')}</h3>
+          <p className="text-muted-foreground max-w-xs mx-auto text-sm">{t('student.courses.empty_desc')}</p>
         </div>
       )}
     </div>
@@ -200,3 +202,4 @@ const StudentCoursesPage: React.FC = () => {
 };
 
 export default StudentCoursesPage;
+

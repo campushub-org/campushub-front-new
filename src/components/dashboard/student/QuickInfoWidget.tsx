@@ -1,30 +1,33 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookCopy, AlertTriangle, MessageSquare } from 'lucide-react';
-
-const infoItems = [
-  {
-    icon: <BookCopy className="h-6 w-6 text-blue-500" />,
-    label: 'Nouveaux supports',
-    value: '3',
-  },
-  {
-    icon: <AlertTriangle className="h-6 w-6 text-yellow-500" />,
-    label: 'Prochain examen',
-    value: 'Dans 5 jours',
-  },
-  {
-    icon: <MessageSquare className="h-6 w-6 text-green-500" />,
-    label: 'Messages non lus',
-    value: '2',
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const QuickInfoWidget: React.FC = () => {
+  const { t } = useTranslation();
+
+  const infoItems = [
+    {
+      icon: <BookCopy className="h-6 w-6 text-blue-500" />,
+      label: t("student.quick_view.new_materials"),
+      value: '3',
+    },
+    {
+      icon: <AlertTriangle className="h-6 w-6 text-yellow-500" />,
+      label: t("student.quick_view.next_exam"),
+      value: t("student.quick_view.days_left", { count: 5 }),
+    },
+    {
+      icon: <MessageSquare className="h-6 w-6 text-green-500" />,
+      label: t("student.quick_view.unread_messages"),
+      value: '2',
+    },
+  ];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Aperçu Rapide</CardTitle>
+        <CardTitle>{t("student.quick_view.title")}</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {infoItems.map((item) => (

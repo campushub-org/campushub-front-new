@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from 'react-i18next';
 
 export interface SupportCours {
   id: number;
@@ -46,6 +47,7 @@ export interface SupportCours {
 }
 
 const ViewMaterialPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { materialId } = useParams<{ materialId: string }>();
   const navigate = useNavigate();
   const [material, setMaterial] = useState<SupportCours | null>(null);
@@ -59,20 +61,20 @@ const ViewMaterialPage: React.FC = () => {
         const response = await api.get<SupportCours>(`/campushub-support-service/api/supports/${materialId}`);
         setMaterial(response.data);
       } catch (err) {
-        setError("Impossible de charger le support de cours.");
+        setError(t('teacher.support.view.error_load'));
       } finally {
         setLoading(false);
       }
     };
     fetchMaterial();
-  }, [materialId]);
+  }, [materialId, t]);
 
   const getStatusConfig = (status: SupportCours['statut']) => {
     const configs = {
-      'VALIDÉ': { color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800', label: 'Validé', icon: ShieldCheck },
-      'BROUILLON': { color: 'text-slate-500 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700', label: 'Brouillon', icon: FileText },
-      'SOUMIS': { color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800', label: 'En attente', icon: Clock },
-      'REJETÉ': { color: 'text-rose-600 bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800', label: 'À corriger', icon: AlertCircle },
+      'VALIDÉ': { color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800', label: t('teacher.support.statuses.validated'), icon: ShieldCheck },
+      'BROUILLON': { color: 'text-slate-500 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700', label: t('teacher.support.statuses.draft'), icon: FileText },
+      'SOUMIS': { color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800', label: t('teacher.support.statuses.pending'), icon: Clock },
+      'REJETÉ': { color: 'text-rose-600 bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800', label: t('teacher.support.statuses.rejected'), icon: AlertCircle },
     };
     return configs[status] || configs['BROUILLON'];
   };
@@ -80,14 +82,14 @@ const ViewMaterialPage: React.FC = () => {
   const handleDownload = () => {
     if (material?.fichierUrl) {
       window.open(material.fichierUrl, '_blank');
-      toast.success("Téléchargement démarré");
+      toast.success(t('teacher.support.view.success_download'));
     }
   };
 
   if (loading) return (
     <div className="flex flex-col h-[70vh] items-center justify-center gap-4 animate-in fade-in duration-500">
       <div className="h-10 w-10 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-      <p className="text-muted-foreground font-medium">Chargement du document...</p>
+      <p className="text-muted-foreground font-medium">{t('teacher.support.view.loading')}</p>
     </div>
   );
 
@@ -96,10 +98,10 @@ const ViewMaterialPage: React.FC = () => {
       <div className="h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-4">
         <AlertCircle size={32} />
       </div>
-      <h2 className="text-xl font-bold mb-2">Support introuvable</h2>
-      <p className="text-muted-foreground max-w-md mb-6">{error || "Nous n'avons pas pu charger ce support."}</p>
+      <h2 className="text-xl font-bold mb-2">{t('teacher.support.view.not_found_title')}</h2>
+      <p className="text-muted-foreground max-w-md mb-6">{error || t('teacher.support.view.not_found_desc')}</p>
       <Button onClick={() => navigate(-1)} variant="outline" className="rounded-lg">
-        <ArrowLeft className="mr-2 h-4 w-4" /> Retour
+        <ArrowLeft className="mr-2 h-4 w-4" /> {t('teacher.support.view.back')}
       </Button>
     </div>
   );
@@ -136,7 +138,7 @@ const ViewMaterialPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <Button variant="outline" className="rounded-lg gap-2 h-10 font-semibold" onClick={handleDownload}>
-            <Download className="h-4 w-4" /> Télécharger
+            <Download className="h-4 w-4" /> {t('teacher.support.view.download')}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -146,13 +148,13 @@ const ViewMaterialPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 rounded-xl">
               <DropdownMenuItem onClick={handleDownload} className="rounded-lg">
-                <Download className="mr-2 h-4 w-4" /> Télécharger
+                <Download className="mr-2 h-4 w-4" /> {t('teacher.support.view.download')}
               </DropdownMenuItem>
               <DropdownMenuItem className="rounded-lg">
-                <Share2 className="mr-2 h-4 w-4" /> Partager
+                <Share2 className="mr-2 h-4 w-4" /> {t('teacher.support.view.share')}
               </DropdownMenuItem>
               <DropdownMenuItem className="rounded-lg">
-                <History className="mr-2 h-4 w-4" /> Historique
+                <History className="mr-2 h-4 w-4" /> {t('teacher.support.view.history')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -165,7 +167,7 @@ const ViewMaterialPage: React.FC = () => {
           <Card className="rounded-xl border-border/50 overflow-hidden shadow-sm">
             <div className="bg-muted/30 p-4 border-b border-border/50 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                <FileText className="h-4 w-4 text-primary" /> Aperçu du document
+                <FileText className="h-4 w-4 text-primary" /> {t('teacher.support.view.preview_title')}
               </div>
               <Button variant="ghost" size="sm" className="h-8 rounded-lg" onClick={() => window.open(material.fichierUrl, '_blank')}>
                 <Maximize2 className="h-4 w-4" />
@@ -185,12 +187,12 @@ const ViewMaterialPage: React.FC = () => {
           <Card className="rounded-xl border-border/50 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" /> Description
+                <FileText className="h-5 w-5 text-primary" /> {t('teacher.support.view.description_title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed font-medium">
-                {material.description || "Aucune description fournie pour ce support."}
+                {material.description || t('teacher.support.view.no_description')}
               </p>
             </CardContent>
           </Card>
@@ -206,14 +208,14 @@ const ViewMaterialPage: React.FC = () => {
               <CardContent className="p-5 bg-muted/30">
                 <h3 className="text-sm font-bold flex items-center gap-2 mb-3 text-foreground">
                   <MessageSquare size={16} className={material.statut === 'VALIDÉ' ? "text-emerald-500" : "text-rose-500"} />
-                  Retour pédagogique
+                  {t('teacher.support.view.feedback_title')}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium italic">
                   "{material.remarqueDoyen}"
                 </p>
                 {material.dateValidation && (
                   <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-t border-border/10 pt-3 text-right">
-                    Décidé le {new Date(material.dateValidation).toLocaleDateString()}
+                    {t('teacher.support.view.feedback_date', { date: new Date(material.dateValidation).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US') })}
                   </p>
                 )}
               </CardContent>
@@ -222,20 +224,20 @@ const ViewMaterialPage: React.FC = () => {
 
           <Card className="rounded-xl border-border/50 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg font-bold">Informations</CardTitle>
+              <CardTitle className="text-lg font-bold">{t('teacher.support.view.info_title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
-                  <Calendar className="h-4 w-4 text-primary" /> Date de dépôt
+                  <Calendar className="h-4 w-4 text-primary" /> {t('teacher.support.view.upload_date')}
                 </span>
                 <span className="text-sm font-bold">
-                  {new Date(material.dateDepot).toLocaleDateString()}
+                  {new Date(material.dateDepot).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US')}
                 </span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
-                  <Clock className="h-4 w-4 text-primary" /> Statut
+                  <Clock className="h-4 w-4 text-primary" /> {t('teacher.support.view.status_label')}
                 </span>
                 <div className={cn("px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase border", status.color)}>
                   {status.label}
@@ -243,10 +245,10 @@ const ViewMaterialPage: React.FC = () => {
               </div>
               <div className="pt-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-primary mb-2 uppercase tracking-wider">
-                  <AlertCircle className="h-4 w-4" /> Visibilité
+                  <AlertCircle className="h-4 w-4" /> {t('teacher.support.view.visibility_title')}
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                  Visible par les étudiants une fois validé par l'équipe Pédagogique de votre département.
+                  {t('teacher.support.view.visibility_desc')}
                 </p>
               </div>
             </CardContent>
@@ -258,3 +260,4 @@ const ViewMaterialPage: React.FC = () => {
 };
 
 export default ViewMaterialPage;
+

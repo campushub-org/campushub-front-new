@@ -9,6 +9,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 // Widgets for Dean Dashboard
 import MaterialsToValidateWidget from '@/components/dashboard/dean/MaterialsToValidateWidget';
@@ -39,24 +40,26 @@ const StatsCard = ({ title, value, icon: Icon, description, trend, trendValue }:
 );
 
 const DeanDashboard: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Espace Équipe Pédagogique 🏛️</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("dean.dashboard.title")}</h1>
           <p className="text-muted-foreground mt-1">
-            Supervision académique et validation des supports.
+            {t("dean.dashboard.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 gap-2">
             <BarChart3 className="h-4 w-4" />
-            Rapport mensuel
+            {t("dean.dashboard.actions.monthly_report")}
           </button>
           <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 gap-2">
             <CheckCircle className="h-4 w-4" />
-            Valider tout
+            {t("dean.dashboard.actions.validate_all")}
           </button>
         </div>
       </div>
@@ -64,34 +67,34 @@ const DeanDashboard: React.FC = () => {
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard 
-          title="Supports en attente" 
+          title={t("dean.dashboard.stats.pending_materials")} 
           value="24" 
           icon={AlertTriangle} 
-          description="depuis hier"
+          description={t("dean.dashboard.stats.since_yesterday")}
           trend="up"
           trendValue="12"
         />
         <StatsCard 
-          title="Taux de validation" 
+          title={t("dean.dashboard.stats.validation_rate")} 
           value="88%" 
           icon={ShieldCheck} 
-          description="ce mois"
+          description={t("dean.dashboard.stats.this_month")}
           trend="up"
           trendValue="4"
         />
         <StatsCard 
-          title="Enseignants actifs" 
+          title={t("dean.dashboard.stats.active_teachers")} 
           value="45" 
           icon={Users} 
-          description="cette semaine"
+          description={t("dean.dashboard.stats.this_week")}
           trend="down"
           trendValue="2"
         />
         <StatsCard 
-          title="Examens prévus" 
+          title={t("dean.dashboard.stats.planned_exams")} 
           value="18" 
           icon={Calendar} 
-          description="prochains 15 jours"
+          description={t("dean.dashboard.stats.next_15_days")}
           trend="up"
           trendValue="8"
         />
