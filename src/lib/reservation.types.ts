@@ -1,4 +1,3 @@
-// Correspond exactement aux champs de ScheduleEvent + infos semaine
 export interface SlotReservationRequest {
   teacherId: number;
   teacherName: string;
@@ -7,14 +6,14 @@ export interface SlotReservationRequest {
   type: "LECTURE" | "TD" | "TP" | "EXAM";
   roomId: number;
   roomName: string;
-  dayOfWeek: number;       // 0=Lundi, 4=Vendredi
-  startTime: string;       // "HH:mm"
-  endTime: string;         // "HH:mm"
-  weekNumber: number;      // Numéro ISO de la semaine
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  weekNumber: number;
   year: number;
-  niveau: string;          // "L1", "L2", "M1"...
-  academicYear: string;    // "2024-2025"
-  semester: number;        // 1 ou 2
+  niveau: string;
+  academicYear: string;
+  semester: number;
 }
 
 export interface FreeSlot {
@@ -47,7 +46,6 @@ export interface SlotReservationResponse {
   freeSlots?: FreeSlot[];
 }
 
-// Utilitaire : numéro de semaine ISO à partir d'une date
 export function getISOWeekNumber(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -57,7 +55,10 @@ export function getISOWeekNumber(date: Date): number {
 }
 
 export const DAY_LABELS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+
 export const TYPE_LABELS: Record<string, string> = {
-  LECTURE: "Cours Magistral", TD: "Travaux Dirigés",
-  TP: "Travaux Pratiques", EXAM: "Examen"
+  LECTURE: "Cours Magistral",
+  TD: "Travaux Dirigés",
+  TP: "Travaux Pratiques",
+  EXAM: "Examen"
 };

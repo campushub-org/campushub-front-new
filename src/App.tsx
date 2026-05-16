@@ -9,8 +9,6 @@ import Signin from "./pages/Signin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/dashboard/Dashboard";
-import SlotReservationPage from './pages/dashboard/teacher/SlotReservationPage';
-
 
 // Student Pages
 import StudentLayout from "./pages/dashboard/student/StudentLayout";
@@ -28,11 +26,10 @@ import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
 import SupportPage from "./pages/dashboard/teacher/SupportPage";
 import DepositMaterialPage from "./pages/dashboard/teacher/DepositMaterialPage";
 import UnifiedSchedulingPage from "./pages/dashboard/teacher/UnifiedSchedulingPage";
-import TeacherExamSchedulePage from "./pages/dashboard/teacher/ExamSchedulePage";
 import TeacherNotificationsPage from "./pages/dashboard/teacher/NotificationsPage";
 import TeacherProfilePage from "./pages/dashboard/teacher/ProfilePage";
 import ViewMaterialPage from "./pages/dashboard/teacher/ViewMaterialPage";
-
+import MyReservationsPage from "./pages/dashboard/teacher/MyReservationsPage";
 // Dean Pages
 import DeanLayout from "./pages/dashboard/dean/DeanLayout";
 import DeanDashboard from "./pages/dashboard/DeanDashboard";
@@ -89,8 +86,7 @@ const App = () => (
                 <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
                 <Route path="deposit-material" element={<DepositMaterialPage />} />
                 <Route path="schedule-unified" element={<UnifiedSchedulingPage />} />
-                <Route path="schedule-exams" element={<TeacherExamSchedulePage  />}/>
-                <Route path="reservation" element={<SlotReservationPage />} />
+                <Route path="my-reservations" element={<MyReservationsPage />} />
                 <Route path="notifications" element={<TeacherNotificationsPage />} />
                 <Route path="profile" element={<TeacherProfilePage />} />
               </Route>
