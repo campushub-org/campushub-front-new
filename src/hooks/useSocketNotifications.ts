@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 import { decodeToken } from '@/lib/auth';
 
-const SOCKET_URL = import.meta.env.VITE_NOTIFICATION_SOCKET_URL || 'http://localhost:9095';
+const SOCKET_URL = import.meta.env.VITE_NOTIFICATION_SOCKET_URL;
 
 export const useSocketNotifications = () => {
   const socketRef = useRef<Socket | null>(null);
@@ -17,8 +17,9 @@ export const useSocketNotifications = () => {
 
     // Initialize socket connection with auth token
     socketRef.current = io(SOCKET_URL, {
+      path: '/socket.io/',
       auth: { token },
-      transports: ['websocket', 'polling']
+      transports: ['websocket']
     });
 
     const socket = socketRef.current;
