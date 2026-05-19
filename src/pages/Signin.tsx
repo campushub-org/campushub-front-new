@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { LogIn, GraduationCap, ArrowRight, ShieldCheck, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { GraduationCap, ArrowRight, ShieldCheck, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface LoginData {
   username: string;
@@ -14,6 +15,7 @@ interface LoginData {
 }
 
 const Signin = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginData>({
     username: "",
@@ -44,7 +46,7 @@ const Signin = () => {
     setIsLoading(true);
 
     if (!formData.username || !formData.password) {
-      setError("Veuillez remplir tous les champs.");
+      setError(t("auth.error_empty"));
       setIsLoading(false);
       return;
     }
@@ -84,7 +86,7 @@ const Signin = () => {
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Nom d'utilisateur ou mot de passe incorrect.");
+      setError(err.response?.data?.message || t("auth.error_invalid"));
     } finally {
       setIsLoading(false);
     }
@@ -92,6 +94,11 @@ const Signin = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Language Switcher Positioned at the top right */}
+      <div className="absolute top-6 right-6 z-20">
+        <LanguageSwitcher />
+      </div>
+
       {/* Background patterns */}
       <div className="absolute top-0 left-0 w-full h-full -z-10">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_2px_2px,rgba(0,0,0,0.05)_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_2px_2px,rgba(255,255,255,0.05)_1px,transparent_0)] bg-[size:40px_40px]" />
@@ -114,18 +121,18 @@ const Signin = () => {
               </div>
               <span className="text-xl font-bold tracking-tighter">CampusHub</span>
             </a>
-            <h1 className="text-4xl font-bold tracking-tight mb-2">Bon retour !</h1>
-            <p className="text-muted-foreground">Connectez-vous pour accéder à votre espace.</p>
+            <h1 className="text-4xl font-bold tracking-tight mb-2">{t("auth.signin_title")}</h1>
+            <p className="text-muted-foreground">{t("auth.signin_description")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Label htmlFor="username">{t("auth.username_label")}</Label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   id="username"
-                  placeholder="votre.nom"
+                  placeholder={t("auth.username_placeholder")}
                   className="h-14 pl-12 bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                   value={formData.username}
                   onChange={handleChange}
@@ -136,15 +143,15 @@ const Signin = () => {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password">Mot de passe</Label>
-                <a href="#" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">Oublié ?</a>
+                <Label htmlFor="password">{t("auth.password_label")}</Label>
+                <a href="#" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">{t("auth.password_forgot")}</a>
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder={t("auth.password_placeholder")}
                   className="h-14 pl-12 pr-12 bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                   value={formData.password}
                   onChange={handleChange}
@@ -175,7 +182,7 @@ const Signin = () => {
               className="w-full h-14 text-lg font-bold shadow-glow group"
               disabled={isLoading}
             >
-              {isLoading ? "Connexion..." : "Se connecter"}
+              {isLoading ? t("auth.signing_in") : t("auth.signin_button")}
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
 
@@ -184,13 +191,13 @@ const Signin = () => {
                 <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white dark:bg-slate-900 px-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Ou</span>
+                <span className="bg-white dark:bg-slate-900 px-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("auth.or")}</span>
               </div>
             </div>
 
             <p className="text-center text-muted-foreground">
-              Pas encore de compte ?{" "}
-              <a href="/signup" className="text-primary font-bold hover:underline transition-all">S'inscrire</a>
+              {t("auth.no_account")}{" "}
+              <a href="/signup" className="text-primary font-bold hover:underline transition-all">{t("auth.signup_link")}</a>
             </p>
           </form>
         </div>
@@ -203,13 +210,13 @@ const Signin = () => {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-bold border border-primary/20">
                 <ShieldCheck className="h-4 w-4" />
-                <span>Plateforme Sécurisée</span>
+                <span>{t("auth.secure_platform")}</span>
               </div>
               <h2 className="text-4xl font-bold leading-tight tracking-tight">
-                La gestion académique réinventée pour <span className="text-primary">votre succès.</span>
+                {t("auth.marketing_title")}<span className="text-primary">{t("auth.marketing_title_highlight")}</span>
               </h2>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Rejoignez une communauté d'excellence et profitez d'outils intelligents pour vos études.
+                {t("auth.marketing_description")}
               </p>
             </div>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const exams = [
   {
@@ -25,10 +26,12 @@ const exams = [
 ];
 
 const UpcomingExamsWidget: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Examens à Venir</CardTitle>
+        <CardTitle>{t("student.upcoming_exams.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <ul className="space-y-4">

@@ -15,7 +15,7 @@ CampusHub a été repensé pour s'éloigner des designs e-commerce classiques et
 
 ### 🖥️ Expérience SaaS Moderne
 - **Sidebar Adaptive** : Une navigation latérale intelligente et rétractable qui maximise l'espace de travail.
-- **Command Palette (`⌘K`)** : Un menu de recherche globale pour naviguer et exécuter des actions à la vitesse de la lumière.
+- **Command Palette** : Un menu de recherche globale pour naviguer et exécuter des actions à la vitesse de la lumière.
 - **Dark Mode Natif** : Une interface reposante pour les yeux, entièrement personnalisable via le profil utilisateur.
 *   **Drawers & Sheets** : Finis les changements de page inutiles. Les actions de gestion s'ouvrent dans des panneaux latéraux fluides.
 

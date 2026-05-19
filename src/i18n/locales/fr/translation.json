@@ -1,0 +1,995 @@
+{
+  "common": {
+    "welcome": "Bienvenue sur CampusHub",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "notifications": "Notifications",
+    "search": "Rechercher...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "all_week": "Toute la semaine",
+    "online": "En ligne"
+  },
+  "academic": {
+    "courses": "Cours",
+    "schedule": "Emploi du temps",
+    "exams": "Examens",
+    "grades": "Notes",
+    "attendance": "Présence",
+    "materials": "Supports de cours",
+    "planning": "Planning",
+    "students": "Étudiants",
+    "teachers": "Enseignants"
+  },
+  "roles": {
+    "admin": "Administrateur",
+    "teacher": "Enseignant",
+    "student": "Étudiant",
+    "dean": "Doyen"
+  },
+  "navbar": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "about": "À propos",
+    "contact": "Contact",
+    "signin": "Se connecter",
+    "signup": "S'inscrire"
+  },
+  "hero": {
+    "badge": "Modélisé pour l'université de Yaoundé I",
+    "title_part1": "L'excellence académique",
+    "title_part2": "en un clic",
+    "description": "CampusHub est la plateforme tout-en-un qui révolutionne la planification des examens, la gestion des cours et la vie étudiante.",
+    "cta_start": "Démarrer maintenant",
+    "cta_features": "Découvrir les fonctions",
+    "check_no_install": "Sans installation",
+    "check_support": "Support 24/7",
+    "mockup_alt": "Tableau de bord CampusHub",
+    "floating_planning_label": "Planning",
+    "floating_planning_desc": "Zéro conflit détecté",
+    "floating_alerts_label": "Alertes",
+    "floating_alerts_desc": "Notification envoyée",
+    "floating_rating": "4.9/5"
+  },
+  "problems": {
+    "title_part1": "Fini le chaos administratif.",
+    "title_part2": "Passez à la vitesse supérieure.",
+    "description": "CampusHub transforme vos processus archaïques en expériences fluides et automatisées.",
+    "before_label": "Avant",
+    "after_label": "Après",
+    "list": [
+      {
+        "before": "Planification manuelle laborieuse",
+        "after": "Automatisation totale en quelques secondes"
+      },
+      {
+        "before": "Conflits d'horaires et de salles",
+        "after": "Zéro conflit garanti par notre algorithme"
+      },
+      {
+        "before": "Supports de cours éparpillés",
+        "after": "Espace pédagogique centralisé et validé"
+      },
+      {
+        "before": "Étudiants mal informés",
+        "after": "Notifications push et SMS en temps réel"
+      }
+    ]
+  },
+  "features": {
+    "badge": "Puissant & Intuitif",
+    "title": "Tout pour votre établissement",
+    "description": "Une suite complète d'outils conçus pour simplifier la vie des étudiants, enseignants et administrateurs.",
+    "learn_more": "En savoir plus",
+    "list": [
+      {
+        "title": "Planification Intelligente",
+        "description": "Algorithme automatique qui élimine les conflits d'horaires et optimise l'utilisation des salles."
+      },
+      {
+        "title": "Gestion des Cours",
+        "description": "Supports pédagogiques centralisés avec un workflow de validation intégré et intuitif."
+      },
+      {
+        "title": "Notifications Temps Réel",
+        "description": "Alertes instantanées pour les changements d'horaires, nouveaux supports et examens."
+      },
+      {
+        "title": "Analyses & Rapports",
+        "description": "Tableaux de bord détaillés pour suivre l'assiduité et l'occupation des ressources."
+      },
+      {
+        "title": "Sécurité Maximale",
+        "description": "Protection des données académiques avec des standards de chiffrement de haut niveau."
+      },
+      {
+        "title": "Expérience Mobile",
+        "description": "Accédez à CampusHub partout avec une interface optimisée pour tous vos appareils."
+      }
+    ]
+  },
+  "roles_section": {
+    "badge": "Écosystème",
+    "title": "Une expérience sur mesure",
+    "description": "CampusHub s'adapte à chaque utilisateur avec des interfaces optimisées pour leurs besoins spécifiques.",
+    "learn_more": "En savoir plus",
+    "list": [
+      {
+        "title": "Étudiants",
+        "description": "Accédez à vos supports de cours, consultez vos emplois du temps et recevez vos alertes d'examen."
+      },
+      {
+        "title": "Enseignants",
+        "description": "Déposez vos cours, gérez vos disponibilités et suivez les validations de vos supports."
+      },
+      {
+        "title": "Équipe Pédagogique",
+        "description": "Supervisez la planification, validez les ressources et accédez aux statistiques de l'établissement."
+      },
+      {
+        "title": "Administrateurs",
+        "description": "Gerez les comptes, configurez les salles et maintenez l'infrastructure du campus."
+      }
+    ]
+  },
+  "cta": {
+    "badge": "Prêt pour le futur ?",
+    "title": "Réinventez la gestion de votre campus dès aujourd'hui.",
+    "description": "Rejoignez les universités qui font confiance à CampusHub pour moderniser leur infrastructure académique.",
+    "button": "Créer un compte gratuit",
+    "trial": "Essai de 30 jours inclus",
+    "partners": "Partenaires de confiance",
+    "partner_name": "Université de Yaoundé I"
+  },
+  "footer": {
+    "description": "La plateforme de référence pour la gestion académique moderne. Simplifiez, automatisez et transformez votre établissement.",
+    "product": "Produit",
+    "resources": "Ressources",
+    "contact": "Contact",
+    "copyright": "© 2026 CampusHub. Tous droits réservés. Conçu pour l'excellence.",
+    "privacy": "Confidentialité",
+    "legal": "Mentions légales",
+    "cookies": "Cookies",
+    "links": {
+      "features": "Fonctionnalités",
+      "comparison": "Comparaison",
+      "roles": "Rôles",
+      "pricing": "Tarifs",
+      "docs": "Documentation",
+      "guide": "Guide d'utilisation",
+      "support": "Support technique",
+      "blog": "Blog académique"
+    }
+  },
+  "auth": {
+    "signin_title": "Bon retour !",
+    "signin_description": "Connectez-vous pour accéder à votre espace.",
+    "username_label": "Nom d'utilisateur",
+    "password_label": "Mot de passe",
+    "password_forgot": "Oublié ?",
+    "password_placeholder": "••••••••",
+    "username_placeholder": "votre.nom",
+    "signin_button": "Se connecter",
+    "signing_in": "Connexion...",
+    "no_account": "Pas encore de compte ?",
+    "signup_link": "S'inscrire",
+    "or": "Ou",
+    "error_empty": "Veuillez remplir tous les champs.",
+    "error_invalid": "Nom d'utilisateur ou mot de passe incorrect.",
+    "secure_platform": "Plateforme Sécurisée",
+    "marketing_title": "La gestion académique réinventée pour ",
+    "marketing_title_highlight": "votre succès.",
+    "marketing_description": "Rejoignez une communauté d'excellence et profitez d'outils intelligents pour vos études."
+  },
+  "signup": {
+    "title": "Créer votre compte",
+    "description": "Rejoignez l'élite académique et gérez votre avenir.",
+    "choose_role": "Choisir ce rôle",
+    "step_of": "Étape {{current}} sur {{total}}",
+    "change_role": "Changer de rôle",
+    "form": {
+      "first_name": "Prénom",
+      "first_name_placeholder": "Jean",
+      "last_name": "Nom",
+      "last_name_placeholder": "Dupont",
+      "username": "Nom d'utilisateur (Pseudo)",
+      "username_placeholder": "j.dupont",
+      "username_hint": "Généré automatiquement à partir de votre nom",
+      "department": "Département",
+      "department_placeholder": "Choisir...",
+      "email": "Email Académique",
+      "email_placeholder": "jean.dupont@univ.edu",
+      "academic_details": "Détails académiques",
+      "student_number": "Numéro d'étudiant",
+      "student_number_placeholder": "Ex: 2024-001",
+      "office_number": "Numéro de bureau",
+      "office_number_placeholder": "Ex: B205",
+      "grade": "Grade / Titre",
+      "grade_placeholder": "Votre grade",
+      "password": "Mot de passe",
+      "confirm_password": "Confirmation",
+      "submit": "Créer mon compte",
+      "submitting": "Création...",
+      "already_registered": "Déjà inscrit ?",
+      "signin_link": "Se connecter"
+    },
+    "roles": {
+      "student": {
+        "label": "Étudiant",
+        "description": "Accédez aux supports et vos emplois du temps",
+        "signup_title": "Inscription Étudiant"
+      },
+      "teacher": {
+        "label": "Enseignant",
+        "description": "Gérez vos cours et supports pédagogiques",
+        "signup_title": "Inscription Enseignant"
+      },
+      "dean": {
+        "label": "Équipe Pédagogique",
+        "description": "Validez les supports et superviser le campus",
+        "signup_title": "Inscription Équipe Pédagogique"
+      }
+    },
+    "messages": {
+      "error_password_mismatch": "Les mots de passe ne correspondent pas !",
+      "success_registration": "Inscription réussie ! Redirection...",
+      "error_generic": "Erreur lors de l'inscription."
+    },
+    "departments": {
+      "cs": "Informatique",
+      "math": "Mathématiques",
+      "phys": "Physique",
+      "chem": "Chimie",
+      "bio": "Biologie",
+      "law": "Droit",
+      "econ": "Économie",
+      "mgt": "Gestion",
+      "lit": "Lettres Modernes",
+      "hist": "Histoire",
+      "geo": "Géographie",
+      "med": "Médecine",
+      "pharm": "Pharmacie",
+      "arch": "Architecture"
+    },
+    "grades": {
+      "prof": "Professeur",
+      "assoc_prof": "Maître de Conférences",
+      "assistant": "Assistant",
+      "phd": "Doctorant",
+      "ta": "Chargé de TD",
+      "contract": "Vacataire",
+      "edu_eng": "Ingénieur Pédagogique"
+    }
+  },
+  "dashboard": {
+    "search_placeholder": "Rechercher...",
+    "command_input": "Tapez une commande ou recherchez...",
+    "no_results": "Aucun résultat trouvé.",
+    "suggestions": "Suggestions",
+    "settings": "Paramètres",
+    "system": "Système",
+    "light_mode": "Mode Clair",
+    "dark_mode": "Mode Sombre",
+    "notifications": {
+      "title": "Notifications",
+      "no_unread": "Aucune notification non lue",
+      "mark_as_read": "Tout marquer comme lu",
+      "view_all": "Voir toutes les notifications"
+    }
+  },
+  "sidebar": {
+    "main_menu": "Menu Principal",
+    "my_account": "Mon Compte",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "student": {
+    "welcome": "Salut, Étudiant ! 🎓",
+    "subtitle": "Voici un aperçu de ton parcours académique actuel.",
+    "stats": {
+      "courses": "Cours Suivis",
+      "courses_desc": "Semestre actuel",
+      "gpa": "Moyenne Générale",
+      "gpa_desc": "Top 15% de la promo",
+      "attendance": "Présences",
+      "attendance_desc": "Excellente assiduité",
+      "exams": "Examens à venir",
+      "exams_desc": "Dans les 30 jours"
+    },
+    "quick_access": {
+      "title": "Accès Rapide",
+      "view_materials": "Consulter mes supports",
+      "view_schedule": "Emploi du temps"
+    },
+    "progress": {
+      "title": "Progression Globale",
+      "completed": "Cours Complétés",
+      "ongoing": "Cours en cours"
+    },
+    "quick_view": {
+      "title": "Aperçu Rapide",
+      "new_materials": "Nouveaux supports",
+      "next_exam": "Prochain examen",
+      "unread_messages": "Messages non lus",
+      "days_left": "Dans {{count}} jours"
+    },
+    "upcoming_exams": {
+      "title": "Examens à Venir"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Tout lire",
+      "delete_all": "Tout supprimer",
+      "filter_all": "Tout",
+      "filter_unread": "Non lues",
+      "loading": "Chargement des notifications...",
+      "new_material": "Nouveau support de cours",
+      "material_info": "Information sur un support",
+      "academic_update": "Mise à jour académique",
+      "content_template": "Le support \"{{title}}\" pour votre cours de {{subject}} vient d'être mis à jour.",
+      "mark_as_read": "Lu",
+      "delete": "Supprimer",
+      "empty_title": "Aucune nouvelle",
+      "empty_desc": "Vous êtes à jour",
+      "messages": {
+        "error_load": "Impossible de charger les notifications.",
+        "error_update": "Échec de la mise à jour.",
+        "error_delete": "Échec de la suppression.",
+        "success_mark_all": "Toutes les notifications lues.",
+        "success_delete": "Notification supprimée.",
+        "success_delete_all": "Notifications vidées."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Étudiant",
+        "student_number": "N° {{number}}"
+      },
+      "tabs": {
+        "my_profile": "Mon Profil",
+        "preferences": "Préférences",
+        "security": "Sécurité"
+      },
+      "personal": {
+        "title": "Informations personnelles",
+        "description": "Gérez vos informations de scolarité.",
+        "save": "Enregistrer",
+        "edit": "Modifier",
+        "full_name": "Nom complet",
+        "username": "Nom d'utilisateur",
+        "email": "Email institutionnel",
+        "department": "Filière / Département",
+        "student_number_label": "Numéro d'étudiant"
+      },
+      "preferences": {
+        "title": "Apparence & Affichage",
+        "description": "Personnalisez votre interface CampusHub.",
+        "theme_title": "Thème de l'application",
+        "theme_light": "Clair",
+        "theme_dark": "Sombre",
+        "theme_system": "Système"
+      },
+      "security": {
+        "change_password_title": "Changer le mot de passe",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmation",
+        "update_password": "Mettre à jour le mot de passe",
+        "danger_zone": "Zone de danger",
+        "danger_desc": "La suppression de votre compte est définitive.",
+        "delete_account": "Supprimer le compte",
+        "logout": "Se déconnecter"
+      },
+      "dialogs": {
+        "image_title": "Nouvelle photo de profil",
+        "image_desc": "Ajustez le cadrage si nécessaire avant de confirmer votre nouvelle photo.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "delete_title": "Supprimer mon compte",
+        "delete_desc": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+        "confirm_pass": "Confirmez votre mot de passe"
+      },
+      "messages": {
+        "error_auth": "Authentification requise.",
+        "error_token": "Token invalide.",
+        "error_load": "Impossible de charger le profil.",
+        "success_update": "Profil mis à jour !",
+        "error_update": "Échec de la mise à jour.",
+        "success_image": "Photo mise à jour !",
+        "error_upload": "Erreur de téléversement.",
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "success_password": "Mot de passe mis à jour !",
+        "error_delete": "Erreur lors de la suppression du compte."
+      }
+    },
+    "courses": {
+      "title": "Catalogue des Supports",
+      "description": "Accédez à vos ressources pédagogiques validées par la faculté.",
+      "search_placeholder": "Rechercher un cours, une matière...",
+      "filter_all_levels": "Tous les niveaux",
+      "view_button": "Consulter",
+      "empty_title": "Aucun support trouvé",
+      "empty_desc": "Ajustez vos filtres ou votre recherche pour trouver ce que vous cherchez.",
+      "error_load": "Impossible de charger les supports de cours.",
+      "view": {
+        "loading": "Chargement du cours...",
+        "not_found_title": "Cours introuvable",
+        "not_found_desc": "Nous n'avons pas pu charger ce support.",
+        "back_to_catalog": "Retour au catalogue",
+        "download": "Télécharger",
+        "reader_title": "Lecteur de document",
+        "description_title": "Description",
+        "no_description": "Aucune description fournie pour ce support.",
+        "details_title": "Détails",
+        "uploaded_at": "Mis en ligne le",
+        "subject": "Matière",
+        "level": "Niveau",
+        "disclaimer": "Ce support est mis à disposition par la faculté pour votre usage pédagogique personnel.",
+        "success_download": "Téléchargement démarré",
+        "error_load": "Impossible de charger le support de cours."
+      }
+    },
+    "schedule": {
+      "courses_title": "Emploi du Temps - Cours",
+      "exams_title": "Emploi du Temps - Examens",
+      "download": "Télécharger l'emploi du temps",
+      "day": "Jour",
+      "time": "Heure",
+      "course": "Cours",
+      "room": "Salle",
+      "exam": "Examen",
+      "date": "Date",
+      "exams_choice": "Choisir un type d'examen",
+      "cc_title": "Contrôle Continu (CC)",
+      "cc_desc": "Consulter les modalités des contrôles continus.",
+      "sn_title": "Session Normale (SN)",
+      "sn_desc": "Consulter l'emploi du temps des examens finaux.",
+      "not_available": "L'emploi du temps pour cette session n'est pas encore disponible.",
+      "subject": "Matière",
+      "download_short": "Télécharger"
+    }
+  },
+  "teacher": {
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Tout marquer lu",
+      "delete_all": "Tout supprimer",
+      "filter_all": "Tout",
+      "filter_unread": "Non lues",
+      "loading": "Mise à jour...",
+      "approved": "Support Approuvé",
+      "rejected": "Correction demandée",
+      "update": "Mise à jour",
+      "content_template": "L'équipe Pédagogique a mis à jour votre support \"{{title}}\" ({{subject}}).",
+      "mark_as_read": "Marquer comme lu",
+      "delete": "Supprimer",
+      "empty_title": "Aucun message",
+      "empty_desc": "Votre boîte est vide",
+      "messages": {
+        "error_load": "Impossible de charger les notifications.",
+        "error_update": "Échec de la mise à jour.",
+        "error_delete": "Échec de la suppression.",
+        "success_mark_all": "Toutes les notifications lues.",
+        "success_delete": "Notification supprimée.",
+        "success_delete_all": "Notifications vidées."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Professeur"
+      },
+      "tabs": {
+        "my_profile": "Mon Profil",
+        "preferences": "Préférences",
+        "security": "Sécurité"
+      },
+      "personal": {
+        "title": "Informations personnelles",
+        "description": "Gérez les détails de votre identité publique.",
+        "save": "Enregistrer",
+        "edit": "Modifier",
+        "full_name": "Nom complet",
+        "username": "Nom d'utilisateur",
+        "department": "Département",
+        "office_number": "Numéro de bureau",
+        "grade": "Grade / Titre académique"
+      },
+      "preferences": {
+        "title": "Apparence & Affichage",
+        "description": "Personnalisez votre interface CampusHub.",
+        "theme_title": "Thème de l'application",
+        "theme_light": "Clair",
+        "theme_dark": "Sombre",
+        "theme_system": "Système",
+        "email_notifs": "Notifications Email",
+        "email_notifs_desc": "Recevoir des résumés quotidiens de l'activité académique."
+      },
+      "security": {
+        "change_password_title": "Changer le mot de passe",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmation",
+        "update_password": "Mettre à jour le mot de passe",
+        "danger_zone": "Zone de danger",
+        "danger_desc": "La suppression de votre compte est définitive. Toutes vos données seront effacées.",
+        "delete_account": "Supprimer le compte",
+        "logout": "Se déconnecter"
+      },
+      "dialogs": {
+        "image_title": "Nouvelle photo de profil",
+        "image_desc": "Ajustez le cadrage si nécessaire avant de confirmer.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "delete_title": "Êtes-vous absolument sûr ?",
+        "delete_desc": "Cette action est irréversible. Pour confirmer, saisissez votre mot de passe ci-dessous.",
+        "confirm_pass": "Mot de passe",
+        "confirm_delete": "Confirmer la suppression",
+        "deleting": "Suppression..."
+      },
+      "messages": {
+        "error_auth": "Authentification requise.",
+        "error_token": "Token invalide.",
+        "error_load": "Impossible de charger le profil.",
+        "success_update": "Profil mis à jour !",
+        "error_update": "Échec de la mise à jour.",
+        "success_image": "Photo mise à jour !",
+        "error_upload": "Erreur de téléversement.",
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "success_password": "Mot de passe mis à jour !",
+        "error_generic": "Erreur."
+      }
+    },
+    "dashboard": {
+      "welcome": "Bonjour, Professeur 👋",
+      "subtitle": "Voici ce qui se passe dans vos cours aujourd'hui.",
+      "stats": {
+        "materials": "Supports de Cours",
+        "upcoming_courses": "Cours à Venir",
+        "validated": "Validés",
+        "pending": "En Attente",
+        "weekly_trend": "+{{count}} cette semaine",
+        "today": "Aujourd'hui",
+        "success_rate": "{{percent}}% de réussite",
+        "attention_required": "Requiert votre attention"
+      },
+      "quick_actions": {
+        "title": "Actions Rapides",
+        "desc": "Accédez aux outils fréquents",
+        "deposit": "Déposer un nouveau support",
+        "availability": "Gérer mes disponibilités"
+      },
+      "widgets": {
+        "materials": {
+          "title": "Mes Supports de Cours",
+          "desc": "Liste de vos documents récemment ajoutés",
+          "view_all": "Voir tout",
+          "table": {
+            "course": "Cours",
+            "material": "Support",
+            "date": "Date",
+            "status": "Statut",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "Voir",
+            "download": "Télécharger",
+            "delete": "Supprimer"
+          },
+          "statuses": {
+            "validated": "Validé",
+            "pending": "En attente",
+            "rejected": "Rejeté"
+          }
+        },
+        "schedule": {
+          "title": "Agenda & Examens",
+          "desc": "Vos prochaines interventions",
+          "view_full": "Voir le calendrier complet",
+          "types": {
+            "course": "Cours",
+            "exam": "Examen"
+          },
+          "relative_days": {
+            "today": "Aujourd'hui",
+            "tomorrow": "Demain"
+          }
+        },
+        "validation": {
+          "title": "Statut des Validations",
+          "pending": "Supports en attente",
+          "validated": "Supports validés",
+          "rejected": "Supports rejetés"
+        }
+      },
+      "deposit_drawer": {
+        "title": "Nouveau Support",
+        "desc": "Remplissez les informations pour publier un nouveau support de cours.",
+        "success_title": "Publication réussie !",
+        "success_desc": "Votre document est maintenant en attente de validation.",
+        "form": {
+          "title_label": "Titre du Support",
+          "title_placeholder": "Ex: Algèbre Linéaire - Chapitre 1",
+          "description_label": "Description",
+          "description_placeholder": "Décrivez brièvement le contenu...",
+          "level_label": "Niveau",
+          "level_placeholder": "Niveau",
+          "subject_label": "Matière",
+          "subject_placeholder": "Ex: Mathématiques I",
+          "file_label": "Fichier du Support",
+          "file_click": "Cliquez ou glissez un fichier",
+          "file_hint": "PDF, DOCX, ZIP (Max 10MB)"
+        },
+        "buttons": {
+          "cancel": "Annuler",
+          "submit": "Publier le support",
+          "submitting": "Envoi...",
+          "error_auth": "Authentification requise",
+          "error_upload": "Erreur lors du dépôt du support",
+          "success": "Support déposé avec succès !"
+        }
+      }
+    },
+    "support": {
+      "title": "Mes Supports de Cours",
+      "description": "Gérez votre catalogue pédagogique et suivez l'état des validations.",
+      "search_placeholder": "Rechercher un support...",
+      "new_button": "Nouveau support",
+      "view_details": "Voir les détails",
+      "empty_title": "Aucun support déposé",
+      "empty_desc": "Commencez par déposer votre premier support de cours pour vos étudiants.",
+      "empty_button": "Déposer mon premier support",
+      "actions": {
+        "submit": "Soumettre pour validation",
+        "details": "Détails",
+        "delete": "Supprimer"
+      },
+      "statuses": {
+        "validated": "Approuvé",
+        "rejected": "À corriger",
+        "pending": "En attente",
+        "draft": "Brouillon"
+      },
+      "dialogs": {
+        "delete_title": "Supprimer ce support ?",
+        "delete_desc": "Cette action est irréversible. Le fichier sera définitivement supprimé.",
+        "cancel": "Annuler",
+        "confirm_delete": "Supprimer"
+      },
+      "messages": {
+        "error_load": "Erreur de chargement des supports",
+        "success_submit": "Support soumis pour validation",
+        "success_delete": "Support supprimé",
+        "error_action": "L'opération a échoué"
+      },
+      "view": {
+        "loading": "Chargement du document...",
+        "not_found_title": "Support introuvable",
+        "not_found_desc": "Nous n'avons pas pu charger ce support.",
+        "back": "Retour",
+        "download": "Télécharger",
+        "share": "Partager",
+        "history": "Historique",
+        "preview_title": "Aperçu du document",
+        "description_title": "Description",
+        "no_description": "Aucune description fournie pour ce support.",
+        "feedback_title": "Retour pédagogique",
+        "feedback_date": "Décidé le {{date}}",
+        "info_title": "Informations",
+        "upload_date": "Date de dépôt",
+        "status_label": "Statut",
+        "visibility_title": "Visibilité",
+        "visibility_desc": "Visible par les étudiants une fois validé par l'équipe Pédagogique de votre département.",
+        "success_download": "Téléchargement démarré",
+        "error_load": "Impossible de charger le support de cours."
+      },
+      "deposit": {
+        "title": "Déposer un Support",
+        "description": "Créez une nouvelle ressource pédagogique pour vos étudiants.",
+        "details_title": "Détails du document",
+        "form": {
+          "title_label": "Titre du Support",
+          "title_placeholder": "Ex: Algèbre Linéaire - Chapitre 1",
+          "subject_label": "Matière",
+          "subject_placeholder": "Ex: Mathématiques",
+          "level_label": "Niveau d'études",
+          "level_placeholder": "Choisir un niveau",
+          "description_label": "Description",
+          "description_placeholder": "Résumez brièvement le contenu de ce support..."
+        },
+        "file": {
+          "title": "Fichier Source",
+          "select_pdf": "Sélectionner un PDF",
+          "max_size": "Maximum 20MB",
+          "change_file": "Changer de fichier",
+          "browse_files": "Parcourir les fichiers"
+        },
+        "important": {
+          "title": "Important",
+          "desc": "Une fois publié, votre support sera soumis à la validation de l'équipe Pédagogique de votre département avant d'être visible par les étudiants.",
+          "rule1": "Format PDF uniquement",
+          "rule2": "Contenu pédagogique vérifié",
+          "rule3": "Visible par les étudiants après validation"
+        },
+        "buttons": {
+          "submit": "Publier le support",
+          "submitting": "Traitement en cours..."
+        },
+        "messages": {
+          "pdf_only": "Seuls les fichiers PDF sont acceptés.",
+          "fill_all": "Veuillez remplir tous les champs et sélectionner un fichier.",
+          "invalid_session": "Session invalide.",
+          "success": "Support déposé avec succès !",
+          "error": "Erreur lors du dépôt du support. Veuillez réessayer."
+        }
+      }
+    }
+  },
+  "dean": {
+    "profile": {
+      "header": {
+        "badge": "Équipe Pédagogique"
+      },
+      "tabs": {
+        "my_profile": "Mon Profil",
+        "preferences": "Préférences",
+        "security": "Sécurité"
+      },
+      "personal": {
+        "title": "Informations professionnelles",
+        "description": "Gérez les détails du profil Équipe Pédagogique.",
+        "full_name": "Nom complet",
+        "username": "Nom d'utilisateur",
+        "department": "Département / Faculté",
+        "office_number": "Numéro de bureau",
+        "grade": "Grade académique",
+        "save": "Enregistrer",
+        "edit": "Modifier"
+      },
+      "preferences": {
+        "title": "Apparence & Affichage",
+        "description": "Personnalisez votre interface CampusHub.",
+        "theme_title": "Thème de l'application",
+        "theme_light": "Clair",
+        "theme_dark": "Sombre",
+        "theme_system": "Système"
+      },
+      "security": {
+        "title": "Sécurité du compte",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmation",
+        "update_password": "Mettre à jour le mot de passe",
+        "danger_zone": "Zone de danger",
+        "danger_desc": "La suppression de votre compte est définitive.",
+        "delete_account": "Supprimer le compte",
+        "logout": "Se déconnecter"
+      },
+      "dialogs": {
+        "image_title": "Nouvelle photo de profil",
+        "image_desc": "Ajustez le cadrage si nécessaire avant de confirmer votre nouvelle photo.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "delete_title": "Suppression du compte",
+        "delete_desc": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+        "confirm_pass": "Mot de passe de confirmation"
+      },
+      "messages": {
+        "error_auth": "Authentification requise.",
+        "error_token": "Token invalide.",
+        "error_load": "Impossible de charger le profil.",
+        "success_update": "Profil mis à jour !",
+        "error_update": "Échec de la mise à jour.",
+        "success_image": "Photo mise à jour !",
+        "error_upload": "Erreur de téléversement.",
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "success_password": "Mot de passe mis à jour !",
+        "error_delete": "Erreur lors de la suppression du compte.",
+        "error_generic": "Erreur."
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Tout marquer lu",
+      "delete_all": "Tout supprimer",
+      "filter_all": "Tout",
+      "filter_unread": "Non lues",
+      "loading": "Mise à jour...",
+      "new_dossier": "Nouveau dossier à valider",
+      "archived": "Dossier archivé",
+      "system_alert": "Alerte Système",
+      "content_template": "L'enseignant a soumis \"{{title}}\" pour le cours de {{subject}}.",
+      "mark_as_read": "Marquer comme lu",
+      "delete": "Supprimer",
+      "empty_title": "Aucune notification",
+      "empty_desc": "Flux à jour",
+      "messages": {
+        "error_load": "Impossible de charger les notifications.",
+        "error_update": "Échec de la mise à jour.",
+        "error_delete": "Échec de la suppression.",
+        "error_bulk_delete": "Échec de la suppression groupée.",
+        "error_generic": "Échec de l'opération.",
+        "success_mark_all": "Toutes les notifications lues.",
+        "success_delete": "Notification supprimée.",
+        "success_delete_all": "Notifications vidées."
+      }
+    },
+    "sidebar": {
+      "dashboard": "Tableau de bord",
+      "validations": "Validation Supports",
+      "schedule": "Planning Global",
+      "edition": "Édition"
+    },
+    "dashboard": {
+      "title": "Espace Équipe Pédagogique 🏛️",
+      "subtitle": "Supervision académique et validation des supports.",
+      "actions": {
+        "monthly_report": "Rapport mensuel",
+        "validate_all": "Valider tout"
+      },
+      "stats": {
+        "pending_materials": "Supports en attente",
+        "since_yesterday": "depuis hier",
+        "validation_rate": "Taux de validation",
+        "this_month": "ce mois",
+        "active_teachers": "Enseignants actifs",
+        "this_week": "cette semaine",
+        "planned_exams": "Examens prévus",
+        "next_15_days": "prochains 15 jours"
+      },
+      "widgets": {
+        "reports": {
+          "title": "Rapports & Analyses",
+          "list": {
+            "annual_validation": "Rapport annuel des validations",
+            "student_attendance": "Statistiques d'assiduité étudiants",
+            "planning_conflicts": "Rapport des conflits de planification"
+          },
+          "actions": {
+            "generate": "Générer",
+            "view": "Voir",
+            "download": "Télécharger"
+          }
+        },
+        "planning": {
+          "title": "Aperçu Planification Globale",
+          "stats": {
+            "planned_exams": "Examens Planifiés",
+            "active_courses": "Cours Actifs",
+            "potential_conflicts": "Conflits Potentiels"
+          },
+          "upcoming": {
+            "title": "Prochaines Échéances",
+            "list": {
+              "timetable_validation": "Validation Emploi du Temps Sem. 2",
+              "exam_registration_closure": "Clôture des inscriptions examens"
+            }
+          }
+        },
+        "stats": {
+          "title": "Statistiques Clés",
+          "validated_courses": "Cours Validés",
+          "room_occupancy": "Taux Occ. Salles",
+          "active_teachers": "Enseignants Actifs",
+          "materials_status": "Statut des Supports",
+          "chart": {
+            "validated": "Validés",
+            "pending": "En cours",
+            "rejected": "Rejetés"
+          }
+        },
+        "validation": {
+          "title": "Supports à Valider",
+          "table": {
+            "course": "Cours",
+            "teacher": "Enseignant",
+            "date": "Date Soumission",
+            "status": "Statut"
+          },
+          "status": {
+            "pending": "En attente"
+          }
+        }
+      },
+      "validation_page": {
+        "title": "Validation Académique",
+        "department_label": "Département :",
+        "search_placeholder": "Rechercher un dossier...",
+        "filters": {
+          "all": "Tous les dossiers",
+          "submitted": "Soumis",
+          "validated": "Validé",
+          "rejected": "Rejeté"
+        },
+        "status": {
+          "approved": "Approuvé",
+          "rejected": "Rejeté",
+          "pending": "En attente"
+        },
+        "actions": {
+          "examine": "Examiner"
+        },
+        "empty_title": "Aucun dossier en attente",
+        "empty_desc": "Tous les supports de cours de votre département ont été traités.",
+        "messages": {
+          "error_load": "Impossible de charger les dossiers de validation.",
+          "session_expired": "Session expirée"
+        }
+      },
+      "view_material": {
+        "title": "Détails du Support",
+        "badge": {
+          "validated": "Validé",
+          "draft": "Brouillon",
+          "pending": "À Valider",
+          "rejected": "Rejeté"
+        },
+        "actions": {
+          "download": "Télécharger",
+          "share": "Partager",
+          "history": "Historique",
+          "examine": "Examiner"
+        },
+        "preview_title": "Aperçu du document",
+        "description_title": "Description",
+        "no_description": "Aucune description fournie pour ce support.",
+        "validation_panel": {
+          "title": "Panel de Validation",
+          "feedback_label": "Remarques / Feedback",
+          "feedback_placeholder": "Ajoutez vos commentaires pour l'enseignant...",
+          "reject_button": "Rejeter",
+          "validate_button": "Valider"
+        },
+        "academic_feedback": {
+          "title": "Retour pédagogique",
+          "decided_on": "Décidé le {{date}}"
+        },
+        "info": {
+          "title": "Informations",
+          "upload_date": "Date de dépôt",
+          "status": "Statut",
+          "visibility": "Visibilité",
+          "visibility_desc": "Visible par les étudiants de {{level}} après validation."
+        },
+        "messages": {
+          "error_load": "Impossible de charger le support de cours.",
+          "success_validate": "Support validé avec succès",
+          "success_reject": "Support rejeté",
+          "error_update": "Erreur lors de la mise à jour du statut.",
+          "success_download": "Téléchargement démarré",
+          "not_found": "Support introuvable."
+        }
+      }
+    }
+  },
+  "schedule": {
+    "courses_title": "Emploi du Temps - Cours",
+    "exams_title": "Emploi du Temps - Examens",
+    "download": "Télécharger l'emploi du temps",
+    "day": "Jour",
+    "time": "Heure",
+    "course": "Cours",
+    "room": "Salle",
+    "exam": "Examen",
+    "date": "Date",
+    "exams_choice": "Choisir un type d'examen",
+    "cc_title": "Contrôle Continu (CC)",
+    "cc_desc": "Consulter les modalités des contrôles continus.",
+    "sn_title": "Session Normale (SN)",
+    "sn_desc": "Consulter l'emploi du temps des examens finaux.",
+    "not_available": "L'emploi du temps pour cette session n'est pas encore disponible.",
+    "subject": "Matière",
+    "download_short": "Télécharger"
+  }
+}

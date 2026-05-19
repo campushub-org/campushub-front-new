@@ -1,6 +1,9 @@
 import { GraduationCap, Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-slate-50 dark:bg-slate-900 pt-24 pb-12 border-t border-border/50 mt-12">
       <div className="container mx-auto px-6">
@@ -8,14 +11,14 @@ const Footer = () => {
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <GraduationCap className="h-6 w-6" />
+                <graduationcap className="h-6 w-6" />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground">
                 CampusHub
               </span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              La plateforme de référence pour la gestion académique moderne. Simplifiez, automatisez et transformez votre établissement.
+              {t("footer.description")}
             </p>
             <div className="flex items-center gap-4">
               {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
@@ -27,27 +30,27 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-lg font-bold text-foreground mb-8 uppercase tracking-widest text-sm">Produit</h4>
+            <h4 className="text-lg font-bold text-foreground mb-8 uppercase tracking-widest text-sm">{t("footer.product")}</h4>
             <ul className="space-y-4">
-              <li><a href="#features" className="text-muted-foreground hover:text-primary transition-colors">Fonctionnalités</a></li>
-              <li><a href="#problems" className="text-muted-foreground hover:text-primary transition-colors">Comparaison</a></li>
-              <li><a href="#roles" className="text-muted-foreground hover:text-primary transition-colors">Rôles</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Tarifs</a></li>
+              <li><a href="#features" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.features")}</a></li>
+              <li><a href="#problems" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.comparison")}</a></li>
+              <li><a href="#roles" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.roles")}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.pricing")}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-bold text-foreground mb-8 uppercase tracking-widest text-sm">Ressources</h4>
+            <h4 className="text-lg font-bold text-foreground mb-8 uppercase tracking-widest text-sm">{t("footer.resources")}</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Documentation</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Guide d'utilisation</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Support technique</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Blog académique</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.docs")}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.guide")}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.support")}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.links.blog")}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-bold text-foreground mb-8 uppercase tracking-widest text-sm">Contact</h4>
+            <h4 className="text-lg font-bold text-foreground mb-8 uppercase tracking-widest text-sm">{t("footer.contact")}</h4>
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Mail className="w-5 h-5 text-primary" />
@@ -67,12 +70,12 @@ const Footer = () => {
 
         <div className="pt-12 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-muted-foreground text-sm">
-            © 2026 CampusHub. Tous droits réservés. Conçu pour l'excellence.
+            {t("footer.copyright")}
           </p>
           <div className="flex gap-8 text-sm">
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Confidentialité</a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Mentions légales</a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Cookies</a>
+            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.privacy")}</a>
+            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.legal")}</a>
+            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.cookies")}</a>
           </div>
         </div>
       </div>

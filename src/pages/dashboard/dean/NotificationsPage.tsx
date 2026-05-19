@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
   id: number;
@@ -34,6 +35,7 @@ interface Notification {
 }
 
 const DeanNotificationsPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'UNREAD'>('ALL');
@@ -61,7 +63,7 @@ const DeanNotificationsPage: React.FC = () => {
       const response = await api.get<Notification[]>(`/campushub-notification-service/api/notifications/user/${userId}`);
       setNotifications(response.data.map(n => ({ ...n, isRead: !!n.isRead })));
     } catch (err) {
-      toast.error("Impossible de charger les notifications.");
+      toast.error(t("dean.notifications.messages.error_load"));
     } finally {
       setLoading(false);
     }
@@ -72,14 +74,14 @@ const DeanNotificationsPage: React.FC = () => {
     const handleNewNotif = () => fetchNotifications();
     window.addEventListener('notification_received', handleNewNotif);
     return () => window.removeEventListener('notification_received', handleNewNotif);
-  }, []);
+  }, [t]);
 
   const handleMarkAsRead = async (userNotificationId: number) => {
     try {
       await api.put(`/campushub-notification-service/api/notifications/mark-as-read/${userNotificationId}`);
       setNotifications(prev => prev.map(n => n.userNotificationId === userNotificationId ? { ...n, isRead: true } : n));
     } catch (err) {
-      toast.error("Échec de la mise à jour.");
+      toast.error(t("dean.notifications.messages.error_update"));
     }
   };
 
@@ -89,9 +91,9 @@ const DeanNotificationsPage: React.FC = () => {
     try {
       await Promise.all(unreadIds.map(id => api.put(`/campushub-notification-service/api/notifications/mark-as-read/${id}`)));
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      toast.success("Toutes les notifications lues.");
+      toast.success(t("dean.notifications.messages.success_mark_all"));
     } catch (err) {
-      toast.error("Échec de l'opération.");
+      toast.error(t("dean.notifications.messages.error_generic"));
     }
   };
 
@@ -99,9 +101,9 @@ const DeanNotificationsPage: React.FC = () => {
     try {
       await api.delete(`/campushub-notification-service/api/notifications/${userNotificationId}`);
       setNotifications(prev => prev.filter(n => n.userNotificationId !== userNotificationId));
-      toast.success("Notification supprimée.");
+      toast.success(t("dean.notifications.messages.success_delete"));
     } catch (err) {
-      toast.error("Échec de la suppression.");
+      toast.error(t("dean.notifications.messages.error_delete"));
     }
   };
 
@@ -110,9 +112,9 @@ const DeanNotificationsPage: React.FC = () => {
     try {
       await Promise.all(notifications.map(n => api.delete(`/campushub-notification-service/api/notifications/${n.userNotificationId}`)));
       setNotifications([]);
-      toast.success("Notifications vidées.");
+      toast.success(t("dean.notifications.messages.success_delete_all"));
     } catch (err) {
-      toast.error("Échec de la suppression groupée.");
+      toast.error(t("dean.notifications.messages.error_bulk_delete"));
     }
   };
 
@@ -138,7 +140,7 @@ const DeanNotificationsPage: React.FC = () => {
         {/* Header Ultra Épuré - Juste le Titre et les Filtres */}
         <div className="px-6 py-8 space-y-6 shrink-0 bg-background">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Notifications</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("dean.notifications.title")}</h1>
             
             <div className="flex items-center gap-2">
               <Button 
@@ -148,7 +150,7 @@ const DeanNotificationsPage: React.FC = () => {
                 onClick={handleMarkAllAsRead}
                 disabled={!notifications.some(n => !n.isRead)}
               >
-                <CheckCheck size={16} /> Tout marquer lu
+                <CheckCheck size={16} /> {t("dean.notifications.mark_all_read")}
               </Button>
               <Button 
                 variant="outline" 
@@ -157,7 +159,7 @@ const DeanNotificationsPage: React.FC = () => {
                 onClick={handleDeleteAll}
                 disabled={notifications.length === 0}
               >
-                <Trash2 size={16} /> Tout supprimer
+                <Trash2 size={16} /> {t("dean.notifications.delete_all")}
               </Button>
             </div>
           </div>
@@ -172,7 +174,7 @@ const DeanNotificationsPage: React.FC = () => {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              Tout ({notifications.length})
+              {t("dean.notifications.filter_all")} ({notifications.length})
             </button>
             <button
               onClick={() => setFilter('UNREAD')}
@@ -183,7 +185,7 @@ const DeanNotificationsPage: React.FC = () => {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              Non lues ({notifications.filter(n => !n.isRead).length})
+              {t("dean.notifications.filter_unread")} ({notifications.filter(n => !n.isRead).length})
             </button>
           </div>
         </div>
@@ -194,7 +196,7 @@ const DeanNotificationsPage: React.FC = () => {
             {loading ? (
               <div className="p-12 text-center space-y-4">
                 <div className="h-10 w-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Mise à jour...</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t("dean.notifications.loading")}</p>
               </div>
             ) : filteredNotifications.length > 0 ? (
               <div className="space-y-4">
@@ -226,15 +228,15 @@ const DeanNotificationsPage: React.FC = () => {
                         <div className="flex-1 min-w-0 space-y-2">
                           <div className="flex items-center gap-2">
                             <h3 className={cn("font-bold text-base", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
-                              {notif.statut === 'SOUMIS' ? 'Nouveau dossier à valider' : 
-                               notif.statut === 'VALIDÉ' ? 'Dossier archivé' : 'Alerte Système'}
+                              {notif.statut === 'SOUMIS' ? t("dean.notifications.new_dossier") : 
+                               notif.statut === 'VALIDÉ' ? t("dean.notifications.archived") : t("dean.notifications.system_alert")}
                             </h3>
                             <span className="text-[10px] font-black text-muted-foreground uppercase opacity-40">
-                               • {new Date(notif.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                               • {new Date(notif.createdAt).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'short' })}
                             </span>
                           </div>
                           <p className={cn("text-sm leading-relaxed max-w-2xl", !notif.isRead ? "text-muted-foreground" : "text-muted-foreground/60")}>
-                            L'enseignant a soumis <span className="font-bold">"{notif.titre}"</span> pour le cours de <span className="font-bold">{notif.matiere}</span>.
+                            {t("dean.notifications.content_template", { title: notif.titre, subject: notif.matiere })}
                           </p>
                           
                           <div className="flex items-center gap-6 pt-2">
@@ -243,14 +245,14 @@ const DeanNotificationsPage: React.FC = () => {
                                 onClick={() => handleMarkAsRead(notif.userNotificationId)}
                                 className="text-xs font-black uppercase text-primary hover:underline"
                               >
-                                Marquer comme lu
+                                {t("dean.notifications.mark_as_read")}
                               </button>
                             )}
                             <button 
                               onClick={() => handleDelete(notif.userNotificationId)}
                               className="text-xs font-black uppercase text-muted-foreground hover:text-rose-600 transition-colors"
                             >
-                              Supprimer
+                              {t("dean.notifications.delete")}
                             </button>
                           </div>
                         </div>
@@ -263,7 +265,7 @@ const DeanNotificationsPage: React.FC = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="rounded-xl w-40">
                             <DropdownMenuItem onClick={() => handleDelete(notif.userNotificationId)} className="rounded-lg gap-2 text-rose-600 focus:text-rose-600 font-bold text-xs uppercase">
-                              <Trash2 size={14} /> Supprimer
+                              <Trash2 size={14} /> {t("dean.notifications.delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -275,8 +277,8 @@ const DeanNotificationsPage: React.FC = () => {
             ) : (
               <div className="h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-border/40 rounded-3xl bg-card/30">
                 <Bell className="h-16 w-16 text-muted-foreground/10 mb-4" />
-                <h3 className="text-lg font-bold text-muted-foreground/60 tracking-tight text-center">Aucune notification</h3>
-                <p className="text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest mt-1">Flux à jour</p>
+                <h3 className="text-lg font-bold text-muted-foreground/60 tracking-tight text-center">{t("dean.notifications.empty_title")}</h3>
+                <p className="text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest mt-1">{t("dean.notifications.empty_desc")}</p>
               </div>
             )}
           </div>

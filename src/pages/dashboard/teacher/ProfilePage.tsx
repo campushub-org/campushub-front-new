@@ -35,6 +35,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/components/ThemeProvider';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface UserProfile {
   id: number;
@@ -49,6 +50,7 @@ interface UserProfile {
 }
 
 const TeacherProfilePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -85,14 +87,14 @@ const TeacherProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError("Authentification requise.");
+        setError(t('teacher.profile.messages.error_auth'));
         setLoading(false);
         return;
       }
 
       const decoded = decodeToken(token);
       if (!decoded || !decoded.id) {
-        setError("Token invalide.");
+        setError(t('teacher.profile.messages.error_token'));
         setLoading(false);
         return;
       }
@@ -108,13 +110,13 @@ const TeacherProfilePage: React.FC = () => {
         }
       } catch (err) {
         console.error(err);
-        setError("Impossible de charger le profil.");
+        setError(t('teacher.profile.messages.error_load'));
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, []);
+  }, [t]);
 
   const handleEditToggle = () => {
     if (isEditingProfile) {
@@ -130,10 +132,10 @@ const TeacherProfilePage: React.FC = () => {
       const response = await api.put<UserProfile>(`/campushub-user-service/api/users/${profileData.id}`, editableProfileData);
       setProfileData(response.data);
       setEditableProfileData(response.data);
-      toast.success("Profil mis à jour !");
+      toast.success(t('teacher.profile.messages.success_update'));
       setIsEditingProfile(false);
     } catch (err) {
-      toast.error("Échec de la mise à jour.");
+      toast.error(t('teacher.profile.messages.error_update'));
     } finally {
       setLoading(false);
     }
@@ -172,9 +174,9 @@ const TeacherProfilePage: React.FC = () => {
       setProfileData(prev => prev ? { ...prev, profilePictureUrl: newProfilePictureUrl } : null);
       localStorage.setItem('userProfileImage', newProfilePictureUrl);
       window.dispatchEvent(new Event('profileImageUpdated'));
-      toast.success("Photo mise à jour !");
+      toast.success(t('teacher.profile.messages.success_image'));
     } catch (err) {
-      toast.error("Erreur de téléversement.");
+      toast.error(t('teacher.profile.messages.error_upload'));
     } finally {
       setIsImageUploadConfirmDialogOpen(false);
       setPendingImageFile(null);
@@ -185,18 +187,18 @@ const TeacherProfilePage: React.FC = () => {
   const handlePasswordChange = async (e: FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      setPasswordChangeError("Les mots de passe ne correspondent pas.");
+      setPasswordChangeError(t('teacher.profile.messages.password_mismatch'));
       return;
     }
     setIsChangingPassword(true);
     try {
       await api.put(`/campushub-user-service/api/users/${profileData?.id}/change-password`, { currentPassword, newPassword });
-      toast.success("Mot de passe mis à jour !");
+      toast.success(t('teacher.profile.messages.success_password'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
     } catch (err: any) {
-      setPasswordChangeError(err.response?.data?.message || "Erreur.");
+      setPasswordChangeError(err.response?.data?.message || t('teacher.profile.messages.error_generic'));
     } finally {
       setIsChangingPassword(false);
     }
@@ -231,7 +233,7 @@ const TeacherProfilePage: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               <h1 className="text-3xl font-bold tracking-tight">{profileData.fullName}</h1>
               <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">
-                {profileData.role === 'TEACHER' ? 'Professeur' : profileData.role}
+                {profileData.role === 'TEACHER' ? t('teacher.profile.header.badge') : profileData.role}
               </Badge>
             </div>
             <p className="text-muted-foreground font-medium flex items-center justify-center md:justify-start gap-2">
@@ -256,13 +258,13 @@ const TeacherProfilePage: React.FC = () => {
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="w-full justify-start bg-transparent h-auto p-0 border-b border-border/50 rounded-none mb-8 gap-8">
           <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
-            Mon Profil
+            {t('teacher.profile.tabs.my_profile')}
           </TabsTrigger>
           <TabsTrigger value="preferences" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
-            Préférences
+            {t('teacher.profile.tabs.preferences')}
           </TabsTrigger>
           <TabsTrigger value="security" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-4 text-sm font-semibold transition-all">
-            Sécurité
+            {t('teacher.profile.tabs.security')}
           </TabsTrigger>
         </TabsList>
 
@@ -270,8 +272,8 @@ const TeacherProfilePage: React.FC = () => {
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50">
               <div>
-                <CardTitle className="text-xl">Informations personnelles</CardTitle>
-                <CardDescription>Gérez les détails de votre identité publique.</CardDescription>
+                <CardTitle className="text-xl">{t('teacher.profile.personal.title')}</CardTitle>
+                <CardDescription>{t('teacher.profile.personal.description')}</CardDescription>
               </div>
               <Button 
                 variant={isEditingProfile ? "default" : "outline"} 
@@ -280,13 +282,13 @@ const TeacherProfilePage: React.FC = () => {
                 disabled={loading}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isEditingProfile ? <Save size={16} /> : <PencilLine size={16} />}
-                {isEditingProfile ? "Enregistrer" : "Modifier"}
+                {isEditingProfile ? t('teacher.profile.personal.save') : t('teacher.profile.personal.edit')}
               </Button>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-sm font-semibold">Nom complet</Label>
+                  <Label htmlFor="fullName" className="text-sm font-semibold">{t('teacher.profile.personal.full_name')}</Label>
                   <Input 
                     id="fullName" 
                     value={editableProfileData?.fullName} 
@@ -296,19 +298,19 @@ const TeacherProfilePage: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-sm font-semibold">Nom d'utilisateur</Label>
+                  <Label htmlFor="username" className="text-sm font-semibold">{t('teacher.profile.personal.username')}</Label>
                   <Input id="username" value={profileData.username} readOnly className="h-11 bg-muted/30 border-border/50 focus-visible:ring-0 opacity-70" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department" className="text-sm font-semibold">Département</Label>
+                  <Label htmlFor="department" className="text-sm font-semibold">{t('teacher.profile.personal.department')}</Label>
                   <Input id="department" value={editableProfileData?.department} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="officeNumber" className="text-sm font-semibold">Numéro de bureau</Label>
+                  <Label htmlFor="officeNumber" className="text-sm font-semibold">{t('teacher.profile.personal.office_number')}</Label>
                   <Input id="officeNumber" value={editableProfileData?.officeNumber} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="grade" className="text-sm font-semibold">Grade / Titre académique</Label>
+                  <Label htmlFor="grade" className="text-sm font-semibold">{t('teacher.profile.personal.grade')}</Label>
                   <Input id="grade" value={editableProfileData?.grade} onChange={handleChange} readOnly={!isEditingProfile} className={cn("h-11 border-border/50", !isEditingProfile && "bg-muted/30 focus-visible:ring-0")} />
                 </div>
               </div>
@@ -319,17 +321,17 @@ const TeacherProfilePage: React.FC = () => {
         <TabsContent value="preferences" className="mt-0 space-y-6">
           <Card className="border-border/50 shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/50 bg-muted/10">
-              <CardTitle className="text-xl">Apparence & Affichage</CardTitle>
-              <CardDescription>Personnalisez votre interface CampusHub.</CardDescription>
+              <CardTitle className="text-xl">{t('teacher.profile.preferences.title')}</CardTitle>
+              <CardDescription>{t('teacher.profile.preferences.description')}</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-8">
               <div className="space-y-4">
-                <Label className="text-base font-bold">Thème de l'application</Label>
+                <Label className="text-base font-bold">{t('teacher.profile.preferences.theme_title')}</Label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { id: 'light', label: 'Clair', icon: Sun },
-                    { id: 'dark', label: 'Sombre', icon: Moon },
-                    { id: 'system', label: 'Système', icon: Monitor }
+                    { id: 'light', label: t('teacher.profile.preferences.theme_light'), icon: Sun },
+                    { id: 'dark', label: t('teacher.profile.preferences.theme_dark'), icon: Moon },
+                    { id: 'system', label: t('teacher.profile.preferences.theme_system'), icon: Monitor }
                   ].map((t) => (
                     <button
                       key={t.id}
@@ -356,8 +358,8 @@ const TeacherProfilePage: React.FC = () => {
               <div className="space-y-4 pt-4 border-t border-border/50">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className="text-base font-bold">Notifications Email</Label>
-                    <p className="text-sm text-muted-foreground">Recevoir des résumés quotidiens de l'activité académique.</p>
+                    <Label className="text-base font-bold">{t('teacher.profile.preferences.email_notifs')}</Label>
+                    <p className="text-sm text-muted-foreground">{t('teacher.profile.preferences.email_notifs_desc')}</p>
                   </div>
                   <div className="h-6 w-11 rounded-full bg-primary relative cursor-pointer shadow-inner">
                     <div className="absolute right-1 top-1 h-4 w-4 rounded-full bg-white" />
@@ -375,13 +377,13 @@ const TeacherProfilePage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <ShieldCheck className="text-primary h-5 w-5" />
-                    Changer le mot de passe
+                    {t('teacher.profile.security.change_password_title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                      <Label htmlFor="currentPassword">{t('teacher.profile.security.current_password')}</Label>
                       <div className="relative group">
                         <Input
                           id="currentPassword"
@@ -402,7 +404,7 @@ const TeacherProfilePage: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                        <Label htmlFor="newPassword">{t('teacher.profile.security.new_password')}</Label>
                         <div className="relative group">
                           <Input
                             id="newPassword"
@@ -422,7 +424,7 @@ const TeacherProfilePage: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirmNewPassword">Confirmation</Label>
+                        <Label htmlFor="confirmNewPassword">{t('teacher.profile.security.confirm_password')}</Label>
                         <div className="relative group">
                           <Input
                             id="confirmNewPassword"
@@ -445,7 +447,7 @@ const TeacherProfilePage: React.FC = () => {
                     {passwordChangeError && <p className="text-destructive text-xs font-medium">{passwordChangeError}</p>}
                     <Button type="submit" disabled={isChangingPassword} className="w-full md:w-auto mt-2">
                       {isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Mettre à jour le mot de passe
+                      {t('teacher.profile.security.update_password')}
                     </Button>
                   </form>
                 </CardContent>
@@ -457,15 +459,15 @@ const TeacherProfilePage: React.FC = () => {
                 <CardHeader className="bg-destructive/10">
                   <CardTitle className="text-lg text-destructive flex items-center gap-2">
                     <Trash2 size={18} />
-                    Zone de danger
+                    {t('teacher.profile.security.danger_zone')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-4">
                   <p className="text-sm text-destructive/80 leading-relaxed font-medium">
-                    La suppression de votre compte est définitive. Toutes vos données seront effacées.
+                    {t('teacher.profile.security.danger_desc')}
                   </p>
                   <Button variant="destructive" className="w-full" onClick={() => setIsDeleteAccountDialogOpen(true)}>
-                    Supprimer le compte
+                    {t('teacher.profile.security.delete_account')}
                   </Button>
                 </CardContent>
               </Card>
@@ -473,7 +475,7 @@ const TeacherProfilePage: React.FC = () => {
               <Card className="border-border/50">
                 <CardContent className="p-4">
                   <Button variant="outline" className="w-full justify-between" onClick={() => { localStorage.clear(); navigate('/signin'); }}>
-                    Se déconnecter
+                    {t('teacher.profile.security.logout')}
                     <LogOut size={16} />
                   </Button>
                 </CardContent>
@@ -487,17 +489,17 @@ const TeacherProfilePage: React.FC = () => {
       <Dialog open={isImageUploadConfirmDialogOpen} onOpenChange={setIsImageUploadConfirmDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Nouvelle photo de profil</DialogTitle>
-            <DialogDescription>Ajustez le cadrage si nécessaire avant de confirmer.</DialogDescription>
+            <DialogTitle>{t('teacher.profile.dialogs.image_title')}</DialogTitle>
+            <DialogDescription>{t('teacher.profile.dialogs.image_desc')}</DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-6">
             {pendingImageFile && <img src={URL.createObjectURL(pendingImageFile)} alt="Preview" className="h-48 w-48 rounded-2xl object-cover shadow-2xl border-4 border-background ring-1 ring-border/50" />}
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsImageUploadConfirmDialogOpen(false)}>{t('teacher.profile.dialogs.cancel')}</Button>
             <Button onClick={confirmImageChange} disabled={isUploadingImage}>
               {isUploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Confirmer
+              {t('teacher.profile.dialogs.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -506,27 +508,27 @@ const TeacherProfilePage: React.FC = () => {
       <Dialog open={isDeleteAccountDialogOpen} onOpenChange={setIsDeleteAccountDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-destructive">Êtes-vous absolument sûr ?</DialogTitle>
+            <DialogTitle className="text-destructive">{t('teacher.profile.dialogs.delete_title')}</DialogTitle>
             <DialogDescription>
-              Cette action est irréversible. Pour confirmer, saisissez votre mot de passe ci-dessous.
+              {t('teacher.profile.dialogs.delete_desc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <Label htmlFor="deletePass">Mot de passe</Label>
+            <Label htmlFor="deletePass">{t('teacher.profile.dialogs.confirm_pass')}</Label>
             <Input id="deletePass" type="password" value={deleteConfirmationPassword} onChange={(e) => setDeleteConfirmationPassword(e.target.value)} className="border-destructive/30" />
             {deleteAccountError && <p className="text-destructive text-xs font-bold">{deleteAccountError}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsDeleteAccountDialogOpen(false)}>{t('teacher.profile.dialogs.cancel')}</Button>
             <Button variant="destructive" onClick={async () => {
               setIsDeletingAccount(true);
               try {
                 await api.post(`/campushub-user-service/api/users/${profileData.id}/delete-account-confirm`, { password: deleteConfirmationPassword });
                 localStorage.clear(); navigate('/signin');
-              } catch(e:any) { setDeleteAccountError(e.response?.data?.message || "Erreur."); }
+              } catch(e:any) { setDeleteAccountError(e.response?.data?.message || t('teacher.profile.messages.error_generic')); }
               finally { setIsDeletingAccount(false); }
             }} disabled={!deleteConfirmationPassword || isDeletingAccount}>
-              {isDeletingAccount ? "Suppression..." : "Confirmer la suppression"}
+              {isDeletingAccount ? t('teacher.profile.dialogs.deleting') : t('teacher.profile.dialogs.confirm_delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -547,3 +549,4 @@ const Badge = ({ children, variant = "default", className }: any) => {
 };
 
 export default TeacherProfilePage;
+

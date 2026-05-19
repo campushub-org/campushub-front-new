@@ -1,19 +1,22 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-
-const data = [
-  { name: 'Cours Complétés', value: 70 },
-  { name: 'Cours en cours', value: 30 },
-];
+import { useTranslation } from 'react-i18next';
 
 const COLORS = ['#2563eb', '#e0e7ff'];
 
 const OverallProgressWidget: React.FC = () => {
+  const { t } = useTranslation();
+
+  const data = [
+    { name: t("student.progress.completed"), value: 70 },
+    { name: t("student.progress.ongoing"), value: 30 },
+  ];
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle>Progression Globale</CardTitle>
+        <CardTitle>{t("student.progress.title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col items-center justify-center relative">
         <ResponsiveContainer width="100%" height={250}>
