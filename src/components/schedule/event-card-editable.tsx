@@ -2,13 +2,15 @@
 
 import { MapPin, User, Clock, GripVertical, Move } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ScheduleEvent, courseTypeColors, courseTypeLabels } from "@/lib/schedule-data"
+import { ScheduleEvent, courseTypeColors, courseTypeLabels, CourseType } from "@/lib/schedule-data"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
 interface EventCardEditableProps {
   event: ScheduleEvent
@@ -38,6 +40,7 @@ export function EventCardEditable({
 
   const duration = calculateDuration()
   const isShort = duration <= 60
+  const isVeryShort = duration <= 45
 
   const handleClick = (e: React.MouseEvent) => {
     if (!isDragging) {
@@ -45,182 +48,140 @@ export function EventCardEditable({
     }
   }
 
-  if (compact) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              onClick={handleClick}
-              className={cn(
-                "group relative h-full w-full cursor-pointer rounded-md border-l-3 p-2 text-left transition-all",
-                colors.bg,
-                colors.border,
-                "hover:shadow-lg hover:shadow-black/20",
-                !isDragging && "hover:scale-[1.02] active:scale-[0.98]",
-                isDragging && "shadow-xl scale-[1.03] ring-2 ring-primary"
-              )}
+  // Styles communs pour la carte
+  const cardClasses = cn(
+    "group relative h-full w-full cursor-pointer rounded-lg border-l-4 p-2.5 text-left transition-all duration-200",
+    "backdrop-blur-[2px] shadow-sm hover:shadow-md",
+    colors.bg,
+    colors.border,
+    !isDragging && "hover:translate-y-[-1px] active:scale-[0.98]",
+    isDragging && "shadow-2xl scale-[1.02] ring-2 ring-primary/50 z-50 opacity-90",
+    isShort && "p-1.5"
+  )
+
+  const cardContent = (
+    <>
+      {/* Superpositions du mode édition */}
+      {isEditMode && (
+        <>
+          <div
+            className="absolute -top-1 left-0 right-0 h-2 cursor-ns-resize z-30"
+            onMouseDown={(e) => onDragStart?.("resize-top", e)}
+          />
+          <div
+            className="absolute -bottom-1 left-0 right-0 h-2 cursor-ns-resize z-30"
+            onMouseDown={(e) => onDragStart?.("resize-bottom", e)}
+          />
+          <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-30">
+            <div 
+              className="p-1 rounded bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background cursor-move"
+              onMouseDown={(e) => onDragStart?.("move", e)}
             >
-              {/* Drag handle - top resize */}
-              {isEditMode && (
-                <div
-                  className="absolute -top-1 left-0 right-0 flex h-3 cursor-ns-resize items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
-                  onMouseDown={(e) => onDragStart?.("resize-top", e)}
-                >
-                  <div className="h-1 w-8 rounded-full bg-primary" />
-                </div>
-              )}
-
-              {/* Move handle */}
-              {isEditMode && (
-                <div
-                  className="absolute right-1 top-1 cursor-move rounded p-0.5 opacity-0 transition-opacity hover:bg-primary/20 group-hover:opacity-100"
-                  onMouseDown={(e) => onDragStart?.("move", e)}
-                >
-                  <Move className="h-3 w-3 text-primary" />
-                </div>
-              )}
-
-              <p className="truncate text-xs font-medium text-foreground pr-5">
-                {event.title}
-              </p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">
-                {event.startTime} - {event.endTime}
-              </p>
-
-              {/* Drag handle - bottom resize */}
-              {isEditMode && (
-                <div
-                  className="absolute -bottom-1 left-0 right-0 flex h-3 cursor-ns-resize items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
-                  onMouseDown={(e) => onDragStart?.("resize-bottom", e)}
-                >
-                  <div className="h-1 w-8 rounded-full bg-primary" />
-                </div>
-              )}
+              <Move className="h-3 w-3 text-primary" />
             </div>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="max-w-xs">
-            <div className="space-y-1">
-              <p className="font-medium">{event.title}</p>
-              <p className="text-xs text-muted-foreground">{courseTypeLabels[event.type]}</p>
-              <div className="flex items-center gap-1 text-xs">
-                <User className="h-3 w-3" />
-                {event.professor}
-              </div>
-              <div className="flex items-center gap-1 text-xs">
-                <MapPin className="h-3 w-3" />
-                {event.room}
-              </div>
-              {isEditMode && (
-                <p className="mt-2 text-[10px] font-medium text-primary">
-                  Glisser pour déplacer / Bords pour redimensionner
-                </p>
-              )}
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    )
-  }
-
-  return (
-    <div
-      onClick={handleClick}
-      className={cn(
-        "group relative h-full w-full cursor-pointer rounded-lg border-l-4 p-3 text-left transition-all",
-        colors.bg,
-        colors.border,
-        "hover:shadow-lg hover:shadow-black/20",
-        !isDragging && "hover:scale-[1.02] active:scale-[0.98]",
-        isDragging && "shadow-xl scale-[1.03] ring-2 ring-primary z-50",
-        isShort && "p-2"
-      )}
-    >
-      {/* Drag handle - top resize */}
-      {isEditMode && (
-        <div
-          className="absolute -top-1 left-0 right-0 flex h-4 cursor-ns-resize items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
-          onMouseDown={(e) => onDragStart?.("resize-top", e)}
-        >
-          <div className="h-1.5 w-12 rounded-full bg-primary" />
-        </div>
+          </div>
+        </>
       )}
 
-      {/* Move handle */}
-      {isEditMode && (
-        <div
-          className="absolute right-2 top-2 flex cursor-move items-center gap-1 rounded-md bg-primary/20 px-1.5 py-1 opacity-0 transition-opacity hover:bg-primary/30 group-hover:opacity-100"
-          onMouseDown={(e) => onDragStart?.("move", e)}
-        >
-          <Move className="h-3.5 w-3.5 text-primary" />
-          <span className="text-[10px] font-medium text-primary">Déplacer</span>
-        </div>
-      )}
-
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p
-            className={cn(
-              "font-medium text-foreground line-clamp-1 pr-20",
-              isShort ? "text-xs" : "text-sm"
-            )}
-          >
-            {event.title}
+      {/* Contenu Principal */}
+      <div className="flex flex-col h-full justify-between min-w-0">
+        <div className="min-w-0">
+          <p className={cn(
+            "font-bold leading-tight text-foreground/90 tracking-tight break-words line-clamp-2",
+            isVeryShort ? "text-[9px]" : isShort ? "text-[10px]" : "text-xs"
+          )}>
+            {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
           </p>
+          
+          {!isShort && (
+            <div className="flex flex-wrap gap-1 mt-1 mb-1.5">
+              <span className={cn(
+                "inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-extrabold uppercase tracking-widest bg-background/40 border border-current/10",
+                colors.text
+              )}>
+                {courseTypeLabels[event.type]}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className={cn("space-y-0.5 min-w-0", isVeryShort && "hidden", isShort && "flex items-center gap-2 space-y-0 mt-1")}>
+          <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
+            <Clock className={cn("shrink-0 opacity-70", isShort ? "h-2.5 w-2.5" : "h-3 w-3")} />
+            <span className={cn("font-medium truncate", isShort ? "text-[9px]" : "text-[10px]")}>
+              {event.startTime}
+            </span>
+          </div>
 
           {!isShort && (
-            <span
-              className={cn(
-                "mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium",
-                colors.bg,
-                colors.text
-              )}
-            >
-              {courseTypeLabels[event.type]}
-            </span>
+            <>
+              <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
+                <User className="h-3 w-3 shrink-0 opacity-70" />
+                <span className="truncate text-[10px] font-medium">{event.professor}</span>
+              </div>
+              <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
+                <MapPin className="h-3 w-3 shrink-0 opacity-70" />
+                <span className="truncate text-[10px] font-medium">{event.room}</span>
+              </div>
+            </>
           )}
         </div>
       </div>
 
-      <div className={cn("mt-2 space-y-1", isShort && "mt-1")}>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <Clock className={cn("shrink-0", isShort ? "h-3 w-3" : "h-3.5 w-3.5")} />
-          <span className={cn(isShort ? "text-[10px]" : "text-xs")}>
-            {event.startTime} - {event.endTime}
-          </span>
-        </div>
-
-        {!isShort && (
-          <>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <User className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate text-xs">{event.professor}</span>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate text-xs">{event.room}</span>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Drag handle - bottom resize */}
-      {isEditMode && (
-        <div
-          className="absolute -bottom-1 left-0 right-0 flex h-4 cursor-ns-resize items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
-          onMouseDown={(e) => onDragStart?.("resize-bottom", e)}
-        >
-          <div className="h-1.5 w-12 rounded-full bg-primary" />
-        </div>
-      )}
-
-      {/* Edit mode indicator */}
+      {/* Indicateur Grip */}
       {isEditMode && !isDragging && (
-        <div className="absolute bottom-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-30 transition-opacity">
+          <GripVertical className="h-3 w-3" />
         </div>
       )}
-    </div>
+    </>
+  )
+
+  // Utiliser Tooltip pour TOUTES les cartes en mode édition pour voir les infos
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <div onClick={handleClick} className={cardClasses}>
+            {cardContent}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="z-[100] p-0 border-none bg-transparent shadow-2xl overflow-hidden">
+          <Card className="w-64 border-l-4 overflow-hidden" style={{ borderLeftColor: 'currentColor' }}>
+            <CardHeader className={cn("p-3 pb-2", colors.bg)}>
+              <div className="flex justify-between items-start gap-2 text-left">
+                <p className="font-bold text-sm leading-tight">
+                  {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+                </p>
+                <Badge variant="outline" className={cn("text-[9px] h-4 font-bold uppercase", colors.bg, colors.text)}>
+                  {courseTypeLabels[event.type]}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-2 space-y-2 bg-card">
+              <div className="grid grid-cols-1 gap-1.5">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5 text-primary" />
+                  <span className="font-medium text-foreground">{event.startTime} — {event.endTime}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <User className="h-3.5 w-3.5 text-primary" />
+                  <span className="font-medium text-foreground">{event.professor || "Non assigné"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5 text-primary" />
+                  <span className="font-medium text-foreground">{event.room || "Salle non définie"}</span>
+                </div>
+              </div>
+              {isEditMode && (
+                <div className="mt-2 pt-2 border-t border-border/50 text-[9px] text-primary/70 font-bold uppercase tracking-tighter">
+                  Mode Édition Actif • Glisser pour déplacer
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }

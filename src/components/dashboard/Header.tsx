@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LanguageSwitcher } from '../LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
   id: number;
@@ -23,6 +25,7 @@ interface Notification {
 }
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
 
@@ -69,16 +72,16 @@ const Header: React.FC = () => {
   
   const getBreadcrumbLabel = (name: string) => {
     const labels: Record<string, string> = {
-      'dashboard': 'Tableau de bord',
-      'teacher': 'Enseignant',
-      'student': 'Étudiant',
-      'dean': 'Équipe Pédagogique',
-      'admin': 'Admin',
-      'support': 'Supports',
-      'profile': 'Profil',
-      'notifications': 'Notifications',
-      'schedule-courses': 'Planning Cours',
-      'schedule-exams': 'Planning Examens',
+      'dashboard': t('common.dashboard'),
+      'teacher': t('roles.teacher'),
+      'student': t('roles.student'),
+      'dean': t('roles.dean'),
+      'admin': t('roles.admin'),
+      'support': t('academic.materials'),
+      'profile': t('common.profile'),
+      'notifications': t('common.notifications'),
+      'schedule-courses': t('academic.schedule'),
+      'schedule-exams': t('academic.exams'),
       'availabilities': 'Disponibilités',
       'view': 'Vue'
     };
@@ -129,6 +132,7 @@ const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-2">
+        <LanguageSwitcher />
         <Link to="./notifications" className="relative group">
           <Button 
             variant="ghost" 

@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const CTA = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-32 relative overflow-hidden bg-white dark:bg-slate-950">
       <div className="container mx-auto px-6 relative z-10">
@@ -26,14 +29,14 @@ const CTA = () => {
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-full text-sm font-bold mb-8 border border-white/20 backdrop-blur-sm"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Prêt pour le futur ?</span>
+              <span>{t("cta.badge")}</span>
             </motion.div>
 
             <h2 className="text-4xl lg:text-7xl font-bold text-white mb-8 tracking-tight">
-              Réinventez la gestion de votre campus dès aujourd'hui.
+              {t("cta.title")}
             </h2>
             <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Rejoignez les universités qui font confiance à CampusHub pour moderniser leur infrastructure académique.
+              {t("cta.description")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -43,24 +46,26 @@ const CTA = () => {
                 asChild
               >
                 <a href="/signup">
-                  Créer un compte gratuit
+                  {t("cta.button")}
                   <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Button>
               <div className="flex items-center gap-2 text-white/80 font-medium">
                 <ShieldCheck className="w-6 h-6 text-green-400" />
-                <span>Essai de 30 jours inclus</span>
+                <span>{t("cta.trial")}</span>
               </div>
             </div>
 
             {/* Trust logos */}
             <div className="mt-20 pt-12 border-t border-white/10">
-              <p className="text-white/40 text-sm font-bold uppercase tracking-widest mb-10">Partenaires de confiance</p>
+              <p className="text-white/40 text-sm font-bold uppercase tracking-widest mb-10">{t("cta.partners")}</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center justify-items-center opacity-40 grayscale contrast-125">
-                {[1, 2, 3, 4].map((i) => (
+                {[1].map((i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded bg-white" />
-                    <span className="text-xl font-bold text-white tracking-tighter">UNIVERSITY {i}</span>
+                    <div className="w-8 h-8 rounded bg-white">
+                      <img src="./logoUY1.png" alt={t("cta.partner_name")} className="w-full h-full object-contain rounded-full" />
+                    </div>
+                    <span className="text-xl font-bold text-white tracking-tighter">UY1</span>
                   </div>
                 ))}
               </div>

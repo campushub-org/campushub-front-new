@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTranslation } from 'react-i18next';
 
 export interface NavItem {
   to: string;
@@ -34,6 +35,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -47,6 +49,16 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('userProfileImage');
     window.location.href = '/';
+  };
+
+  const getTranslatedRole = (role: string) => {
+    const roles: Record<string, string> = {
+      'student': t('roles.student'),
+      'teacher': t('roles.teacher'),
+      'dean': t('roles.dean'),
+      'admin': t('roles.admin'),
+    };
+    return roles[role.toLowerCase()] || role;
   };
 
   return (
@@ -66,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
 
       <SidebarContent className="py-4">
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel className="px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Menu Principal</SidebarGroupLabel>}
+          {!isCollapsed && <SidebarGroupLabel className="px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">{t("sidebar.main_menu")}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu className="px-2 space-y-1">
               {navItems.map((item) => {
@@ -121,8 +133,8 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
               </Avatar>
               {!isCollapsed && (
                 <div className="flex flex-col items-start ml-3 overflow-hidden">
-                  <span className="text-sm font-semibold text-foreground truncate w-full">Mon Compte</span>
-                  <span className="text-xs text-muted-foreground capitalize">{userRole.toLowerCase()}</span>
+                  <span className="text-sm font-semibold text-foreground truncate w-full">{t("sidebar.my_account")}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{getTranslatedRole(userRole)}</span>
                 </div>
               )}
             </SidebarMenuButton>
@@ -135,12 +147,12 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
             <DropdownMenuItem asChild>
               <NavLink to="./profile" className="flex items-center cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
-                <span>Profil</span>
+                <span>{t("sidebar.profile")}</span>
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Déconnexion</span>
+              <span>{t("sidebar.logout")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

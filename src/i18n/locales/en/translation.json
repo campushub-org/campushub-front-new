@@ -1,0 +1,995 @@
+{
+  "common": {
+    "welcome": "Welcome to CampusHub",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "notifications": "Notifications",
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "all_week": "All week",
+    "online": "Online"
+  },
+  "academic": {
+    "courses": "Courses",
+    "schedule": "Schedule",
+    "exams": "Exams",
+    "grades": "Grades",
+    "attendance": "Attendance",
+    "materials": "Course Materials",
+    "planning": "Planning",
+    "students": "Students",
+    "teachers": "Teachers"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "teacher": "Teacher",
+    "student": "Student",
+    "dean": "Dean"
+  },
+  "navbar": {
+    "home": "Home",
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact",
+    "signin": "Sign In",
+    "signup": "Sign Up"
+  },
+  "hero": {
+    "badge": "Designed for University of Yaounde I",
+    "title_part1": "Academic excellence",
+    "title_part2": "at your fingertips",
+    "description": "CampusHub is the all-in-one platform that revolutionizes exam scheduling, course management, and student life.",
+    "cta_start": "Get started now",
+    "cta_features": "Explore features",
+    "check_no_install": "No installation",
+    "check_support": "24/7 Support",
+    "mockup_alt": "CampusHub Dashboard",
+    "floating_planning_label": "Planning",
+    "floating_planning_desc": "Zero conflicts detected",
+    "floating_alerts_label": "Alerts",
+    "floating_alerts_desc": "Notification sent",
+    "floating_rating": "4.9/5"
+  },
+  "problems": {
+    "title_part1": "End administrative chaos.",
+    "title_part2": "Shift to top speed.",
+    "description": "CampusHub transforms your archaic processes into smooth, automated experiences.",
+    "before_label": "Before",
+    "after_label": "After",
+    "list": [
+      {
+        "before": "Laborious manual planning",
+        "after": "Total automation in seconds"
+      },
+      {
+        "before": "Schedule and room conflicts",
+        "after": "Zero conflict guaranteed by our algorithm"
+      },
+      {
+        "before": "Scattered course materials",
+        "after": "Centralized and validated pedagogical space"
+      },
+      {
+        "before": "Poorly informed students",
+        "after": "Real-time push and SMS notifications"
+      }
+    ]
+  },
+  "features": {
+    "badge": "Powerful & Intuitive",
+    "title": "Everything for your institution",
+    "description": "A complete suite of tools designed to simplify the lives of students, teachers, and administrators.",
+    "learn_more": "Learn more",
+    "list": [
+      {
+        "title": "Smart Planning",
+        "description": "Automated algorithm that eliminates schedule conflicts and optimizes room usage."
+      },
+      {
+        "title": "Course Management",
+        "description": "Centralized pedagogical materials with an integrated and intuitive validation workflow."
+      },
+      {
+        "title": "Real-time Notifications",
+        "description": "Instant alerts for schedule changes, new materials, and exams."
+      },
+      {
+        "title": "Analytics & Reports",
+        "description": "Detailed dashboards to track attendance and resource occupancy."
+      },
+      {
+        "title": "Maximum Security",
+        "description": "Protection of academic data with high-level encryption standards."
+      },
+      {
+        "title": "Mobile Experience",
+        "description": "Access CampusHub everywhere with an interface optimized for all your devices."
+      }
+    ]
+  },
+  "roles_section": {
+    "badge": "Ecosystem",
+    "title": "A tailored experience",
+    "description": "CampusHub adapts to each user with interfaces optimized for their specific needs.",
+    "learn_more": "Learn more",
+    "list": [
+      {
+        "title": "Students",
+        "description": "Access your course materials, view your schedules and receive your exam alerts."
+      },
+      {
+        "title": "Teachers",
+        "description": "Upload your courses, manage your availability and track your material validations."
+      },
+      {
+        "title": "Pedagogical Team",
+        "description": "Supervise planning, validate resources and access institution statistics."
+      },
+      {
+        "title": "Administrators",
+        "description": "Manage accounts, configure rooms and maintain campus infrastructure."
+      }
+    ]
+  },
+  "cta": {
+    "badge": "Ready for the future?",
+    "title": "Reinvent your campus management today.",
+    "description": "Join the universities that trust CampusHub to modernize their academic infrastructure.",
+    "button": "Create a free account",
+    "trial": "30-day trial included",
+    "partners": "Trusted partners",
+    "partner_name": "University of Yaounde I"
+  },
+  "footer": {
+    "description": "The leading platform for modern academic management. Simplify, automate, and transform your institution.",
+    "product": "Product",
+    "resources": "Resources",
+    "contact": "Contact",
+    "copyright": "© 2026 CampusHub. All rights reserved. Designed for excellence.",
+    "privacy": "Privacy",
+    "legal": "Legal Notice",
+    "cookies": "Cookies",
+    "links": {
+      "features": "Features",
+      "comparison": "Comparison",
+      "roles": "Roles",
+      "pricing": "Pricing",
+      "docs": "Documentation",
+      "guide": "User Guide",
+      "support": "Technical Support",
+      "blog": "Academic Blog"
+    }
+  },
+  "auth": {
+    "signin_title": "Welcome back!",
+    "signin_description": "Sign in to access your workspace.",
+    "username_label": "Username",
+    "password_label": "Password",
+    "password_forgot": "Forgot?",
+    "password_placeholder": "••••••••",
+    "username_placeholder": "your.name",
+    "signin_button": "Sign In",
+    "signing_in": "Signing in...",
+    "no_account": "Don't have an account yet?",
+    "signup_link": "Sign Up",
+    "or": "Or",
+    "error_empty": "Please fill in all fields.",
+    "error_invalid": "Invalid username or password.",
+    "secure_platform": "Secure Platform",
+    "marketing_title": "Academic management reinvented for ",
+    "marketing_title_highlight": "your success.",
+    "marketing_description": "Join a community of excellence and take advantage of smart tools for your studies."
+  },
+  "signup": {
+    "title": "Create your account",
+    "description": "Join the academic elite and manage your future.",
+    "choose_role": "Choose this role",
+    "step_of": "Step {{current}} of {{total}}",
+    "change_role": "Change role",
+    "form": {
+      "first_name": "First Name",
+      "first_name_placeholder": "John",
+      "last_name": "Last Name",
+      "last_name_placeholder": "Doe",
+      "username": "Username (Nickname)",
+      "username_placeholder": "j.doe",
+      "username_hint": "Automatically generated from your name",
+      "department": "Department",
+      "department_placeholder": "Choose...",
+      "email": "Academic Email",
+      "email_placeholder": "john.doe@univ.edu",
+      "academic_details": "Academic Details",
+      "student_number": "Student Number",
+      "student_number_placeholder": "Ex: 2024-001",
+      "office_number": "Office Number",
+      "office_number_placeholder": "Ex: B205",
+      "grade": "Grade / Title",
+      "grade_placeholder": "Your grade",
+      "password": "Password",
+      "confirm_password": "Confirm",
+      "submit": "Create my account",
+      "submitting": "Creating...",
+      "already_registered": "Already registered?",
+      "signin_link": "Sign In"
+    },
+    "roles": {
+      "student": {
+        "label": "Student",
+        "description": "Access materials and your schedules",
+        "signup_title": "Student Registration"
+      },
+      "teacher": {
+        "label": "Teacher",
+        "description": "Manage your courses and pedagogical materials",
+        "signup_title": "Teacher Registration"
+      },
+      "dean": {
+        "label": "Pedagogical Team",
+        "description": "Validate materials and supervise the campus",
+        "signup_title": "Pedagogical Team Registration"
+      }
+    },
+    "messages": {
+      "error_password_mismatch": "Passwords do not match!",
+      "success_registration": "Registration successful! Redirecting...",
+      "error_generic": "Error during registration."
+    },
+    "departments": {
+      "cs": "Computer Science",
+      "math": "Mathematics",
+      "phys": "Physics",
+      "chem": "Chemistry",
+      "bio": "Biology",
+      "law": "Law",
+      "econ": "Economics",
+      "mgt": "Management",
+      "lit": "Modern Literature",
+      "hist": "History",
+      "geo": "Geography",
+      "med": "Medicine",
+      "pharm": "Pharmacy",
+      "arch": "Architecture"
+    },
+    "grades": {
+      "prof": "Professor",
+      "assoc_prof": "Associate Professor",
+      "assistant": "Assistant",
+      "phd": "PhD Student",
+      "ta": "Teaching Assistant",
+      "contract": "Contract Teacher",
+      "edu_eng": "Educational Engineer"
+    }
+  },
+  "dashboard": {
+    "search_placeholder": "Search...",
+    "command_input": "Type a command or search...",
+    "no_results": "No results found.",
+    "suggestions": "Suggestions",
+    "settings": "Settings",
+    "system": "System",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode",
+    "notifications": {
+      "title": "Notifications",
+      "no_unread": "No unread notifications",
+      "mark_as_read": "Mark all as read",
+      "view_all": "View all notifications"
+    }
+  },
+  "sidebar": {
+    "main_menu": "Main Menu",
+    "my_account": "My Account",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "student": {
+    "welcome": "Hi, Student! 🎓",
+    "subtitle": "Here is an overview of your current academic progress.",
+    "stats": {
+      "courses": "Courses Taken",
+      "courses_desc": "Current semester",
+      "gpa": "General Average",
+      "gpa_desc": "Top 15% of the class",
+      "attendance": "Attendance",
+      "attendance_desc": "Excellent attendance",
+      "exams": "Upcoming Exams",
+      "exams_desc": "Within 30 days"
+    },
+    "quick_access": {
+      "title": "Quick Access",
+      "view_materials": "Consult my materials",
+      "view_schedule": "Timetable"
+    },
+    "progress": {
+      "title": "Overall Progress",
+      "completed": "Completed Courses",
+      "ongoing": "Ongoing Courses"
+    },
+    "quick_view": {
+      "title": "Quick Overview",
+      "new_materials": "New materials",
+      "next_exam": "Next exam",
+      "unread_messages": "Unread messages",
+      "days_left": "In {{count}} days"
+    },
+    "upcoming_exams": {
+      "title": "Upcoming Exams"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Read All",
+      "delete_all": "Delete All",
+      "filter_all": "All",
+      "filter_unread": "Unread",
+      "loading": "Loading notifications...",
+      "new_material": "New Course Material",
+      "material_info": "Material Information",
+      "academic_update": "Academic Update",
+      "content_template": "The material \"{{title}}\" for your {{subject}} course has just been updated.",
+      "mark_as_read": "Read",
+      "delete": "Delete",
+      "empty_title": "No news",
+      "empty_desc": "You are up to date",
+      "messages": {
+        "error_load": "Unable to load notifications.",
+        "error_update": "Update failed.",
+        "error_delete": "Deletion failed.",
+        "success_mark_all": "All notifications marked as read.",
+        "success_delete": "Notification deleted.",
+        "success_delete_all": "Notifications cleared."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Student",
+        "student_number": "No. {{number}}"
+      },
+      "tabs": {
+        "my_profile": "My Profile",
+        "preferences": "Preferences",
+        "security": "Security"
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Manage your schooling information.",
+        "save": "Save",
+        "edit": "Edit",
+        "full_name": "Full Name",
+        "username": "Username",
+        "email": "Institutional Email",
+        "department": "Major / Department",
+        "student_number_label": "Student Number"
+      },
+      "preferences": {
+        "title": "Appearance & Display",
+        "description": "Customize your CampusHub interface.",
+        "theme_title": "Application Theme",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System"
+      },
+      "security": {
+        "change_password_title": "Change Password",
+        "current_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm",
+        "update_password": "Update Password",
+        "danger_zone": "Danger Zone",
+        "danger_desc": "Deleting your account is permanent.",
+        "delete_account": "Delete Account",
+        "logout": "Log Out"
+      },
+      "dialogs": {
+        "image_title": "New Profile Picture",
+        "image_desc": "Adjust the framing if necessary before confirming your new photo.",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "delete_title": "Delete My Account",
+        "delete_desc": "This action is irreversible. All your data will be permanently deleted.",
+        "confirm_pass": "Confirm your password"
+      },
+      "messages": {
+        "error_auth": "Authentication required.",
+        "error_token": "Invalid token.",
+        "error_load": "Unable to load profile.",
+        "success_update": "Profile updated!",
+        "error_update": "Update failed.",
+        "success_image": "Photo updated!",
+        "error_upload": "Upload error.",
+        "password_mismatch": "Passwords do not match.",
+        "success_password": "Password updated!",
+        "error_delete": "Error during account deletion."
+      }
+    },
+    "courses": {
+      "title": "Support Catalog",
+      "description": "Access your pedagogical resources validated by the faculty.",
+      "search_placeholder": "Search for a course, a subject...",
+      "filter_all_levels": "All levels",
+      "view_button": "View",
+      "empty_title": "No supports found",
+      "empty_desc": "Adjust your filters or search to find what you're looking for.",
+      "error_load": "Unable to load course materials.",
+      "view": {
+        "loading": "Loading course...",
+        "not_found_title": "Course not found",
+        "not_found_desc": "We could not load this material.",
+        "back_to_catalog": "Back to catalog",
+        "download": "Download",
+        "reader_title": "Document Reader",
+        "description_title": "Description",
+        "no_description": "No description provided for this material.",
+        "details_title": "Details",
+        "uploaded_at": "Uploaded on",
+        "subject": "Subject",
+        "level": "Level",
+        "disclaimer": "This material is provided by the faculty for your personal pedagogical use.",
+        "success_download": "Download started",
+        "error_load": "Unable to load course material."
+      }
+    },
+    "schedule": {
+      "courses_title": "Timetable - Courses",
+      "exams_title": "Timetable - Exams",
+      "download": "Download timetable",
+      "day": "Day",
+      "time": "Time",
+      "course": "Course",
+      "room": "Room",
+      "exam": "Exam",
+      "date": "Date",
+      "exams_choice": "Choose an exam type",
+      "cc_title": "Continuous Assessment (CC)",
+      "cc_desc": "Consult continuous assessment terms.",
+      "sn_title": "Normal Session (SN)",
+      "sn_desc": "Consult the final exam timetable.",
+      "not_available": "The timetable for this session is not yet available.",
+      "subject": "Subject",
+      "download_short": "Download"
+    }
+  },
+  "teacher": {
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Mark All as Read",
+      "delete_all": "Delete All",
+      "filter_all": "All",
+      "filter_unread": "Unread",
+      "loading": "Updating...",
+      "approved": "Support Approved",
+      "rejected": "Correction Requested",
+      "update": "Update",
+      "content_template": "The Pedagogical Team has updated your support \"{{title}}\" ({{subject}}).",
+      "mark_as_read": "Mark as Read",
+      "delete": "Delete",
+      "empty_title": "No messages",
+      "empty_desc": "Your inbox is empty",
+      "messages": {
+        "error_load": "Unable to load notifications.",
+        "error_update": "Update failed.",
+        "error_delete": "Deletion failed.",
+        "success_mark_all": "All notifications marked as read.",
+        "success_delete": "Notification deleted.",
+        "success_delete_all": "Notifications cleared."
+      }
+    },
+    "profile": {
+      "header": {
+        "badge": "Professor"
+      },
+      "tabs": {
+        "my_profile": "My Profile",
+        "preferences": "Preferences",
+        "security": "Security"
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Manage the details of your public identity.",
+        "save": "Save",
+        "edit": "Edit",
+        "full_name": "Full Name",
+        "username": "Username",
+        "department": "Department",
+        "office_number": "Office Number",
+        "grade": "Grade / Academic Title"
+      },
+      "preferences": {
+        "title": "Appearance & Display",
+        "description": "Customize your CampusHub interface.",
+        "theme_title": "Application Theme",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System",
+        "email_notifs": "Email Notifications",
+        "email_notifs_desc": "Receive daily summaries of academic activity."
+      },
+      "security": {
+        "change_password_title": "Change Password",
+        "current_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm",
+        "update_password": "Update Password",
+        "danger_zone": "Danger Zone",
+        "danger_desc": "Deleting your account is permanent. All your data will be erased.",
+        "delete_account": "Delete Account",
+        "logout": "Log Out"
+      },
+      "dialogs": {
+        "image_title": "New Profile Picture",
+        "image_desc": "Adjust the framing if necessary before confirming.",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "delete_title": "Are you absolutely sure?",
+        "delete_desc": "This action is irreversible. To confirm, enter your password below.",
+        "confirm_pass": "Password",
+        "confirm_delete": "Confirm Deletion",
+        "deleting": "Deleting..."
+      },
+      "messages": {
+        "error_auth": "Authentication required.",
+        "error_token": "Invalid token.",
+        "error_load": "Unable to load profile.",
+        "success_update": "Profile updated!",
+        "error_update": "Update failed.",
+        "success_image": "Photo updated!",
+        "error_upload": "Upload error.",
+        "password_mismatch": "Passwords do not match.",
+        "success_password": "Password updated!",
+        "error_generic": "Error."
+      }
+    },
+    "dashboard": {
+      "welcome": "Hello, Professor 👋",
+      "subtitle": "Here is what's happening in your courses today.",
+      "stats": {
+        "materials": "Course Materials",
+        "upcoming_courses": "Upcoming Courses",
+        "validated": "Validated",
+        "pending": "Pending",
+        "weekly_trend": "+{{count}} this week",
+        "today": "Today",
+        "success_rate": "{{percent}}% success rate",
+        "attention_required": "Requires your attention"
+      },
+      "quick_actions": {
+        "title": "Quick Actions",
+        "desc": "Access frequent tools",
+        "deposit": "Upload new material",
+        "availability": "Manage my availability"
+      },
+      "widgets": {
+        "materials": {
+          "title": "My Course Materials",
+          "desc": "List of your recently added documents",
+          "view_all": "View all",
+          "table": {
+            "course": "Course",
+            "material": "Material",
+            "date": "Date",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "View",
+            "download": "Download",
+            "delete": "Delete"
+          },
+          "statuses": {
+            "validated": "Validated",
+            "pending": "Pending",
+            "rejected": "Rejected"
+          }
+        },
+        "schedule": {
+          "title": "Agenda & Exams",
+          "desc": "Your next interventions",
+          "view_full": "View full calendar",
+          "types": {
+            "course": "Course",
+            "exam": "Exam"
+          },
+          "relative_days": {
+            "today": "Today",
+            "tomorrow": "Tomorrow"
+          }
+        },
+        "validation": {
+          "title": "Validation Status",
+          "pending": "Pending supports",
+          "validated": "Validated supports",
+          "rejected": "Rejected supports"
+        }
+      },
+      "deposit_drawer": {
+        "title": "New Material",
+        "desc": "Fill in the information to publish a new course material.",
+        "success_title": "Upload successful!",
+        "success_desc": "Your document is now pending validation.",
+        "form": {
+          "title_label": "Material Title",
+          "title_placeholder": "Ex: Linear Algebra - Chapter 1",
+          "description_label": "Description",
+          "description_placeholder": "Briefly describe the content...",
+          "level_label": "Level",
+          "level_placeholder": "Level",
+          "subject_label": "Subject",
+          "subject_placeholder": "Ex: Mathematics I",
+          "file_label": "Material File",
+          "file_click": "Click or drag a file",
+          "file_hint": "PDF, DOCX, ZIP (Max 10MB)"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "submit": "Publish material",
+          "submitting": "Sending...",
+          "error_auth": "Authentication required",
+          "error_upload": "Error during material upload",
+          "success": "Material uploaded successfully!"
+        }
+      }
+    },
+    "support": {
+      "title": "My Course Materials",
+      "description": "Manage your pedagogical catalog and track validation status.",
+      "search_placeholder": "Search for a material...",
+      "new_button": "New material",
+      "view_details": "View details",
+      "empty_title": "No material uploaded",
+      "empty_desc": "Start by uploading your first material for your students.",
+      "empty_button": "Upload my first material",
+      "actions": {
+        "submit": "Submit for validation",
+        "details": "Details",
+        "delete": "Delete"
+      },
+      "statuses": {
+        "validated": "Approved",
+        "rejected": "To correct",
+        "pending": "Pending",
+        "draft": "Draft"
+      },
+      "dialogs": {
+        "delete_title": "Delete this material?",
+        "delete_desc": "This action is irreversible. The file will be permanently deleted.",
+        "cancel": "Cancel",
+        "confirm_delete": "Delete"
+      },
+      "messages": {
+        "error_load": "Error loading materials",
+        "success_submit": "Material submitted for validation",
+        "success_delete": "Material deleted",
+        "error_action": "Operation failed"
+      },
+      "view": {
+        "loading": "Loading document...",
+        "not_found_title": "Material not found",
+        "not_found_desc": "We could not load this material.",
+        "back": "Back",
+        "download": "Download",
+        "share": "Share",
+        "history": "History",
+        "preview_title": "Document preview",
+        "description_title": "Description",
+        "no_description": "No description provided for this material.",
+        "feedback_title": "Pedagogical feedback",
+        "feedback_date": "Decided on {{date}}",
+        "info_title": "Information",
+        "upload_date": "Upload date",
+        "status_label": "Status",
+        "visibility_title": "Visibility",
+        "visibility_desc": "Visible to students once validated by your department's Pedagogical team.",
+        "success_download": "Download started",
+        "error_load": "Unable to load course material."
+      },
+      "deposit": {
+        "title": "Upload a Support",
+        "description": "Create a new pedagogical resource for your students.",
+        "details_title": "Document details",
+        "form": {
+          "title_label": "Support Title",
+          "title_placeholder": "Ex: Linear Algebra - Chapter 1",
+          "subject_label": "Subject",
+          "subject_placeholder": "Ex: Mathematics",
+          "level_label": "Study level",
+          "level_placeholder": "Choose a level",
+          "description_label": "Description",
+          "description_placeholder": "Briefly summarize the content of this material..."
+        },
+        "file": {
+          "title": "Source File",
+          "select_pdf": "Select a PDF",
+          "max_size": "Maximum 20MB",
+          "change_file": "Change file",
+          "browse_files": "Browse files"
+        },
+        "important": {
+          "title": "Important",
+          "desc": "Once published, your material will be submitted for validation by your department's Pedagogical team before being visible to students.",
+          "rule1": "PDF format only",
+          "rule2": "Verified pedagogical content",
+          "rule3": "Visible to students after validation"
+        },
+        "buttons": {
+          "submit": "Publish support",
+          "submitting": "Processing..."
+        },
+        "messages": {
+          "pdf_only": "Only PDF files are accepted.",
+          "fill_all": "Please fill in all fields and select a file.",
+          "invalid_session": "Invalid session.",
+          "success": "Support uploaded successfully!",
+          "error": "Error during support upload. Please try again."
+        }
+      }
+    }
+  },
+  "dean": {
+    "profile": {
+      "header": {
+        "badge": "Pedagogical Team"
+      },
+      "tabs": {
+        "my_profile": "My Profile",
+        "preferences": "Preferences",
+        "security": "Security"
+      },
+      "personal": {
+        "title": "Professional Information",
+        "description": "Manage the Pedagogical Team profile details.",
+        "full_name": "Full Name",
+        "username": "Username",
+        "department": "Department / Faculty",
+        "office_number": "Office Number",
+        "grade": "Academic Grade",
+        "save": "Save",
+        "edit": "Edit"
+      },
+      "preferences": {
+        "title": "Appearance & Display",
+        "description": "Customize your CampusHub interface.",
+        "theme_title": "Application Theme",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System"
+      },
+      "security": {
+        "title": "Account Security",
+        "current_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm",
+        "update_password": "Update Password",
+        "danger_zone": "Danger Zone",
+        "danger_desc": "Deleting your account is permanent.",
+        "delete_account": "Delete Account",
+        "logout": "Log Out"
+      },
+      "dialogs": {
+        "image_title": "New Profile Picture",
+        "image_desc": "Adjust the framing if necessary before confirming your new photo.",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "delete_title": "Account Deletion",
+        "delete_desc": "This action is irreversible. All your data will be permanently deleted.",
+        "confirm_pass": "Confirmation Password"
+      },
+      "messages": {
+        "error_auth": "Authentication required.",
+        "error_token": "Invalid token.",
+        "error_load": "Unable to load profile.",
+        "success_update": "Profile updated!",
+        "error_update": "Update failed.",
+        "success_image": "Photo updated!",
+        "error_upload": "Upload error.",
+        "password_mismatch": "Passwords do not match.",
+        "success_password": "Password updated!",
+        "error_delete": "Error during account deletion.",
+        "error_generic": "Error."
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "mark_all_read": "Mark all as read",
+      "delete_all": "Delete all",
+      "filter_all": "All",
+      "filter_unread": "Unread",
+      "loading": "Updating...",
+      "new_dossier": "New dossier to validate",
+      "archived": "Dossier archived",
+      "system_alert": "System Alert",
+      "content_template": "The teacher has submitted \"{{title}}\" for the {{subject}} course.",
+      "mark_as_read": "Mark as read",
+      "delete": "Delete",
+      "empty_title": "No notifications",
+      "empty_desc": "Up to date",
+      "messages": {
+        "error_load": "Unable to load notifications.",
+        "error_update": "Update failed.",
+        "error_delete": "Deletion failed.",
+        "error_bulk_delete": "Bulk deletion failed.",
+        "error_generic": "Operation failed.",
+        "success_mark_all": "All notifications marked as read.",
+        "success_delete": "Notification deleted.",
+        "success_delete_all": "Notifications cleared."
+      }
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "validations": "Support Validation",
+      "schedule": "Global Planning",
+      "edition": "Edition"
+    },
+    "dashboard": {
+      "title": "Pedagogical Team Workspace 🏛️",
+      "subtitle": "Academic supervision and material validation.",
+      "actions": {
+        "monthly_report": "Monthly Report",
+        "validate_all": "Validate All"
+      },
+      "stats": {
+        "pending_materials": "Pending Materials",
+        "since_yesterday": "since yesterday",
+        "validation_rate": "Validation Rate",
+        "this_month": "this month",
+        "active_teachers": "Active Teachers",
+        "this_week": "this week",
+        "planned_exams": "Planned Exams",
+        "next_15_days": "next 15 days"
+      },
+      "widgets": {
+        "reports": {
+          "title": "Reports & Analytics",
+          "list": {
+            "annual_validation": "Annual Validation Report",
+            "student_attendance": "Student Attendance Statistics",
+            "planning_conflicts": "Planning Conflicts Report"
+          },
+          "actions": {
+            "generate": "Generate",
+            "view": "View",
+            "download": "Download"
+          }
+        },
+        "planning": {
+          "title": "Global Planning Overview",
+          "stats": {
+            "planned_exams": "Planned Exams",
+            "active_courses": "Active Courses",
+            "potential_conflicts": "Potential Conflicts"
+          },
+          "upcoming": {
+            "title": "Upcoming Deadlines",
+            "list": {
+              "timetable_validation": "Sem. 2 Timetable Validation",
+              "exam_registration_closure": "Exam Registration Closure"
+            }
+          }
+        },
+        "stats": {
+          "title": "Key Statistics",
+          "validated_courses": "Validated Courses",
+          "room_occupancy": "Room Occupancy Rate",
+          "active_teachers": "Active Teachers",
+          "materials_status": "Materials Status",
+          "chart": {
+            "validated": "Validated",
+            "pending": "Pending",
+            "rejected": "Rejected"
+          }
+        },
+        "validation": {
+          "title": "Supports to Validate",
+          "table": {
+            "course": "Course",
+            "teacher": "Teacher",
+            "date": "Submission Date",
+            "status": "Status"
+          },
+          "status": {
+            "pending": "Pending"
+          }
+        }
+      },
+      "validation_page": {
+        "title": "Academic Validation",
+        "department_label": "Department:",
+        "search_placeholder": "Search for a dossier...",
+        "filters": {
+          "all": "All dossiers",
+          "submitted": "Submitted",
+          "validated": "Validated",
+          "rejected": "Rejected"
+        },
+        "status": {
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "pending": "Pending"
+        },
+        "actions": {
+          "examine": "Examine"
+        },
+        "empty_title": "No dossiers pending",
+        "empty_desc": "All course materials for your department have been processed.",
+        "messages": {
+          "error_load": "Unable to load validation dossiers.",
+          "session_expired": "Session expired"
+        }
+      },
+      "view_material": {
+        "title": "Material Details",
+        "badge": {
+          "validated": "Validated",
+          "draft": "Draft",
+          "pending": "To Validate",
+          "rejected": "Rejected"
+        },
+        "actions": {
+          "download": "Download",
+          "share": "Share",
+          "history": "History",
+          "examine": "Examine"
+        },
+        "preview_title": "Document preview",
+        "description_title": "Description",
+        "no_description": "No description provided for this material.",
+        "validation_panel": {
+          "title": "Validation Panel",
+          "feedback_label": "Remarks / Feedback",
+          "feedback_placeholder": "Add your comments for the teacher...",
+          "reject_button": "Reject",
+          "validate_button": "Validate"
+        },
+        "academic_feedback": {
+          "title": "Pedagogical feedback",
+          "decided_on": "Decided on {{date}}"
+        },
+        "info": {
+          "title": "Information",
+          "upload_date": "Upload date",
+          "status": "Status",
+          "visibility": "Visibility",
+          "visibility_desc": "Visible to students of {{level}} after validation."
+        },
+        "messages": {
+          "error_load": "Unable to load course material.",
+          "success_validate": "Support validated successfully",
+          "success_reject": "Support rejected",
+          "error_update": "Error during status update.",
+          "success_download": "Download started",
+          "not_found": "Support not found."
+        }
+      }
+    }
+  },
+  "schedule": {
+    "courses_title": "Timetable - Courses",
+    "exams_title": "Timetable - Exams",
+    "download": "Download timetable",
+    "day": "Day",
+    "time": "Time",
+    "course": "Course",
+    "room": "Room",
+    "exam": "Exam",
+    "date": "Date",
+    "exams_choice": "Choose an exam type",
+    "cc_title": "Continuous Assessment (CC)",
+    "cc_desc": "Consult continuous assessment terms.",
+    "sn_title": "Normal Session (SN)",
+    "sn_desc": "Consult the final exam timetable.",
+    "not_available": "The timetable for this session is not yet available.",
+    "subject": "Subject",
+    "download_short": "Download"
+  }
+}

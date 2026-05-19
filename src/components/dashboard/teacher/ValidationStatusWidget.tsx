@@ -1,30 +1,33 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hourglass, CheckCircle, XCircle } from 'lucide-react';
-
-const validationStats = [
-  {
-    icon: <Hourglass className="h-6 w-6 text-yellow-500" />,
-    label: 'Supports en attente',
-    value: '5',
-  },
-  {
-    icon: <CheckCircle className="h-6 w-6 text-green-500" />,
-    label: 'Supports validés',
-    value: '23',
-  },
-  {
-    icon: <XCircle className="h-6 w-6 text-red-500" />,
-    label: 'Supports rejetés',
-    value: '2',
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const ValidationStatusWidget: React.FC = () => {
+  const { t } = useTranslation();
+
+  const validationStats = [
+    {
+      icon: <Hourglass className="h-6 w-6 text-yellow-500" />,
+      label: t('teacher.dashboard.widgets.validation.pending'),
+      value: '5',
+    },
+    {
+      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
+      label: t('teacher.dashboard.widgets.validation.validated'),
+      value: '23',
+    },
+    {
+      icon: <XCircle className="h-6 w-6 text-red-500" />,
+      label: t('teacher.dashboard.widgets.validation.rejected'),
+      value: '2',
+    },
+  ];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Statut des Validations</CardTitle>
+        <CardTitle>{t('teacher.dashboard.widgets.validation.title')}</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {validationStats.map((item, index) => (
@@ -42,3 +45,4 @@ const ValidationStatusWidget: React.FC = () => {
 };
 
 export default ValidationStatusWidget;
+

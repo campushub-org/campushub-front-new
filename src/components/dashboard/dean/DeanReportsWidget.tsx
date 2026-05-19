@@ -2,18 +2,21 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Download, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const reports = [
-  { name: 'Rapport annuel des validations', icon: <FileText className="h-5 w-5" />, action: 'Générer' },
-  { name: 'Statistiques d\'assiduité étudiants', icon: <BarChart2 className="h-5 w-5" />, action: 'Voir' },
-  { name: 'Rapport des conflits de planification', icon: <FileText className="h-5 w-5" />, action: 'Télécharger' },
-];
+import { useTranslation } from 'react-i18next';
 
 const DeanReportsWidget: React.FC = () => {
+  const { t } = useTranslation();
+
+  const reports = [
+    { name: t("dean.dashboard.widgets.reports.list.annual_validation"), icon: <FileText className="h-5 w-5" />, action: t("dean.dashboard.widgets.reports.actions.generate") },
+    { name: t("dean.dashboard.widgets.reports.list.student_attendance"), icon: <BarChart2 className="h-5 w-5" />, action: t("dean.dashboard.widgets.reports.actions.view") },
+    { name: t("dean.dashboard.widgets.reports.list.planning_conflicts"), icon: <FileText className="h-5 w-5" />, action: t("dean.dashboard.widgets.reports.actions.download") },
+  ];
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle>Rapports & Analyses</CardTitle>
+        <CardTitle>{t("dean.dashboard.widgets.reports.title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 space-y-4">
         {reports.map((report, index) => (

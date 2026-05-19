@@ -23,6 +23,7 @@ import api from '@/lib/api';
 import axios from 'axios';
 import { decodeToken } from '@/lib/auth';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface DepositMaterialDrawerProps {
   open: boolean;
@@ -31,6 +32,7 @@ interface DepositMaterialDrawerProps {
 }
 
 const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onOpenChange, onSuccess }) => {
+  const { t } = useTranslation();
   const [titre, setTitre] = useState('');
   const [description, setDescription] = useState('');
   const [niveau, setNiveau] = useState('');
@@ -60,7 +62,7 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
 
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error("Authentification requise");
+      toast.error(t('teacher.dashboard.deposit_drawer.buttons.error_auth'));
       setLoading(false);
       return;
     }
@@ -91,7 +93,7 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
       });
 
       setIsSuccess(true);
-      toast.success("Support déposé avec succès !");
+      toast.success(t('teacher.dashboard.deposit_drawer.buttons.success'));
       
       if (onSuccess) onSuccess();
       
@@ -102,7 +104,7 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
 
     } catch (err) {
       console.error(err);
-      toast.error("Erreur lors du dépôt du support");
+      toast.error(t('teacher.dashboard.deposit_drawer.buttons.error_upload'));
     } finally {
       setLoading(false);
     }
@@ -112,9 +114,9 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-md md:max-w-lg overflow-y-auto">
         <SheetHeader className="space-y-1">
-          <SheetTitle className="text-2xl font-bold">Nouveau Support</SheetTitle>
+          <SheetTitle className="text-2xl font-bold">{t('teacher.dashboard.deposit_drawer.title')}</SheetTitle>
           <SheetDescription>
-            Remplissez les informations pour publier un nouveau support de cours.
+            {t('teacher.dashboard.deposit_drawer.desc')}
           </SheetDescription>
         </SheetHeader>
 
@@ -123,16 +125,16 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
             <div className="h-20 w-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
               <CheckCircle2 size={40} />
             </div>
-            <h3 className="text-xl font-semibold">Publication réussie !</h3>
-            <p className="text-muted-foreground text-center">Votre document est maintenant en attente de validation.</p>
+            <h3 className="text-xl font-semibold">{t('teacher.dashboard.deposit_drawer.success_title')}</h3>
+            <p className="text-muted-foreground text-center">{t('teacher.dashboard.deposit_drawer.success_desc')}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 py-6">
             <div className="space-y-2">
-              <Label htmlFor="titre" className="text-sm font-semibold">Titre du Support</Label>
+              <Label htmlFor="titre" className="text-sm font-semibold">{t('teacher.dashboard.deposit_drawer.form.title_label')}</Label>
               <Input 
                 id="titre" 
-                placeholder="Ex: Algèbre Linéaire - Chapitre 1" 
+                placeholder={t('teacher.dashboard.deposit_drawer.form.title_placeholder')} 
                 value={titre}
                 onChange={(e) => setTitre(e.target.value)}
                 required
@@ -141,10 +143,10 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-semibold">Description</Label>
+              <Label htmlFor="description" className="text-sm font-semibold">{t('teacher.dashboard.deposit_drawer.form.description_label')}</Label>
               <Textarea 
                 id="description" 
-                placeholder="Décrivez brièvement le contenu..." 
+                placeholder={t('teacher.dashboard.deposit_drawer.form.description_placeholder')} 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
@@ -154,10 +156,10 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="niveau" className="text-sm font-semibold">Niveau</Label>
+                <Label htmlFor="niveau" className="text-sm font-semibold">{t('teacher.dashboard.deposit_drawer.form.level_label')}</Label>
                 <Select onValueChange={setNiveau} value={niveau} required>
                   <SelectTrigger className="focus:ring-2 focus:ring-primary/20">
-                    <SelectValue placeholder="Niveau" />
+                    <SelectValue placeholder={t('teacher.dashboard.deposit_drawer.form.level_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {['L1', 'L2', 'L3', 'M1', 'M2'].map(lv => (
@@ -167,10 +169,10 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="matiere" className="text-sm font-semibold">Matière</Label>
+                <Label htmlFor="matiere" className="text-sm font-semibold">{t('teacher.dashboard.deposit_drawer.form.subject_label')}</Label>
                 <Input 
                   id="matiere" 
-                  placeholder="Ex: Mathématiques I" 
+                  placeholder={t('teacher.dashboard.deposit_drawer.form.subject_placeholder')} 
                   value={matiere}
                   onChange={(e) => setMatiere(e.target.value)}
                   required
@@ -180,7 +182,7 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">Fichier du Support</Label>
+              <Label className="text-sm font-semibold">{t('teacher.dashboard.deposit_drawer.form.file_label')}</Label>
               <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 hover:bg-muted/50 transition-colors group cursor-pointer relative">
                 <input 
                   type="file" 
@@ -193,9 +195,9 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
                     <Upload size={20} />
                   </div>
                   <p className="text-sm font-medium">
-                    {selectedFile ? selectedFile.name : "Cliquez ou glissez un fichier"}
+                    {selectedFile ? selectedFile.name : t('teacher.dashboard.deposit_drawer.form.file_click')}
                   </p>
-                  <p className="text-xs text-muted-foreground">PDF, DOCX, ZIP (Max 10MB)</p>
+                  <p className="text-xs text-muted-foreground">{t('teacher.dashboard.deposit_drawer.form.file_hint')}</p>
                 </div>
               </div>
             </div>
@@ -207,7 +209,7 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
                 onClick={() => onOpenChange(false)}
                 className="flex-1"
               >
-                Annuler
+                {t('teacher.dashboard.deposit_drawer.buttons.cancel')}
               </Button>
               <Button 
                 type="submit" 
@@ -217,10 +219,10 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Envoi...
+                    {t('teacher.dashboard.deposit_drawer.buttons.submitting')}
                   </>
                 ) : (
-                  "Publier le support"
+                  t('teacher.dashboard.deposit_drawer.buttons.submit')
                 )}
               </Button>
             </SheetFooter>
@@ -232,3 +234,4 @@ const DepositMaterialDrawer: React.FC<DepositMaterialDrawerProps> = ({ open, onO
 };
 
 export default DepositMaterialDrawer;
+

@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { GraduationCap, BookOpen, Shield, User, ArrowRight, ArrowLeft, CheckCircle2, Mail, Lock, UserCircle, School, Eye, EyeOff } from "lucide-react";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   Select,
   SelectContent,
@@ -14,47 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const roles = [
-  {
-    id: "STUDENT",
-    label: "Étudiant",
-    icon: GraduationCap,
-    description: "Accédez aux supports et vos emplois du temps",
-    color: "bg-blue-500",
-    lightColor: "bg-blue-50 dark:bg-blue-900/20",
-    borderColor: "border-blue-200 dark:border-blue-800",
-  },
-  {
-    id: "TEACHER",
-    label: "Enseignant",
-    icon: BookOpen,
-    description: "Gérez vos cours et supports pédagogiques",
-    color: "bg-purple-500",
-    lightColor: "bg-purple-50 dark:bg-purple-900/20",
-    borderColor: "border-purple-200 dark:border-purple-800",
-  },
-  {
-    id: "DEAN",
-    label: "Équipe Pédagogique",
-    icon: Shield,
-    description: "Validez les supports et superviser le campus",
-    color: "bg-indigo-500",
-    lightColor: "bg-indigo-50 dark:bg-indigo-900/20",
-    borderColor: "border-indigo-200 dark:border-indigo-800",
-  },
-];
-
-const DEPARTMENT_OPTIONS = [
-  "Informatique", "Mathématiques", "Physique", "Chimie", "Biologie", "Droit", 
-  "Économie", "Gestion", "Lettres Modernes", "Histoire", "Géographie", 
-  "Médecine", "Pharmacie", "Architecture",
-];
-
-const GRADE_OPTIONS = [
-  "Professeur", "Maître de Conférences", "Assistant", "Doctorant", 
-  "Chargé de TD", "Vacataire", "Ingénieur Pédagogique",
-];
 
 interface FullSignupData {
   username: string;
@@ -74,6 +35,7 @@ const initialFormData: FullSignupData = {
 };
 
 const Signup = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FullSignupData>(initialFormData);
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
@@ -84,6 +46,46 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const roles = useMemo(() => [
+    {
+      id: "STUDENT",
+      label: t("signup.roles.student.label"),
+      icon: GraduationCap,
+      description: t("signup.roles.student.description"),
+      color: "bg-blue-500",
+      lightColor: "bg-blue-50 dark:bg-blue-900/20",
+      borderColor: "border-blue-200 dark:border-blue-800",
+    },
+    {
+      id: "TEACHER",
+      label: t("signup.roles.teacher.label"),
+      icon: BookOpen,
+      description: t("signup.roles.teacher.description"),
+      color: "bg-purple-500",
+      lightColor: "bg-purple-50 dark:bg-purple-900/20",
+      borderColor: "border-purple-200 dark:border-purple-800",
+    },
+    {
+      id: "DEAN",
+      label: t("signup.roles.dean.label"),
+      icon: Shield,
+      description: t("signup.roles.dean.description"),
+      color: "bg-indigo-500",
+      lightColor: "bg-indigo-50 dark:bg-indigo-900/20",
+      borderColor: "border-indigo-200 dark:border-indigo-800",
+    },
+  ], [t]);
+
+  const departmentOptions = useMemo(() => Object.entries(t("signup.departments", { returnObjects: true })).map(([key, value]) => ({
+    id: key,
+    label: value as string
+  })), [t]);
+
+  const gradeOptions = useMemo(() => Object.entries(t("signup.grades", { returnObjects: true })).map(([key, value]) => ({
+    id: key,
+    label: value as string
+  })), [t]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -115,7 +117,7 @@ const Signup = () => {
     setIsLoading(true);
 
     if (formData.password !== passwordConfirm) {
-      setError("Les mots de passe ne correspondent pas !");
+      setError(t("signup.messages.error_password_mismatch"));
       setIsLoading(false);
       return;
     }
@@ -136,11 +138,11 @@ const Signup = () => {
     try {
       const response = await api.post('/campushub-user-service/api/auth/register', submissionData);
       if (response.status === 201) {
-        setSuccess("Inscription réussie ! Redirection...");
+        setSuccess(t("signup.messages.success_registration"));
         setTimeout(() => navigate('/signin'), 2000);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Erreur lors de l'inscription.");
+      setError(err.response?.data?.message || t("signup.messages.error_generic"));
     } finally {
       setIsLoading(false);
     }
@@ -150,25 +152,25 @@ const Signup = () => {
     if (formData.role === 'STUDENT') {
       return (
         <div className="space-y-2">
-          <Label htmlFor="studentNumber">Numéro d'étudiant</Label>
-          <Input id="studentNumber" placeholder="Ex: 2024-001" value={formData.studentNumber} onChange={handleChange} required className="h-12 bg-slate-50 dark:bg-slate-800 border-none" />
+          <Label htmlFor="studentNumber">{t("signup.form.student_number")}</Label>
+          <Input id="studentNumber" placeholder={t("signup.form.student_number_placeholder")} value={formData.studentNumber} onChange={handleChange} required className="h-12 bg-slate-50 dark:bg-slate-800 border-none" />
         </div>
       );
     }
     return (
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="officeNumber">Numéro de bureau</Label>
-          <Input id="officeNumber" placeholder="Ex: B205" value={formData.officeNumber} onChange={handleChange} required className="h-12 bg-slate-50 dark:bg-slate-800 border-none" />
+          <Label htmlFor="officeNumber">{t("signup.form.office_number")}</Label>
+          <Input id="officeNumber" placeholder={t("signup.form.office_number_placeholder")} value={formData.officeNumber} onChange={handleChange} required className="h-12 bg-slate-50 dark:bg-slate-800 border-none" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="grade">Grade / Titre</Label>
+          <Label htmlFor="grade">{t("signup.form.grade")}</Label>
           <Select onValueChange={(value) => handleSelectChange('grade', value)} value={formData.grade} required>
             <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-800 border-none">
-              <SelectValue placeholder="Votre grade" />
+              <SelectValue placeholder={t("signup.form.grade_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              {GRADE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+              {gradeOptions.map((o) => <SelectItem key={o.id} value={o.label}>{o.label}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -178,6 +180,10 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-6 right-6 z-20">
+        <LanguageSwitcher />
+      </div>
+
       <div className="absolute top-0 left-0 w-full h-full -z-10">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_2px_2px,rgba(0,0,0,0.03)_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_2px_2px,rgba(255,255,255,0.03)_1px,transparent_0)] bg-[size:40px_40px]" />
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]" />
@@ -192,8 +198,8 @@ const Signup = () => {
             </div>
             <span className="text-2xl font-bold tracking-tighter">CampusHub</span>
           </a>
-          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4">Créer votre compte</h1>
-          <p className="text-xl text-muted-foreground">Rejoignez l'élite académique et gérez votre avenir.</p>
+          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4">{t("signup.title")}</h1>
+          <p className="text-xl text-muted-foreground">{t("signup.description")}</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -207,7 +213,7 @@ const Signup = () => {
                   <h3 className="text-2xl font-bold mb-3">{role.label}</h3>
                   <p className="text-muted-foreground leading-relaxed mb-6">{role.description}</p>
                   <div className="flex items-center gap-2 font-bold text-foreground">
-                    <span>Choisir ce rôle</span>
+                    <span>{t("signup.choose_role")}</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                   </div>
                 </Card>
@@ -225,57 +231,61 @@ const Signup = () => {
                       })()}
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold">Inscription {roles.find(r => r.id === formData.role)?.label}</h2>
-                      <p className="text-sm text-muted-foreground">Étape 2 sur 2</p>
+                      <h2 className="text-xl font-bold">
+                        {formData.role === 'STUDENT' ? t("signup.roles.student.signup_title") : 
+                         formData.role === 'TEACHER' ? t("signup.roles.teacher.signup_title") : 
+                         t("signup.roles.dean.signup_title")}
+                      </h2>
+                      <p className="text-sm text-muted-foreground">{t("signup.step_of", { current: 2, total: 2 })}</p>
                     </div>
                   </div>
                   <Button variant="ghost" className="rounded-full group" onClick={() => handleRoleSelection("")}>
                     <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                    Changer de rôle
+                    {t("signup.change_role")}
                   </Button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">Prénom</Label>
+                      <Label htmlFor="firstName">{t("signup.form.first_name")}</Label>
                       <div className="relative group">
                         <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        <Input id="firstName" placeholder="Jean" value={firstName} onChange={(e) => { setFirstName(e.target.value); updateFullName(e.target.value, lastName); }} required className="h-12 pl-12 bg-slate-50 dark:bg-slate-800 border-none" />
+                        <Input id="firstName" placeholder={t("signup.form.first_name_placeholder")} value={firstName} onChange={(e) => { setFirstName(e.target.value); updateFullName(e.target.value, lastName); }} required className="h-12 pl-12 bg-slate-50 dark:bg-slate-800 border-none" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Nom</Label>
-                      <Input id="lastName" placeholder="Dupont" value={lastName} onChange={(e) => { setLastName(e.target.value); updateFullName(firstName, e.target.value); }} required className="h-12 bg-slate-50 dark:bg-slate-800 border-none" />
+                      <Label htmlFor="lastName">{t("signup.form.last_name")}</Label>
+                      <Input id="lastName" placeholder={t("signup.form.last_name_placeholder")} value={lastName} onChange={(e) => { setLastName(e.target.value); updateFullName(firstName, e.target.value); }} required className="h-12 bg-slate-50 dark:bg-slate-800 border-none" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="username">Nom d'utilisateur (Pseudo)</Label>
+                    <Label htmlFor="username">{t("signup.form.username")}</Label>
                     <div className="relative group">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                      <Input id="username" placeholder="j.dupont" value={formData.username} onChange={handleChange} required className="h-12 pl-12 bg-slate-50 dark:bg-slate-800 border-none font-medium text-primary" />
+                      <Input id="username" placeholder={t("signup.form.username_placeholder")} value={formData.username} onChange={handleChange} required className="h-12 pl-12 bg-slate-50 dark:bg-slate-800 border-none font-medium text-primary" />
                     </div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest ml-1">Généré automatiquement à partir de votre nom</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest ml-1">{t("signup.form.username_hint")}</p>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="department">Département</Label>
+                      <Label htmlFor="department">{t("signup.form.department")}</Label>
                       <Select onValueChange={(v) => handleSelectChange('department', v)} value={formData.department} required>
                         <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-800 border-none">
-                          <SelectValue placeholder="Choisir..." />
+                          <SelectValue placeholder={t("signup.form.department_placeholder")} />
                         </SelectTrigger>
                         <SelectContent>
-                          {DEPARTMENT_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                          {departmentOptions.map((o) => <SelectItem key={o.id} value={o.label}>{o.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email Académique</Label>
+                      <Label htmlFor="email">{t("signup.form.email")}</Label>
                       <div className="relative group">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        <Input id="email" type="email" placeholder="jean.dupont@univ.edu" value={formData.email} onChange={handleChange} required className="h-12 pl-12 bg-slate-50 dark:bg-slate-800 border-none" />
+                        <Input id="email" type="email" placeholder={t("signup.form.email_placeholder")} value={formData.email} onChange={handleChange} required className="h-12 pl-12 bg-slate-50 dark:bg-slate-800 border-none" />
                       </div>
                     </div>
                   </div>
@@ -283,14 +293,14 @@ const Signup = () => {
                   <div className="space-y-6 pt-6 border-t border-border/50">
                     <h3 className="font-bold text-lg flex items-center gap-2">
                       <School className="w-5 h-5 text-primary" />
-                      Détails académiques
+                      {t("signup.form.academic_details")}
                     </h3>
                     {renderSpecificFields()}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-border/50">
                     <div className="space-y-2">
-                      <Label htmlFor="password">Mot de passe</Label>
+                      <Label htmlFor="password">{t("signup.form.password")}</Label>
                       <div className="relative group">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
@@ -312,7 +322,7 @@ const Signup = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirmation</Label>
+                      <Label htmlFor="confirmPassword">{t("signup.form.confirm_password")}</Label>
                       <div className="relative group">
                         <Input
                           id="confirmPassword"
@@ -338,12 +348,12 @@ const Signup = () => {
                   {success && <div className="p-4 rounded-xl bg-green-500/10 text-green-600 text-sm font-medium border border-green-500/20">{success}</div>}
 
                   <Button type="submit" className="w-full h-14 text-lg font-bold shadow-glow group" disabled={isLoading}>
-                    {isLoading ? "Création..." : "Créer mon compte"}
+                    {isLoading ? t("signup.form.submitting") : t("signup.form.submit")}
                     <CheckCircle2 className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                   </Button>
 
                   <p className="text-center text-muted-foreground">
-                    Déjà inscrit ? <a href="/signin" className="text-primary font-bold hover:underline">Se connecter</a>
+                    {t("signup.form.already_registered")} <a href="/signin" className="text-primary font-bold hover:underline">{t("signup.form.signin_link")}</a>
                   </p>
                 </form>
               </Card>

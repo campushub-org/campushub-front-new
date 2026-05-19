@@ -86,7 +86,10 @@ const App = () => (
                 <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
                 <Route path="deposit-material" element={<DepositMaterialPage />} />
                 <Route path="schedule-unified" element={<UnifiedSchedulingPage />} />
+<<<<<<< HEAD
                 <Route path="my-reservations" element={<MyReservationsPage />} />
+=======
+>>>>>>> 1a26bd7a9e6b1db4839011cdc36523b46c44cd23
                 <Route path="notifications" element={<TeacherNotificationsPage />} />
                 <Route path="profile" element={<TeacherProfilePage />} />
               </Route>
