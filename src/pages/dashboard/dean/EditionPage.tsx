@@ -337,7 +337,7 @@ const EditionPage: React.FC = () => {
                 </div>
               ) : viewMode === "list" ? (
                 /* VUE LISTE */
-                <div className="max-w-5xl mx-auto my-8 bg-card border border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
+                <div className="w-full px-4 md:px-8 lg:px-12 my-8 bg-card border border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
                   <Table>
                     <TableHeader className="bg-muted/50">
                       <TableRow>
@@ -399,7 +399,7 @@ const EditionPage: React.FC = () => {
                 </div>
               ) : (
                 /* VUE DÉTAIL PROFESSIONNELLE */
-                <div className="max-w-5xl mx-auto my-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20">
+                <div className="w-full px-4 md:px-8 lg:px-12 my-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20">
                   
                   {/* Header de la Fiche */}
                   <div className="flex items-end justify-between mb-8 px-2 text-left">
