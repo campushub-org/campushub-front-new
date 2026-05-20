@@ -30,6 +30,7 @@ import TeacherNotificationsPage from "./pages/dashboard/teacher/NotificationsPag
 import TeacherProfilePage from "./pages/dashboard/teacher/ProfilePage";
 import ViewMaterialPage from "./pages/dashboard/teacher/ViewMaterialPage";
 import MyReservationsPage from "./pages/dashboard/teacher/MyReservationsPage";
+
 // Dean Pages
 import DeanLayout from "./pages/dashboard/dean/DeanLayout";
 import DeanDashboard from "./pages/dashboard/DeanDashboard";
@@ -41,6 +42,8 @@ import DeanNotificationsPage from "./pages/dashboard/dean/NotificationsPage";
 import DeanProfilePage from "./pages/dashboard/dean/ProfilePage";
 import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage";
 import EditionPage from "./pages/dashboard/dean/EditionPage";
+import ImportPage from "./pages/dashboard/dean/import/ImportPage";
+
 
 // Admin Pages
 import AdminLayout from "./pages/dashboard/admin/AdminLayout";
@@ -86,10 +89,10 @@ const App = () => (
                 <Route path="support/view/:materialId" element={<ViewMaterialPage />} />
                 <Route path="deposit-material" element={<DepositMaterialPage />} />
                 <Route path="schedule-unified" element={<UnifiedSchedulingPage />} />
-<<<<<<< HEAD
+
                 <Route path="my-reservations" element={<MyReservationsPage />} />
-=======
->>>>>>> 1a26bd7a9e6b1db4839011cdc36523b46c44cd23
+
+
                 <Route path="notifications" element={<TeacherNotificationsPage />} />
                 <Route path="profile" element={<TeacherProfilePage />} />
               </Route>
@@ -102,6 +105,7 @@ const App = () => (
                 <Route path="schedule" element={<DeanSchedulingPage />} />
                 <Route path="schedule-courses" element={<DeanSchedulingPage />} />
                 <Route path="schedule-exams" element={<DeanSchedulingPage />} />
+                <Route path="import" element={<ImportPage/>} />
                 <Route path="notifications" element={<DeanNotificationsPage />} />
                 <Route path="profile" element={<DeanProfilePage />} />
               </Route>
