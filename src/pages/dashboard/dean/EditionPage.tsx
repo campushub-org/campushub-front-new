@@ -29,7 +29,8 @@ import {
   AlertCircle,
   Settings,
   RefreshCw,
-  Lock
+  Lock,
+  Upload
 } from "lucide-react";
 import { 
   Table, 
@@ -63,8 +64,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import ImportSection from "./import/ImportPage";
 
-type EntityType = "teachers" | "rooms" | "subjects" | "assignments";
+type EntityType = "teachers" | "rooms" | "subjects" | "assignments" | "import";
 type ViewMode = "list" | "detail";
 
 const EditionPage: React.FC = () => {
@@ -84,8 +86,7 @@ const EditionPage: React.FC = () => {
 
   const layoutOverrider = "-m-4 md:-m-6 lg:-m-8 max-w-none w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)]";
 
-  const fetchData = useCallback(async (entity: EntityType) => {
-    setLoading(true);
+const fetchData = useCallback(async (entity: Exclude<EntityType, "import">) => {    setLoading(true);
     try {
       switch (entity) {
         case "teachers": {
@@ -138,10 +139,12 @@ const EditionPage: React.FC = () => {
     }
   }, [searchQuery, activeEntity, teachers, rooms, subjects, assignments]);
 
-  useEffect(() => {
-    fetchData(activeEntity);
-    setViewMode("list");
-  }, [activeEntity, fetchData]);
+useEffect(() => {
+  if (activeEntity !== "import") {
+    fetchData(activeEntity as Exclude<EntityType, "import">);
+  }
+  setViewMode("list");
+}, [activeEntity, fetchData]);
 
   const handleRowClick = (item: any) => {
     setSelectedItem({ ...item });
@@ -229,6 +232,7 @@ const EditionPage: React.FC = () => {
     { id: "rooms", label: "Salles", icon: MapPin },
     { id: "subjects", label: "Matières", icon: BookOpen },
     { id: "assignments", label: "Assignations", icon: LinkIcon },
+    { id: "import", label: "Import de données", icon: Upload },
   ];
 
   return (
@@ -330,12 +334,16 @@ const EditionPage: React.FC = () => {
           <div className="flex-1 overflow-hidden relative">
             <div className="h-full overflow-y-auto scrollbar-thin [scrollbar-gutter:stable]">
               
-              {loading && viewMode === "list" ? (
-                <div className="h-full flex flex-col items-center justify-center gap-4">
-                  <Loader2 className="h-10 w-10 animate-spin text-primary opacity-30" />
-                  <p className="text-sm font-medium text-muted-foreground">Synchronisation...</p>
-                </div>
-              ) : viewMode === "list" ? (
+{activeEntity === "import" ? (
+  <div className="h-full overflow-y-auto">
+    <ImportSection />
+  </div>
+) : loading && viewMode === "list" ? (
+  <div className="h-full flex flex-col items-center justify-center gap-4">
+    <Loader2 className="h-10 w-10 animate-spin text-primary opacity-30" />
+    <p className="text-sm font-medium text-muted-foreground">Synchronisation...</p>
+  </div>
+) : viewMode === "list" ? (
                 /* VUE LISTE */
                 <div className="max-w-5xl mx-auto my-8 bg-card border border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
                   <Table>

@@ -23,7 +23,8 @@ function authHeaders(): HeadersInit {
   };
 }
 
-async function postOne(url: string, body: unknown): Promise<{ ok: boolean; message?: string }> {
+// Remplace la fonction postOne par cette version enrichie
+async function postOne(url: string, body: unknown): Promise<{ ok: boolean; message?: string; status?: number }> {
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -32,7 +33,7 @@ async function postOne(url: string, body: unknown): Promise<{ ok: boolean; messa
     });
     if (!res.ok) {
       const text = await res.text();
-      return { ok: false, message: text || `HTTP ${res.status}` };
+      return { ok: false, message: text || `HTTP ${res.status}`, status: res.status };
     }
     return { ok: true };
   } catch (e) {
@@ -68,17 +69,28 @@ export async function importTeachers(rows: TeacherImportRow[]): Promise<ImportRe
   return result;
 }
 // ── Import Salles ─────────────────────────────
-
 export async function importRooms(rows: RoomImportRow[]): Promise<ImportResult> {
   const result: ImportResult = { total: rows.length, success: 0, failed: 0, errors: [] };
 
   for (const row of rows) {
-    const { ok, message } = await postOne(`${GATEWAY}/api/salles`, row);
+    const { ok, message, status } = await postOne(`${GATEWAY}/api/salles`, row);
     if (ok) {
       result.success++;
     } else {
       result.failed++;
-      result.errors.push(`${row.name} — ${message}`);
+      const identifier = row.code ?? row.nom ?? "Salle inconnue";
+
+      if (status === 500 || (message ?? "").toLowerCase().includes("duplicate") || (message ?? "").toLowerCase().includes("constraint")) {
+        result.errors.push(
+          `${identifier} — La salle "${identifier}" ne peut pas être importée : ` +
+          `un enregistrement possédant le même code existe déjà en base de données. ` +
+          `Modifiez le champ "code" dans votre fichier avant de réimporter.`
+        );
+      } else if (status === 400) {
+        result.errors.push(`${identifier} — Données invalides. Vérifiez le format des champs de cette salle.`);
+      } else {
+        result.errors.push(`${identifier} — ${message}`);
+      }
     }
   }
   return result;
@@ -90,7 +102,7 @@ export async function importScheduleEvents(rows: ScheduleEventImportRow[]): Prom
   const result: ImportResult = { total: rows.length, success: 0, failed: 0, errors: [] };
 
   try {
-const res = await fetch(`${GATEWAY}/api/scheduling/batch-replace`, {
+const res = await fetch(`${GATEWAY}/api/scheduling/batch-save`, {
   method: "POST",
   headers: authHeaders(),
   body: JSON.stringify(rows),

@@ -42,7 +42,7 @@ import DeanNotificationsPage from "./pages/dashboard/dean/NotificationsPage";
 import DeanProfilePage from "./pages/dashboard/dean/ProfilePage";
 import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage";
 import EditionPage from "./pages/dashboard/dean/EditionPage";
-import ImportPage from "./pages/dashboard/dean/import/ImportPage";
+
 
 
 // Admin Pages
@@ -105,7 +105,7 @@ const App = () => (
                 <Route path="schedule" element={<DeanSchedulingPage />} />
                 <Route path="schedule-courses" element={<DeanSchedulingPage />} />
                 <Route path="schedule-exams" element={<DeanSchedulingPage />} />
-                <Route path="import" element={<ImportPage/>} />
+
                 <Route path="notifications" element={<DeanNotificationsPage />} />
                 <Route path="profile" element={<DeanProfilePage />} />
               </Route>
