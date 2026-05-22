@@ -1,5 +1,16 @@
 export type CourseType = "lecture" | "td" | "tp" | "exam" | "meeting" | "availability"
 
+export interface SchedulePlan {
+  id: string
+  name: string
+  status: "DRAFT" | "ACTIVE" | "ARCHIVED" | "TEMPLATE"
+  isDefault: boolean
+  academicYear: string
+  semester: number
+  level: string
+  createdAt?: string
+}
+
 export interface ScheduleEvent {
   id: string
   title: string
@@ -16,6 +27,7 @@ export interface ScheduleEvent {
   seriesId?: string
   semester?: number
   academicYear?: string
+  planId?: string
 }
 
 export interface FilterState {

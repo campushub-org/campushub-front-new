@@ -29,7 +29,9 @@ import {
   AlertCircle,
   Settings,
   RefreshCw,
-  Lock
+  Lock,
+  Upload,
+  Download
 } from "lucide-react";
 import { 
   Table, 
@@ -57,12 +59,30 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type EntityType = "teachers" | "rooms" | "subjects" | "assignments";
 type ViewMode = "list" | "detail";
@@ -75,6 +95,13 @@ const EditionPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Import/Export Modal states
+  const [isIOModalOpen, setIsIOModalOpen] = useState(false);
+  const [ioType, setIoType] = useState<"import" | "export">("export");
+  const [exportFormat, setExportFormat] = useState<"pdf" | "json">("pdf");
+  const [exportLevel, setExportLevel] = useState<string>("all");
+  const [exportSemester, setExportSemester] = useState<string>("all");
   
   // Data states
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -151,9 +178,9 @@ const EditionPage: React.FC = () => {
   const handleAdd = () => {
     let defaults = {};
     switch (activeEntity) {
-      case "teachers": defaults = { role: "TEACHER", department: "INFO", officeNumber: "", grade: "Professeur" }; break;
-      case "rooms": defaults = { actif: true, capacite: 50, batiment: "Bâtiment Principal" }; break;
-      case "subjects": defaults = { credits: 6, niveau: 1, semester: 1, category: "Fundamental" }; break;
+      case "teachers": defaults = { role: "TEACHER", department: "INFORMATIQUE-INE", officeNumber: "", grade: "Professeur" }; break;
+      case "rooms": defaults = { actif: true, capacite: 50, batiment: "Bâtiment Principal", filiere: "INFORMATIQUE-INE" }; break;
+      case "subjects": defaults = { credits: 6, niveau: 1, semester: 1, category: "Fundamental", specialite: "INFORMATIQUE-INE" }; break;
       case "assignments": defaults = { role: "COURSE_LECTURER" }; break;
     }
     setSelectedItem(defaults);
@@ -224,6 +251,122 @@ const EditionPage: React.FC = () => {
     }
   };
 
+  const handleExportAction = () => {
+    // Application des filtres Niveau et Semestre si applicable
+    let dataToExport = filteredData;
+    let description = "Liste complète des éléments";
+
+    if (activeEntity === "subjects") {
+      if (exportLevel !== "all") {
+        dataToExport = dataToExport.filter(s => s.niveau?.toString() === exportLevel);
+      }
+      if (exportSemester !== "all") {
+        dataToExport = dataToExport.filter(s => s.semester?.toString() === exportSemester);
+      }
+      description = `Matières - Filière: INFORMATIQUE-INE | Niveau: ${exportLevel === "all" ? "Tous" : "L"+exportLevel} | Semestre: ${exportSemester === "all" ? "Tous" : "S"+exportSemester}`;
+    } else {
+      const entityLabel = navItems.find(i => i.id === activeEntity)?.label || activeEntity;
+      description = `Liste des ${entityLabel} - Filière: INFORMATIQUE-INE`;
+    }
+    
+    if (!dataToExport || dataToExport.length === 0) {
+      toast.error("Aucune donnée ne correspond à ces critères");
+      return;
+    }
+
+    if (exportFormat === "json") {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `export_${activeEntity}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      toast.success("Export JSON réussi");
+    } else {
+      const doc = new jsPDF();
+      doc.setFillColor(63, 81, 181);
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text("CAMPUSHUB", 14, 25);
+      
+      doc.setTextColor(40, 40, 40);
+      doc.setFontSize(16);
+      doc.text(`RAPPORT D'EDITION : ${activeEntity.toUpperCase()}`, 14, 55);
+      
+      // Ajout de la description détaillée
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(description, 14, 62);
+      doc.text(`Date de génération: ${new Date().toLocaleString()}`, 14, 68);
+      
+      doc.setDrawColor(200);
+      doc.line(14, 72, 196, 72);
+
+      let head: string[][] = [];
+      let body: any[][] = [];
+
+      if (activeEntity === "teachers") {
+          head = [["NOM COMPLET", "FILIERE", "GRADE", "EMAIL"]];
+          body = dataToExport.map(t => [t.fullName || "N/A", "INFORMATIQUE-INE", t.grade || "N/A", t.email || "N/A"]);
+      } else if (activeEntity === "rooms") {
+          head = [["NOM", "CODE", "FILIERE", "CAPACITE"]];
+          body = dataToExport.map(r => [r.nom || "N/A", r.code || "N/A", "INFORMATIQUE-INE", r.capacite || "0"]);
+      } else if (activeEntity === "subjects") {
+          head = [["NOM", "CODE", "FILIERE", "NIVEAU", "SEM"]];
+          body = dataToExport.map(s => [s.name || "N/A", s.code || "N/A", "INFORMATIQUE-INE", `L${s.niveau || 1}`, `S${s.semester || 1}`]);
+      } else {
+          head = [["ENSEIGNANT", "CODE UE", "FILIERE", "ROLE"]];
+          body = dataToExport.map(a => [a.teacherName || "N/A", a.subjectCode || "N/A", "INFORMATIQUE-INE", a.role || "N/A"]);
+      }
+
+      autoTable(doc, { head, body, startY: 78, theme: 'grid' });
+      doc.save(`rapport_${activeEntity}.pdf`);
+      toast.success("Rapport PDF généré");
+    }
+    setIsIOModalOpen(false);
+  };
+
+  const handleImportExecute = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (!Array.isArray(json)) {
+            toast.error("Le format JSON doit être une liste d'objets");
+            return;
+        }
+
+        let successCount = 0;
+        for (const item of json) {
+            try {
+                let endpoint = "";
+                switch (activeEntity) {
+                    case "teachers": endpoint = "/campushub-user-service/api/auth/register"; break;
+                    case "rooms": endpoint = "/campushub-salle-service/api/salles"; break;
+                    case "subjects": endpoint = "/campushub-scheduling-service/api/subjects"; break;
+                    case "assignments": endpoint = "/campushub-scheduling-service/api/scheduling/assignments"; break;
+                }
+                await api.post(endpoint, item);
+                successCount++;
+            } catch (err) {
+                console.error("Failed to import item:", item, err);
+            }
+        }
+        toast.success(`${successCount} éléments importés avec succès`);
+        fetchData(activeEntity);
+        setIsIOModalOpen(false);
+      } catch (err) {
+        toast.error("Fichier JSON invalide");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const navItems = [
     { id: "teachers", label: "Enseignants", icon: Users },
     { id: "rooms", label: "Salles", icon: MapPin },
@@ -240,9 +383,9 @@ const EditionPage: React.FC = () => {
         {/* Sidebar Verticale */}
         <aside className={cn(
           "shrink-0 border-r border-border/50 bg-card transition-all duration-300 relative h-full",
-          sidebarOpen ? "w-72 opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
+          sidebarOpen ? "w-[14.5rem] opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
         )}>
-          <div className="w-72 flex flex-col h-full">
+          <div className="w-[14.5rem] flex flex-col h-full">
             <div className="py-6">
               <div className="px-6 mb-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Navigation</span>
@@ -317,10 +460,45 @@ const EditionPage: React.FC = () => {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
-                    <Plus className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
-                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => { setIoType("import"); setIsIOModalOpen(true); }}
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs font-bold uppercase tracking-wider">Importer la liste</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => { setIoType("export"); setIsIOModalOpen(true); }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs font-bold uppercase tracking-wider">Exporter la liste</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
+                      <Plus className="h-4 w-4" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -337,7 +515,7 @@ const EditionPage: React.FC = () => {
                 </div>
               ) : viewMode === "list" ? (
                 /* VUE LISTE */
-                <div className="max-w-5xl mx-auto my-8 bg-card border border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
+                <div className="w-full mb-8 bg-card border-b border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
                   <Table>
                     <TableHeader className="bg-muted/50">
                       <TableRow>
@@ -399,7 +577,7 @@ const EditionPage: React.FC = () => {
                 </div>
               ) : (
                 /* VUE DÉTAIL PROFESSIONNELLE */
-                <div className="max-w-5xl mx-auto my-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20">
+                <div className="w-full mb-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20 px-4 md:px-8 lg:px-12">
                   
                   {/* Header de la Fiche */}
                   <div className="flex items-end justify-between mb-8 px-2 text-left">
@@ -449,7 +627,7 @@ const EditionPage: React.FC = () => {
                                <Input type="email" value={selectedItem.email || ""} onChange={v => setSelectedItem({...selectedItem, email: v.target.value})} placeholder="jean.dupont@campushub.cm" />
                              </FormGroup>
                              <FormGroup label="Département" icon={<Building className="h-4 w-4" />}>
-                               <Input value={selectedItem.department || ""} onChange={v => setSelectedItem({...selectedItem, department: v.target.value})} placeholder="INFO, MATH, etc." />
+                               <Input value={selectedItem.department || ""} onChange={v => setSelectedItem({...selectedItem, department: v.target.value})} placeholder="INFORMATIQUE-INE" />
                              </FormGroup>
                              <FormGroup label="Numéro de bureau" icon={<MapPin className="h-4 w-4" />}>
                                <Input value={selectedItem.officeNumber || ""} onChange={v => setSelectedItem({...selectedItem, officeNumber: v.target.value})} placeholder="Ex: B-204" />
@@ -494,7 +672,7 @@ const EditionPage: React.FC = () => {
                                <Input value={selectedItem.category || ""} onChange={v => setSelectedItem({...selectedItem, category: v.target.value})} placeholder="Fondamentale, Optionnelle..." />
                              </FormGroup>
                              <FormGroup label="Spécialité" icon={<GraduationCap className="h-4 w-4" />}>
-                               <Input value={selectedItem.specialite || ""} onChange={v => setSelectedItem({...selectedItem, specialite: v.target.value})} placeholder="Tronc commun, Réseaux..." />
+                               <Input value={selectedItem.specialite || ""} onChange={v => setSelectedItem({...selectedItem, specialite: v.target.value})} placeholder="INFORMATIQUE-INE" />
                              </FormGroup>
                            </>
                          )}
@@ -583,7 +761,7 @@ const EditionPage: React.FC = () => {
                             {activeEntity === "rooms" && (
                               <>
                                 <FormGroup label="Filière dédiée" icon={<GraduationCap className="h-4 w-4" />}>
-                                  <Input value={selectedItem.filiere || ""} onChange={v => setSelectedItem({...selectedItem, filiere: v.target.value})} placeholder="INFO, MATH..." />
+                                  <Input value={selectedItem.filiere || ""} onChange={v => setSelectedItem({...selectedItem, filiere: v.target.value})} placeholder="INFORMATIQUE-INE" />
                                 </FormGroup>
                                 <div className="flex items-center justify-between p-5 bg-background border border-border/60 rounded-2xl shadow-sm">
                                   <div className="space-y-0.5">
@@ -642,6 +820,167 @@ const EditionPage: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Panneau d'Import/Export (ERP Style) */}
+      <Sheet open={isIOModalOpen} onOpenChange={setIsIOModalOpen}>
+        <SheetContent className="sm:max-w-[500px] flex flex-col h-full border-l border-border/40 shadow-2xl">
+          <SheetHeader className="text-left border-b border-border/40 pb-6 mb-6">
+            <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
+              {ioType === "export" ? <Download className="h-6 w-6 text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
+              {ioType === "export" ? "PARAMÈTRES D'EXPORTATION" : "IMPORTATION DE DONNÉES"}
+            </SheetTitle>
+            <SheetDescription className="text-sm font-medium text-muted-foreground mt-2">
+              {ioType === "export" 
+                ? "Configurez le périmètre et le format de votre rapport académique."
+                : "Chargez un fichier JSON pour synchroniser massivement vos données."}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto pr-2 space-y-8 py-2">
+            {ioType === "export" ? (
+              <>
+                {/* SECTION FORMAT */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-primary/80">
+                    <Monitor className="h-4 w-4" />
+                    <Label className="text-[11px] font-black uppercase tracking-widest">Format du document</Label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => setExportFormat("pdf")}
+                      className={cn(
+                        "group flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all text-center",
+                        exportFormat === "pdf" ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 hover:border-primary/30"
+                      )}
+                    >
+                      <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-colors", exportFormat === "pdf" ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
+                        <Database className="h-6 w-6" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <span className="block font-bold text-sm">Rapport PDF</span>
+                        <span className="block text-[10px] opacity-60 uppercase font-bold">Imprimable</span>
+                      </div>
+                    </button>
+                    <button 
+                      onClick={() => setExportFormat("json")}
+                      className={cn(
+                        "group flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all text-center",
+                        exportFormat === "json" ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 hover:border-primary/30"
+                      )}
+                    >
+                      <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-colors", exportFormat === "json" ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
+                        <div className="font-black text-xs">JSON</div>
+                      </div>
+                      <div className="space-y-0.5">
+                        <span className="block font-bold text-sm">Données JSON</span>
+                        <span className="block text-[10px] opacity-60 uppercase font-bold">Sauvegarde</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <Separator className="bg-border/40" />
+
+                {/* SECTION PERIMETRE */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 text-primary/80">
+                    <Filter className="h-4 w-4" />
+                    <Label className="text-[11px] font-black uppercase tracking-widest">Périmètre des données</Label>
+                  </div>
+                  
+                  <div className="space-y-4 px-1">
+                    <FormGroup label="Filière / Département">
+                      <Select value="INFO" disabled>
+                        <SelectTrigger className="h-10 bg-muted/50 font-bold"><SelectValue placeholder="INFORMATIQUE-INE" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="INFO">INFORMATIQUE-INE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[10px] text-muted-foreground italic mt-1 px-1">Seule la filière INFORMATIQUE-INE est gérée actuellement.</p>
+                    </FormGroup>
+
+                    {activeEntity === "subjects" && (
+                      <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                        <FormGroup label="Niveau">
+                          <Select value={exportLevel} onValueChange={setExportLevel}>
+                            <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Tous</SelectItem>
+                              <SelectItem value="1">L1</SelectItem>
+                              <SelectItem value="2">L2</SelectItem>
+                              <SelectItem value="3">L3</SelectItem>
+                              <SelectItem value="4">M1</SelectItem>
+                              <SelectItem value="5">M2</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormGroup>
+                        <FormGroup label="Semestre">
+                          <Select value={exportSemester} onValueChange={setExportSemester}>
+                            <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Tous</SelectItem>
+                              <SelectItem value="1">S1</SelectItem>
+                              <SelectItem value="2">S2</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormGroup>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* IMPORT SECTION */
+              <div className="space-y-6">
+                <div 
+                  onClick={() => document.getElementById('io-file-input')?.click()}
+                  className="border-2 border-dashed border-border/60 rounded-3xl p-12 flex flex-col items-center justify-center gap-6 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all group"
+                >
+                  <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <Upload className="h-10 w-10" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="font-extrabold text-lg tracking-tight text-foreground">Déposez votre fichier</p>
+                    <p className="text-sm text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
+                      Sélectionnez un fichier <span className="font-mono text-primary font-bold">.JSON</span> formaté pour l'entité <span className="font-bold underline italic">{activeEntity}</span>
+                    </p>
+                  </div>
+                  <Button variant="outline" className="rounded-full px-8 font-bold border-primary/40 text-primary">Parcourir les fichiers</Button>
+                </div>
+                
+                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-4">
+                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+                   <div className="space-y-1">
+                      <p className="text-xs font-black text-amber-800 uppercase">Attention</p>
+                      <p className="text-xs text-amber-700/80 leading-relaxed font-medium">
+                        L'importation massive écrase ou ajoute des données directement en production. Assurez-vous de la validité de votre fichier JSON.
+                      </p>
+                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <SheetFooter className="border-t border-border/40 pt-6 mt-auto">
+            <div className="flex w-full gap-3">
+              <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold" onClick={() => setIsIOModalOpen(false)}>Fermer</Button>
+              {ioType === "export" && (
+                <Button onClick={handleExportAction} className="flex-[2] h-12 rounded-xl font-black gap-2 shadow-lg shadow-primary/20">
+                  <Download className="h-4 w-4" /> GÉNÉRER L'EXPORTATION
+                </Button>
+              )}
+            </div>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <input 
+        type="file" 
+        id="io-file-input" 
+        className="hidden" 
+        accept=".json" 
+        onChange={handleImportExecute} 
+      />
     </TooltipProvider>
   );
 };
