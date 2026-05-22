@@ -102,11 +102,27 @@ export async function importScheduleEvents(rows: ScheduleEventImportRow[]): Prom
   const result: ImportResult = { total: rows.length, success: 0, failed: 0, errors: [] };
 
   try {
-const res = await fetch(`${GATEWAY}/api/scheduling/batch-save`, {
-  method: "POST",
-  headers: authHeaders(),
-  body: JSON.stringify(rows),
-});
+    // ── Étape 1 : validation des conflits ──
+    const validationRes = await fetch(`${GATEWAY}/api/scheduling/validate-batch`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(rows),
+    });
+
+    if (validationRes.status === 409) {
+      const conflicts: string[] = await validationRes.json();
+      result.failed = rows.length;
+      result.errors = conflicts;
+      return result;
+    }
+
+    // ── Étape 2 : import si aucun conflit ──
+    const res = await fetch(`${GATEWAY}/api/scheduling/batch-save`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(rows),
+    });
+
     if (!res.ok) {
       const text = await res.text();
       result.failed = rows.length;
