@@ -240,9 +240,9 @@ const EditionPage: React.FC = () => {
         {/* Sidebar Verticale */}
         <aside className={cn(
           "shrink-0 border-r border-border/50 bg-card transition-all duration-300 relative h-full",
-          sidebarOpen ? "w-72 opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
+          sidebarOpen ? "w-[14.5rem] opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
         )}>
-          <div className="w-72 flex flex-col h-full">
+          <div className="w-[14.5rem] flex flex-col h-full">
             <div className="py-6">
               <div className="px-6 mb-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Navigation</span>
@@ -337,7 +337,7 @@ const EditionPage: React.FC = () => {
                 </div>
               ) : viewMode === "list" ? (
                 /* VUE LISTE */
-                <div className="w-full px-4 md:px-8 lg:px-12 my-8 bg-card border border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
+                <div className="w-full mb-8 bg-card border-b border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
                   <Table>
                     <TableHeader className="bg-muted/50">
                       <TableRow>
@@ -399,7 +399,7 @@ const EditionPage: React.FC = () => {
                 </div>
               ) : (
                 /* VUE DÉTAIL PROFESSIONNELLE */
-                <div className="w-full px-4 md:px-8 lg:px-12 my-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20">
+                <div className="w-full mb-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20 px-4 md:px-8 lg:px-12">
                   
                   {/* Header de la Fiche */}
                   <div className="flex items-end justify-between mb-8 px-2 text-left">
