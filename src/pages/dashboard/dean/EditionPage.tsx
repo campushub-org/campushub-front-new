@@ -244,9 +244,9 @@ useEffect(() => {
         {/* Sidebar Verticale */}
         <aside className={cn(
           "shrink-0 border-r border-border/50 bg-card transition-all duration-300 relative h-full",
-          sidebarOpen ? "w-72 opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
+          sidebarOpen ? "w-52 opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
         )}>
-          <div className="w-72 flex flex-col h-full">
+          <div className="w-52 flex flex-col h-full">
             <div className="py-6">
               <div className="px-6 mb-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Navigation</span>
@@ -309,9 +309,8 @@ useEffect(() => {
                     : "Fiche détaillée"}
                 </h1>
               </div>
-
-              {viewMode === "list" && (
-                <div className="flex items-center gap-3 flex-1 max-w-xl">
+{viewMode === "list" && activeEntity !== "import" && (
+  <div className="flex items-center gap-3 flex-1 max-w-xl">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
