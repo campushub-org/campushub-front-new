@@ -29,7 +29,9 @@ import {
   AlertCircle,
   Settings,
   RefreshCw,
-  Lock
+  Lock,
+  Upload,
+  Download
 } from "lucide-react";
 import { 
   Table, 
@@ -57,12 +59,22 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type EntityType = "teachers" | "rooms" | "subjects" | "assignments";
 type ViewMode = "list" | "detail";
@@ -75,6 +87,11 @@ const EditionPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Import/Export Modal states
+  const [isIOModalOpen, setIsIOModalOpen] = useState(false);
+  const [ioType, setIoType] = useState<"import" | "export">("export");
+  const [exportFormat, setExportFormat] = useState<"pdf" | "json">("pdf");
   
   // Data states
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -224,6 +241,110 @@ const EditionPage: React.FC = () => {
     }
   };
 
+  const handleExportAction = () => {
+    if (exportFormat === "json") {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredData, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `export_${activeEntity}_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      toast.success("Export JSON réussi");
+    } else {
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(40, 40, 40);
+      doc.text("CAMPUSHUB - RAPPORT D'EDITION", 14, 22);
+      
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      const entityLabel = navItems.find(i => i.id === activeEntity)?.label || activeEntity;
+      doc.text(`Document: Liste des ${entityLabel}`, 14, 30);
+      doc.text(`Date de génération: ${new Date().toLocaleDateString()}`, 14, 36);
+      
+      doc.setDrawColor(0, 0, 0);
+      doc.line(14, 40, 196, 40);
+
+      // Prepare Table Data
+      let head: string[][] = [];
+      let body: any[][] = [];
+
+      switch (activeEntity) {
+        case "teachers":
+          head = [["NOM COMPLET", "EMAIL", "DEPARTEMENT", "GRADE"]];
+          body = filteredData.map(t => [t.fullName, t.email, t.department, t.grade]);
+          break;
+        case "rooms":
+          head = [["NOM", "CODE", "BATIMENT", "CAPACITE"]];
+          body = filteredData.map(r => [r.nom, r.code, r.batiment, r.capacite]);
+          break;
+        case "subjects":
+          head = [["NOM", "CODE", "CREDITS", "NIVEAU"]];
+          body = filteredData.map(s => [s.name, s.code, s.credits, `L${s.niveau}`]);
+          break;
+        case "assignments":
+          head = [["ENSEIGNANT", "CODE UE", "ROLE"]];
+          body = filteredData.map(a => [a.teacherName, a.subjectCode, a.role]);
+          break;
+      }
+
+      autoTable(doc, {
+        head: head,
+        body: body,
+        startY: 45,
+        theme: 'striped',
+        headStyles: { fillStyle: 'fill', fillColor: [63, 81, 181] },
+        styles: { fontSize: 9, cellPadding: 3 }
+      });
+
+      doc.save(`rapport_${activeEntity}_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("Export PDF réussi");
+    }
+    setIsIOModalOpen(false);
+  };
+
+  const handleImportExecute = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (!Array.isArray(json)) {
+            toast.error("Le format JSON doit être une liste d'objets");
+            return;
+        }
+
+        let successCount = 0;
+        for (const item of json) {
+            try {
+                let endpoint = "";
+                switch (activeEntity) {
+                    case "teachers": endpoint = "/campushub-user-service/api/auth/register"; break;
+                    case "rooms": endpoint = "/campushub-salle-service/api/salles"; break;
+                    case "subjects": endpoint = "/campushub-scheduling-service/api/subjects"; break;
+                    case "assignments": endpoint = "/campushub-scheduling-service/api/scheduling/assignments"; break;
+                }
+                await api.post(endpoint, item);
+                successCount++;
+            } catch (err) {
+                console.error("Failed to import item:", item, err);
+            }
+        }
+        toast.success(`${successCount} éléments importés avec succès`);
+        fetchData(activeEntity);
+        setIsIOModalOpen(false);
+      } catch (err) {
+        toast.error("Fichier JSON invalide");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const navItems = [
     { id: "teachers", label: "Enseignants", icon: Users },
     { id: "rooms", label: "Salles", icon: MapPin },
@@ -317,10 +438,45 @@ const EditionPage: React.FC = () => {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
-                    <Plus className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
-                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => { setIoType("import"); setIsIOModalOpen(true); }}
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs font-bold uppercase tracking-wider">Importer la liste</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => { setIoType("export"); setIsIOModalOpen(true); }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs font-bold uppercase tracking-wider">Exporter la liste</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
+                      <Plus className="h-4 w-4" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -642,6 +798,87 @@ const EditionPage: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Modal d'Import/Export Sécurisé */}
+      <Dialog open={isIOModalOpen} onOpenChange={setIsIOModalOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {ioType === "export" ? <Download className="h-5 w-5 text-primary" /> : <Upload className="h-5 w-5 text-primary" />}
+              {ioType === "export" ? "Exporter les données" : "Importer des données"}
+            </DialogTitle>
+            <DialogDescription>
+              {ioType === "export" 
+                ? "Choisissez le format de sortie pour votre rapport ou vos données brutes."
+                : "Sélectionnez un fichier JSON contenant la liste des éléments à importer."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-6">
+            {ioType === "export" ? (
+              <div className="space-y-4">
+                <Label className="text-xs font-bold uppercase tracking-widest opacity-70">Format de fichier</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={() => setExportFormat("pdf")}
+                    className={cn(
+                      "flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                      exportFormat === "pdf" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                    )}
+                  >
+                    <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                      <Database className="h-5 w-5" />
+                    </div>
+                    <span className="font-bold text-sm">Rapport PDF</span>
+                  </button>
+                  <button 
+                    onClick={() => setExportFormat("json")}
+                    className={cn(
+                      "flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                      exportFormat === "json" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                    )}
+                  >
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                      <div className="font-black text-xs">JSON</div>
+                    </div>
+                    <span className="font-bold text-sm">Données JSON</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div 
+                onClick={() => document.getElementById('io-file-input')?.click()}
+                className="border-2 border-dashed border-border rounded-2xl p-10 flex flex-col items-center justify-center gap-4 hover:border-primary/40 hover:bg-muted/50 cursor-pointer transition-all"
+              >
+                <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Upload className="h-6 w-6" />
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-sm">Cliquez pour parcourir</p>
+                  <p className="text-xs text-muted-foreground mt-1">Fichier .json uniquement</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsIOModalOpen(false)}>Annuler</Button>
+            {ioType === "export" && (
+              <Button onClick={handleExportAction} className="gap-2">
+                <Download className="h-4 w-4" /> Générer l'export
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <input 
+        type="file" 
+        id="io-file-input" 
+        className="hidden" 
+        accept=".json" 
+        onChange={handleImportExecute} 
+      />
     </TooltipProvider>
   );
 };

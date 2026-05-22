@@ -24,6 +24,16 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+
 type ViewMode = "week" | "day" | "month";
 
 const DeanSchedulingPage: React.FC = () => {
@@ -39,6 +49,10 @@ const DeanSchedulingPage: React.FC = () => {
   
   // Real data and loading state
   const [loading, setLoading] = useState(false);
+  const [plans, setPlans] = useState<SchedulePlan[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
+  const [newPlanName, setNewPlanName] = useState("");
   
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
@@ -53,20 +67,32 @@ const DeanSchedulingPage: React.FC = () => {
   const [pendingChanges, setPendingChanges] = useState(0);
 
   // Fetch real events from API
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = useCallback(async (planId?: string) => {
     setLoading(true);
     try {
-      const [eventsRes, teachersRes, roomsRes] = await Promise.all([
-        api.get<ScheduleEvent[]>("/campushub-scheduling-service/api/scheduling/events"),
+      const url = planId 
+        ? `/campushub-scheduling-service/api/scheduling/events?planId=${planId}`
+        : "/campushub-scheduling-service/api/scheduling/events";
+
+      const [eventsRes, teachersRes, roomsRes, plansRes] = await Promise.all([
+        api.get<ScheduleEvent[]>(url),
         api.get<any[]>("/campushub-user-service/api/users"),
-        api.get<any[]>("/campushub-salle-service/api/salles")
+        api.get<any[]>("/campushub-salle-service/api/salles"),
+        api.get<SchedulePlan[]>("/campushub-scheduling-service/api/scheduling/plans")
       ]);
 
       if (eventsRes.data) {
-        console.log("Données brutes reçues de l'API events :", eventsRes.data);
         setEvents(eventsRes.data);
         setHistory([eventsRes.data]);
         setHistoryIndex(0);
+      }
+
+      if (plansRes.data) {
+        setPlans(plansRes.data);
+        if (!planId && plansRes.data.length > 0) {
+          const activePlan = plansRes.data.find(p => p.status === "ACTIVE") || plansRes.data[0];
+          setSelectedPlanId(activePlan.id);
+        }
       }
 
       // Filter and map names
@@ -278,6 +304,45 @@ const DeanSchedulingPage: React.FC = () => {
     }
   }, [history, historyIndex]);
 
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        const response = await api.post("/campushub-scheduling-service/api/scheduling/plans/import", json);
+        toast.success("Plan importé avec succès");
+        fetchEvents(response.data.id);
+      } catch (err) {
+        console.error("Import failed:", err);
+        toast.error("Échec de l'importation");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleCreatePlan = async () => {
+    if (!newPlanName.trim()) return;
+    
+    try {
+      const response = await api.post("/campushub-scheduling-service/api/scheduling/plans", {
+        name: newPlanName,
+        status: "DRAFT",
+        academicYear: "2024-2025", // Valeurs par défaut pour l'instant
+        semester: 1,
+        level: selectedLevels[0] || "L1"
+      });
+      toast.success("Nouveau plan créé");
+      setIsCreatePlanOpen(false);
+      setNewPlanName("");
+      fetchEvents(response.data.id);
+    } catch (err) {
+      toast.error("Erreur lors de la création");
+    }
+  };
+
   return (
     <TooltipProvider>
       {/* Fix pour bloquer le slide horizontal de la navbar et de la page */}
@@ -304,6 +369,34 @@ const DeanSchedulingPage: React.FC = () => {
           <div className="w-72 p-6 h-full overflow-y-auto">
             <ScheduleSidebar 
               events={events} 
+              plans={plans}
+              selectedPlanId={selectedPlanId}
+              onPlanChange={(id) => {
+                setSelectedPlanId(id);
+                fetchEvents(id);
+              }}
+              onAddPlan={() => {
+                setIsCreatePlanOpen(true);
+              }}
+              onImportPlan={() => {
+                document.getElementById('import-plan-input')?.click();
+              }}
+              onExportPlan={(id) => {
+                const plan = plans.find(p => p.id === id);
+                if (!plan) return;
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+                  ...plan,
+                  events: events.filter(e => e.planId === id)
+                }, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", `plan_${plan.name.replace(/\s+/g, '_')}.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                toast.success("Plan exporté avec succès");
+              }}
               selectedTypes={selectedTypes}
               allProfessors={allProfessors}
               allRooms={allRooms}
@@ -439,9 +532,42 @@ const DeanSchedulingPage: React.FC = () => {
           onSave={handleEventSave}
           onDelete={handleEventDelete}
           onDuplicate={handleEventDuplicate}
-        />
-      </div>
-    </TooltipProvider>
+          />
+
+          <input 
+          type="file" 
+          id="import-plan-input" 
+          className="hidden" 
+          accept=".json" 
+          onChange={handleImportFile} 
+          />
+
+          <Dialog open={isCreatePlanOpen} onOpenChange={setIsCreatePlanOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Nouvelle Programmation</DialogTitle>
+              <DialogDescription>
+                Créez une nouvelle version de l'emploi du temps. Elle sera initialement en mode brouillon (Draft).
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2 text-left">
+                <Label htmlFor="name">Nom de la version</Label>
+                <Input
+                  id="name"
+                  placeholder="Ex: Semestre 1 - Version B"
+                  value={newPlanName}
+                  onChange={(e) => setNewPlanName(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreatePlanOpen(false)}>Annuler</Button>
+              <Button onClick={handleCreatePlan} disabled={!newPlanName.trim()}>Créer la version</Button>
+            </DialogFooter>
+          </DialogContent>
+          </Dialog>
+          </div>    </TooltipProvider>
   );
 };
 
