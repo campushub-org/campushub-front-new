@@ -31,7 +31,8 @@ import {
   RefreshCw,
   Lock,
   Upload,
-  Download
+  Download,
+  Copy
 } from "lucide-react";
 import { 
   Table, 
@@ -256,6 +257,19 @@ const EditionPage: React.FC = () => {
     }
   };
 
+  const stripIds = (obj: any) => {
+    const copy = JSON.parse(JSON.stringify(obj));
+    // Remove common id fields to make exports safe for re-import
+    delete copy.id;
+    // Keep 'code' for subjects (subject.code is PK and should be preserved), otherwise remove to avoid collisions
+    if (activeEntity !== 'subjects') delete copy.code;
+    // remove keys that end with Id or _id
+    Object.keys(copy).forEach(k => {
+      if (/Id$|_id$/i.test(k)) delete copy[k];
+    });
+    return copy;
+  };
+
   const handleExportAction = () => {
     // Application des filtres Niveau et Semestre si applicable
     let dataToExport = filteredData;
@@ -280,14 +294,16 @@ const EditionPage: React.FC = () => {
     }
 
     if (exportFormat === "json") {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+      // Strip IDs from export to avoid PK conflicts on re-import across services
+      const sanitized = dataToExport.map(item => stripIds(item));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sanitized, null, 2));
       const downloadAnchorNode = document.createElement('a');
       downloadAnchorNode.setAttribute("href", dataStr);
       downloadAnchorNode.setAttribute("download", `export_${activeEntity}.json`);
       document.body.appendChild(downloadAnchorNode);
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
-      toast.success("Export JSON réussi");
+      toast.success("Export JSON réussi (IDs supprimés)");
     } else {
       const doc = new jsPDF();
       doc.setFillColor(63, 81, 181);
@@ -1037,56 +1053,155 @@ const EditionPage: React.FC = () => {
         onChange={handleImportExecute} 
       />
 
-      {/* Dialog: detailed import results */}
+      {/* Dialog: detailed import results (improved styling & actions) */}
       <Dialog open={isImportResultOpen} onOpenChange={setIsImportResultOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Résultat de l'import</DialogTitle>
-            <DialogDescription>Liste détaillée des éléments importés et des éléments rejetés avec la raison.</DialogDescription>
+        <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-auto bg-popover/95">
+          <DialogHeader className="flex items-center justify-between gap-4">
+            <div>
+              <DialogTitle>Résultat de l'import</DialogTitle>
+              <DialogDescription className="text-sm">Détails des éléments insérés et des éléments rejetés avec explication.</DialogDescription>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Badge className="bg-emerald-800 text-emerald-50 border-emerald-700">Acceptés: {importResultAccepted.length}</Badge>
+              <Badge className="bg-rose-800 text-rose-50 border-rose-700">Rejetés: {importResultRejected.length}</Badge>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(JSON.stringify({ accepted: importResultAccepted.map(a => a.item), rejected: importResultRejected.map(r => ({ item: r.item, reason: r.reason })) }, null, 2));
+                  toast.success('Copié dans le presse-papier');
+                } catch (err) { toast.error('Impossible de copier'); }
+              }}>
+                <Copy className="h-4 w-4" /> Copier tout
+              </Button>
+            </div>
           </DialogHeader>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4">
-            <div>
-              <h4 className="text-sm font-semibold mb-2">Éléments acceptés ({importResultAccepted.length})</h4>
-              <div className="space-y-2 max-h-80 overflow-auto p-2 border border-border/40 rounded">
+            <section className="p-3 rounded-lg bg-card/80 border border-border/30 border-l-4 border-emerald-600/40">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold">Acceptés</h4>
+                <span className="text-xs text-emerald-200">{importResultAccepted.length}</span>
+              </div>
+
+              <div className="space-y-3 max-h-96 overflow-auto pr-2">
                 {importResultAccepted.length === 0 ? (
                   <div className="text-sm text-muted-foreground">Aucun élément inséré.</div>
                 ) : (
                   importResultAccepted.map((r, i) => (
-                    <div key={i} className="p-2 bg-card/60 rounded flex items-start gap-3">
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
-                        <div className="text-xs text-muted-foreground">{r.item?.email || r.item?.code || r.item?.subjectCode || (r.item?.teacherId ? `Teacher ${r.item.teacherId}` : '')}</div>
-                        <pre className="text-xs mt-1 overflow-auto max-h-24">{JSON.stringify(r.item, null, 2)}</pre>
+                    <div key={i} className="p-3 rounded-lg bg-popover/80 border border-border/30 flex flex-col gap-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                          <div>
+                            <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
+                            <div className="text-xs text-muted-foreground">{r.item?.email || r.item?.code || r.item?.subjectCode || (r.item?.teacherId ? `Teacher ${r.item.teacherId}` : '')}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            // toggle expand
+                            const key = `acc-${i}`;
+                            // use DOM to toggle a hidden pre (simple approach without adding more state)
+                            const node = document.getElementById(key);
+                            if (node) node.classList.toggle('hidden');
+                          }}>
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                            try { await navigator.clipboard.writeText(JSON.stringify(r.item, null, 2)); toast.success('Copié'); }
+                            catch { toast.error('Échec copie'); }
+                          }}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
+                      <pre id={`acc-${i}`} className="text-xs mt-1 overflow-auto max-h-40 hidden bg-card/90 p-2 rounded text-card-foreground font-mono">{JSON.stringify(r.item, null, 2)}</pre>
                     </div>
                   ))
                 )}
               </div>
-            </div>
+            </section>
 
-            <div>
-              <h4 className="text-sm font-semibold mb-2">Éléments rejetés ({importResultRejected.length})</h4>
-              <div className="space-y-2 max-h-80 overflow-auto p-2 border border-border/40 rounded">
+            <section className="p-3 rounded-lg bg-card/80 border border-border/30 border-l-4 border-rose-600/40">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold">Rejetés</h4>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-rose-700">{importResultRejected.length}</span>
+                </div>
+              </div>
+
+              <div className="space-y-3 max-h-96 overflow-auto pr-2">
                 {importResultRejected.length === 0 ? (
                   <div className="text-sm text-muted-foreground">Aucun élément rejeté.</div>
                 ) : (
                   importResultRejected.map((r, i) => (
-                    <div key={i} className="p-2 bg-card/60 rounded flex items-start gap-3">
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
-                        <div className="text-xs text-destructive">Raison : {r.reason}</div>
-                        <pre className="text-xs mt-1 overflow-auto max-h-24">{JSON.stringify(r.item, null, 2)}</pre>
+                    <div key={i} className="p-3 rounded-lg bg-popover/80 border border-border/30 flex flex-col gap-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <AlertCircle className="h-5 w-5 text-rose-600" />
+                          <div>
+                            <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
+                            <div className="text-xs text-destructive">Raison : {r.reason}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            const key = `rej-${i}`;
+                            const node = document.getElementById(key);
+                            if (node) node.classList.toggle('hidden');
+                          }}>
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                            try { await navigator.clipboard.writeText(JSON.stringify(r.item, null, 2)); toast.success('Copié'); }
+                            catch { toast.error('Échec copie'); }
+                          }}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
+                      <pre id={`rej-${i}`} className="text-xs mt-1 overflow-auto max-h-40 hidden bg-card/90 p-2 rounded text-card-foreground font-mono">{JSON.stringify(r.item, null, 2)}</pre>
                     </div>
                   ))
                 )}
               </div>
-            </div>
+
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <Button className="px-3" onClick={async () => {
+                  if (importResultRejected.length === 0) return toast('Rien à réessayer');
+                  const stillRejected: Array<{item:any,reason:string}> = [];
+                  const newlyAccepted: any[] = [];
+                  for (const rr of importResultRejected) {
+                    let endpoint = '';
+                    switch (activeEntity) {
+                      case 'teachers': endpoint = '/campushub-user-service/api/auth/register'; break;
+                      case 'rooms': endpoint = '/campushub-salle-service/api/salles'; break;
+                      case 'subjects': endpoint = '/campushub-scheduling-service/api/subjects'; break;
+                      case 'assignments': endpoint = '/campushub-scheduling-service/api/scheduling/assignments'; break;
+                    }
+                    try {
+                      const res = await api.post(endpoint, rr.item);
+                      newlyAccepted.push(res.data || rr.item);
+                    } catch (err: any) {
+                      stillRejected.push({ item: rr.item, reason: err.response?.data?.message || rr.reason || 'Erreur serveur' });
+                    }
+                  }
+
+                  setImportResultAccepted(prev => [...prev, ...newlyAccepted.map(i => ({ item: i }))]);
+                  setImportResultRejected(stillRejected);
+
+                  if (newlyAccepted.length > 0) toast.success(`${newlyAccepted.length} élément(s) importé(s)`);
+                  if (stillRejected.length > 0) toast.error(`${stillRejected.length} élément(s) échoués`);
+
+                  fetchData(activeEntity);
+                }}>Réessayer les échecs</Button>
+
+              </div>
+            </section>
           </div>
 
-          <DialogFooter>
-            <Button onClick={() => { setIsImportResultOpen(false); setImportResultAccepted([]); setImportResultRejected([]); }}>Fermer</Button>
+          <DialogFooter className="pt-4">
+            <Button variant="outline" onClick={() => { setIsImportResultOpen(false); setImportResultAccepted([]); setImportResultRejected([]); }}>Fermer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
