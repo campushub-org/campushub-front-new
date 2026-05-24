@@ -365,11 +365,22 @@ const EditionPage: React.FC = () => {
         const accepted: any[] = [];
         const rejected: Array<{item:any,reason:string}> = [];
 
+        const preprocessForImport = (obj: any) => {
+          const copy = JSON.parse(JSON.stringify(obj));
+          // remove client-side ids to force creation except subject.code which must be preserved
+          delete copy.id;
+          if (activeEntity !== 'subjects') delete copy.code;
+          Object.keys(copy).forEach(k => { if (/Id$|_id$/i.test(k)) delete copy[k]; });
+          return copy;
+        };
+
         for (const rawItem of json) {
             try {
                 // Basic validation per entity
-                let reason = null;
+                let reason: string | null = null;
                 const item = { ...rawItem };
+
+                // If the file was exported by this tool, ids are likely absent — we'll recreate safely.
                 switch (activeEntity) {
                     case "teachers":
                       if (!item.fullName || !item.email) reason = 'Champs manquants: fullName ou email';
@@ -384,7 +395,8 @@ const EditionPage: React.FC = () => {
                       if (!reason && subjects.some(s => s.code === item.code)) reason = 'Existe déjà (code)';
                       break;
                     case "assignments":
-                      if (!item.teacherId || !item.subjectCode) reason = 'Champs manquants: teacherId ou subjectCode';
+                      // Assignments rely on teacherId and subjectCode; if teacherId is missing, ask user to import teachers first
+                      if (!item.teacherId || !item.subjectCode) reason = "Champs manquants: teacherId ou subjectCode (importez d'abord les enseignants si nécessaire)";
                       if (!reason && assignments.some(a => a.teacherId === item.teacherId && a.subjectCode === item.subjectCode)) reason = 'Existe déjà (assignation)';
                       break;
                 }
@@ -392,6 +404,9 @@ const EditionPage: React.FC = () => {
                 if (reason) {
                   rejected.push({ item: rawItem, reason });
                 } else {
+                  // prepare payload — recreate objects (strip ids) except subject.code
+                  const payload = preprocessForImport(item);
+
                   // attempt to insert
                   let endpoint = "";
                   switch (activeEntity) {
@@ -402,10 +417,12 @@ const EditionPage: React.FC = () => {
                   }
 
                   try {
-                    const res = await api.post(endpoint, item);
-                    accepted.push({ item: res.data || item });
+                    // sequential POST to make behavior predictable and easier to inspect
+                    const res = await api.post(endpoint, payload);
+                    // store created entity returned by server (with new id)
+                    accepted.push({ item: res.data || payload, recreated: true });
                   } catch (err: any) {
-                    console.error("Failed to import item:", item, err);
+                    console.error("Failed to import item:", payload, err);
                     rejected.push({ item: rawItem, reason: err.response?.data?.message || 'Erreur serveur' });
                   }
                 }

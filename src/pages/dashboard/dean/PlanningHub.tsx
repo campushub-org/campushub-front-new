@@ -31,38 +31,35 @@ const PlanningHub = () => {
         <h1 className="text-2xl font-black tracking-tighter text-sidebar-primary">Gestion de la Programmation</h1>
       </div>
 
-      <div className="grid gap-6 p-6 grid-cols-1 sm:grid-cols-2">
+      <div className="space-y-4 p-6">
         {options.map((option) => (
           <article
+            id={`hub-${option.id}`}
             key={option.id}
             className={cn(
-              "flex flex-col justify-between w-full rounded-lg border border-sidebar-border bg-card/70 p-4 transition-shadow duration-200",
-              "hover:shadow-medium hover:scale-[1.01]",
-              option.path === '#' && "opacity-60 cursor-not-allowed"
+              "w-full rounded-2xl bg-card/80 border border-border/30 p-5 flex items-center justify-between gap-6 transition-transform duration-150 hover:scale-[1.01] hover:shadow-[0_8px_20px_-8px_rgba(0,0,0,0.5)]",
+              option.path === '#' ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
             )}
+            onClick={() => {
+              if (option.path === '#') return;
+              const el = document.getElementById(`hub-${option.id}`);
+              el?.classList.add('ring-2', 'ring-primary/30');
+              setTimeout(() => navigate(option.path), 110);
+            }}
           >
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center h-14 w-14 rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
                 <option.icon className="h-6 w-6" />
               </div>
-
-              <div className="flex-1">
+              <div className="flex flex-col">
                 <div className="text-lg font-semibold text-sidebar-primary">{option.title}</div>
-                <div className="text-sm text-sidebar-foreground/80 mt-1">{option.description}</div>
+                <div className="text-sm text-sidebar-foreground/80 mt-1 max-w-2xl">{option.description}</div>
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <Button
-                variant="ghost"
-                onClick={() => option.path !== '#' && navigate(option.path)}
-                disabled={option.path === '#'}
-                className={cn(
-                  "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  option.path === '#' && "pointer-events-none"
-                )}
-              >
-                Ouvrir
+            <div className="flex items-center gap-3">
+              <Button variant="outline" aria-label="Ouvrir" className="p-3 rounded-full font-semibold flex items-center justify-center text-sidebar-primary border-sidebar-primary/40 hover:bg-sidebar-accent">
+                <ChevronRight className="h-4 w-4 text-sidebar-primary" />
               </Button>
             </div>
           </article>
