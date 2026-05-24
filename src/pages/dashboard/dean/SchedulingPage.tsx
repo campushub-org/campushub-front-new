@@ -419,7 +419,7 @@ const DeanSchedulingPage: React.FC = () => {
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
           
           {/* Section Header & Toolbar */}
-          <div className="p-4 lg:p-6 pb-2 space-y-4 shrink-0 bg-background/50 backdrop-blur-sm z-10 border-b border-border/40 shadow-sm">
+          <div className="p-4 lg:p-6 pb-2 space-y-4 shrink-0 bg-gradient-hero/10 backdrop-blur-sm z-10 border-b border-sidebar-border/40 shadow-soft rounded-b-lg">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Tooltip>
@@ -427,7 +427,7 @@ const DeanSchedulingPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      className="h-9 w-9 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md"
                       onClick={() => navigate('/dashboard/dean/planning-hub')}
                     >
                       <ArrowLeft className="h-5 w-5" />
@@ -455,7 +455,7 @@ const DeanSchedulingPage: React.FC = () => {
                   </TooltipContent>
                 </Tooltip>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-semibold tracking-tight">Planning de l'établissement</h1>
+                  <h1 className="text-2xl font-extrabold text-sidebar-primary tracking-tight">Planning de l'établissement</h1>
                   {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                   </div>
                   </div>
@@ -493,7 +493,7 @@ const DeanSchedulingPage: React.FC = () => {
 
           {/* Grille du Calendrier - OCCUPE TOUT LE RESTE DE L'ESPACE */}
           <div className="flex-1 overflow-hidden relative">
-            <div className="h-full overflow-auto bg-card scrollbar-thin scrollbar-thumb-border">
+            <div className="h-full overflow-auto bg-card/80 p-6 rounded-lg shadow-medium scrollbar-thin scrollbar-thumb-sidebar-border">
               {viewMode === "week" && (
                 <WeekViewEditable
                   events={events}

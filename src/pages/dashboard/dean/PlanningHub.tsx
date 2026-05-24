@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Zap, ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,29 +31,41 @@ const PlanningHub = () => {
         <h1 className="text-2xl font-black tracking-tighter text-sidebar-primary">Gestion de la Programmation</h1>
       </div>
 
-      <div className="flex flex-col">
+      <div className="grid gap-6 p-6 grid-cols-1 sm:grid-cols-2">
         {options.map((option) => (
-          <button
+          <article
             key={option.id}
-            onClick={() => option.path !== '#' && navigate(option.path)}
-            disabled={option.path === '#'}
             className={cn(
-              "flex items-center gap-6 px-6 py-8 w-full text-left transition-colors duration-150 border-b border-sidebar-border",
-              "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              option.path === '#' && "opacity-50 cursor-not-allowed"
+              "flex flex-col justify-between w-full rounded-lg border border-sidebar-border bg-card/70 p-4 transition-shadow duration-200",
+              "hover:shadow-medium hover:scale-[1.01]",
+              option.path === '#' && "opacity-60 cursor-not-allowed"
             )}
           >
-            <div className="text-sidebar-primary">
-              <option.icon className="h-6 w-6" />
-            </div>
-            
-            <div className="flex-1">
-              <div className="text-lg font-bold text-foreground">{option.title}</div>
-              <div className="text-sm text-sidebar-foreground/80">{option.description}</div>
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+                <option.icon className="h-6 w-6" />
+              </div>
+
+              <div className="flex-1">
+                <div className="text-lg font-semibold text-sidebar-primary">{option.title}</div>
+                <div className="text-sm text-sidebar-foreground/80 mt-1">{option.description}</div>
+              </div>
             </div>
 
-            <ChevronRight className="h-5 w-5 text-sidebar-foreground/70" />
-          </button>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => option.path !== '#' && navigate(option.path)}
+                disabled={option.path === '#'}
+                className={cn(
+                  "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  option.path === '#' && "pointer-events-none"
+                )}
+              >
+                Ouvrir
+              </Button>
+            </div>
+          </article>
         ))}
       </div>
     </div>
