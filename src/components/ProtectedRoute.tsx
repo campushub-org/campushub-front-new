@@ -1,14 +1,10 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-
-const isAuthenticated = () => {
-  // Check for the presence of the authentication token.
-  return localStorage.getItem('token') !== null;
-};
+import { isAuthenticated } from '@/lib/auth';
 
 const ProtectedRoute: React.FC = () => {
   if (!isAuthenticated()) {
-    // If not authenticated, redirect to the sign-in page
+    // If not authenticated (or token expired), redirect to the sign-in page
     return <Navigate to="/signin" />;
   }
 
