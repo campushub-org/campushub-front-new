@@ -30,7 +30,10 @@ import {
   Settings,
   RefreshCw,
   Lock,
-  Upload
+ HEAD
+  Upload,
+  Download,
+  Copy
 } from "lucide-react";
 import { 
   Table, 
@@ -58,13 +61,34 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { toast } from "sonner";
+ 
 import ImportSection from "./import/ImportPage";
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 
 type EntityType = "teachers" | "rooms" | "subjects" | "assignments" | "import";
 type ViewMode = "list" | "detail";
@@ -77,6 +101,18 @@ const EditionPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Import/Export Modal states
+  const [isIOModalOpen, setIsIOModalOpen] = useState(false);
+  const [ioType, setIoType] = useState<"import" | "export">("export");
+  const [exportFormat, setExportFormat] = useState<"pdf" | "json">("pdf");
+  const [exportLevel, setExportLevel] = useState<string>("all");
+  const [exportSemester, setExportSemester] = useState<string>("all");
+
+  // Import result states (detailed)
+  const [isImportResultOpen, setIsImportResultOpen] = useState(false);
+  const [importResultAccepted, setImportResultAccepted] = useState<any[]>([]);
+  const [importResultRejected, setImportResultRejected] = useState<Array<{item:any,reason:string}>>([]);
   
   // Data states
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -154,9 +190,9 @@ useEffect(() => {
   const handleAdd = () => {
     let defaults = {};
     switch (activeEntity) {
-      case "teachers": defaults = { role: "TEACHER", department: "INFO", officeNumber: "", grade: "Professeur" }; break;
-      case "rooms": defaults = { actif: true, capacite: 50, batiment: "Bâtiment Principal" }; break;
-      case "subjects": defaults = { credits: 6, niveau: 1, semester: 1, category: "Fundamental" }; break;
+      case "teachers": defaults = { role: "TEACHER", department: "INFORMATIQUE-INE", officeNumber: "", grade: "Professeur" }; break;
+      case "rooms": defaults = { actif: true, capacite: 50, batiment: "Bâtiment Principal", filiere: "INFORMATIQUE-INE" }; break;
+      case "subjects": defaults = { credits: 6, niveau: 1, semester: 1, category: "Fundamental", specialite: "INFORMATIQUE-INE" }; break;
       case "assignments": defaults = { role: "COURSE_LECTURER" }; break;
     }
     setSelectedItem(defaults);
@@ -227,6 +263,197 @@ useEffect(() => {
     }
   };
 
+  const stripIds = (obj: any) => {
+    const copy = JSON.parse(JSON.stringify(obj));
+    // Remove common id fields to make exports safe for re-import
+    delete copy.id;
+    // Keep 'code' for subjects (subject.code is PK and should be preserved), otherwise remove to avoid collisions
+    if (activeEntity !== 'subjects') delete copy.code;
+    // remove keys that end with Id or _id
+    Object.keys(copy).forEach(k => {
+      if (/Id$|_id$/i.test(k)) delete copy[k];
+    });
+    return copy;
+  };
+
+  const handleExportAction = () => {
+    // Application des filtres Niveau et Semestre si applicable
+    let dataToExport = filteredData;
+    let description = "Liste complète des éléments";
+
+    if (activeEntity === "subjects") {
+      if (exportLevel !== "all") {
+        dataToExport = dataToExport.filter(s => s.niveau?.toString() === exportLevel);
+      }
+      if (exportSemester !== "all") {
+        dataToExport = dataToExport.filter(s => s.semester?.toString() === exportSemester);
+      }
+      description = `Matières - Filière: INFORMATIQUE-INE | Niveau: ${exportLevel === "all" ? "Tous" : "L"+exportLevel} | Semestre: ${exportSemester === "all" ? "Tous" : "S"+exportSemester}`;
+    } else {
+      const entityLabel = navItems.find(i => i.id === activeEntity)?.label || activeEntity;
+      description = `Liste des ${entityLabel} - Filière: INFORMATIQUE-INE`;
+    }
+    
+    if (!dataToExport || dataToExport.length === 0) {
+      toast.error("Aucune donnée ne correspond à ces critères");
+      return;
+    }
+
+    if (exportFormat === "json") {
+      // Strip IDs from export to avoid PK conflicts on re-import across services
+      const sanitized = dataToExport.map(item => stripIds(item));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sanitized, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `export_${activeEntity}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      toast.success("Export JSON réussi (IDs supprimés)");
+    } else {
+      const doc = new jsPDF();
+      doc.setFillColor(63, 81, 181);
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text("CAMPUSHUB", 14, 25);
+      
+      doc.setTextColor(40, 40, 40);
+      doc.setFontSize(16);
+      doc.text(`RAPPORT D'EDITION : ${activeEntity.toUpperCase()}`, 14, 55);
+      
+      // Ajout de la description détaillée
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(description, 14, 62);
+      doc.text(`Date de génération: ${new Date().toLocaleString()}`, 14, 68);
+      
+      doc.setDrawColor(200);
+      doc.line(14, 72, 196, 72);
+
+      let head: string[][] = [];
+      let body: any[][] = [];
+
+      if (activeEntity === "teachers") {
+          head = [["NOM COMPLET", "FILIERE", "GRADE", "EMAIL"]];
+          body = dataToExport.map(t => [t.fullName || "N/A", "INFORMATIQUE-INE", t.grade || "N/A", t.email || "N/A"]);
+      } else if (activeEntity === "rooms") {
+          head = [["NOM", "CODE", "FILIERE", "CAPACITE"]];
+          body = dataToExport.map(r => [r.nom || "N/A", r.code || "N/A", "INFORMATIQUE-INE", r.capacite || "0"]);
+      } else if (activeEntity === "subjects") {
+          head = [["NOM", "CODE", "FILIERE", "NIVEAU", "SEM"]];
+          body = dataToExport.map(s => [s.name || "N/A", s.code || "N/A", "INFORMATIQUE-INE", `L${s.niveau || 1}`, `S${s.semester || 1}`]);
+      } else {
+          head = [["ENSEIGNANT", "CODE UE", "FILIERE", "ROLE"]];
+          body = dataToExport.map(a => [a.teacherName || "N/A", a.subjectCode || "N/A", "INFORMATIQUE-INE", a.role || "N/A"]);
+      }
+
+      autoTable(doc, { head, body, startY: 78, theme: 'grid' });
+      doc.save(`rapport_${activeEntity}.pdf`);
+      toast.success("Rapport PDF généré");
+    }
+    setIsIOModalOpen(false);
+  };
+
+  const handleImportExecute = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (!Array.isArray(json)) {
+            toast.error("Le format JSON doit être une liste d'objets");
+            return;
+        }
+
+        const accepted: any[] = [];
+        const rejected: Array<{item:any,reason:string}> = [];
+
+        const preprocessForImport = (obj: any) => {
+          const copy = JSON.parse(JSON.stringify(obj));
+          // remove client-side ids to force creation except subject.code which must be preserved
+          delete copy.id;
+          if (activeEntity !== 'subjects') delete copy.code;
+          Object.keys(copy).forEach(k => { if (/Id$|_id$/i.test(k)) delete copy[k]; });
+          return copy;
+        };
+
+        for (const rawItem of json) {
+            try {
+                // Basic validation per entity
+                let reason: string | null = null;
+                const item = { ...rawItem };
+
+                // If the file was exported by this tool, ids are likely absent — we'll recreate safely.
+                switch (activeEntity) {
+                    case "teachers":
+                      if (!item.fullName || !item.email) reason = 'Champs manquants: fullName ou email';
+                      if (!reason && teachers.some(t => t.email === item.email)) reason = 'Existe déjà (email)';
+                      break;
+                    case "rooms":
+                      if (!item.nom && !item.code) reason = 'Champs manquants: nom ou code';
+                      if (!reason && (rooms.some(r => r.code === item.code) || rooms.some(r => r.nom === item.nom))) reason = 'Existe déjà (code/nom)';
+                      break;
+                    case "subjects":
+                      if (!item.code || !item.name) reason = 'Champs manquants: code ou name';
+                      if (!reason && subjects.some(s => s.code === item.code)) reason = 'Existe déjà (code)';
+                      break;
+                    case "assignments":
+                      // Assignments rely on teacherId and subjectCode; if teacherId is missing, ask user to import teachers first
+                      if (!item.teacherId || !item.subjectCode) reason = "Champs manquants: teacherId ou subjectCode (importez d'abord les enseignants si nécessaire)";
+                      if (!reason && assignments.some(a => a.teacherId === item.teacherId && a.subjectCode === item.subjectCode)) reason = 'Existe déjà (assignation)';
+                      break;
+                }
+
+                if (reason) {
+                  rejected.push({ item: rawItem, reason });
+                } else {
+                  // prepare payload — recreate objects (strip ids) except subject.code
+                  const payload = preprocessForImport(item);
+
+                  // attempt to insert
+                  let endpoint = "";
+                  switch (activeEntity) {
+                    case "teachers": endpoint = "/campushub-user-service/api/auth/register"; break;
+                    case "rooms": endpoint = "/campushub-salle-service/api/salles"; break;
+                    case "subjects": endpoint = "/campushub-scheduling-service/api/subjects"; break;
+                    case "assignments": endpoint = "/campushub-scheduling-service/api/scheduling/assignments"; break;
+                  }
+
+                  try {
+                    // sequential POST to make behavior predictable and easier to inspect
+                    const res = await api.post(endpoint, payload);
+                    // store created entity returned by server (with new id)
+                    accepted.push({ item: res.data || payload, recreated: true });
+                  } catch (err: any) {
+                    console.error("Failed to import item:", payload, err);
+                    rejected.push({ item: rawItem, reason: err.response?.data?.message || 'Erreur serveur' });
+                  }
+                }
+
+            } catch (err) {
+                console.error("Failed to process item:", rawItem, err);
+                rejected.push({ item: rawItem, reason: 'Erreur parsing item' });
+            }
+        }
+
+        // save results and show detailed dialog
+        setImportResultAccepted(accepted);
+        setImportResultRejected(rejected);
+        setIsImportResultOpen(true);
+
+        // refresh lists for UI
+        fetchData(activeEntity);
+        setIsIOModalOpen(false);
+      } catch (err) {
+        toast.error("Fichier JSON invalide");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const navItems = [
     { id: "teachers", label: "Enseignants", icon: Users },
     { id: "rooms", label: "Salles", icon: MapPin },
@@ -244,15 +471,28 @@ useEffect(() => {
         {/* Sidebar Verticale */}
         <aside className={cn(
           "shrink-0 border-r border-border/50 bg-card transition-all duration-300 relative h-full",
+    
           sidebarOpen ? "w-52 opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
         )}>
           <div className="w-52 flex flex-col h-full">
+
+          sidebarOpen ? "w-[14.5rem] opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
+        )}>
+          <div className="w-[14.5rem] flex flex-col h-full">
+
             <div className="py-6">
               <div className="px-6 mb-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Navigation</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => fetchData(activeEntity)}>
-                   <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => fetchData(activeEntity)}>
+                    <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
+                  </Button>
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                    <Upload className="h-3 w-3" />
+                    <input type="file" accept="application/json" className="hidden" onChange={handleImportExecute} />
+                    <span>Importer</span>
+                  </label>
+                </div>
               </div>
               <nav className="px-3 space-y-1">
                 {navItems.map((item) => {
@@ -320,10 +560,45 @@ useEffect(() => {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
-                    <Plus className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
-                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => { setIoType("import"); setIsIOModalOpen(true); }}
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs font-bold uppercase tracking-wider">Importer la liste</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => { setIoType("export"); setIsIOModalOpen(true); }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs font-bold uppercase tracking-wider">Exporter la liste</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
+                      <Plus className="h-4 w-4" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -344,7 +619,7 @@ useEffect(() => {
   </div>
 ) : viewMode === "list" ? (
                 /* VUE LISTE */
-                <div className="max-w-5xl mx-auto my-8 bg-card border border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
+                <div className="w-full mb-8 bg-card border-b border-border/50 shadow-xl shadow-black/5 overflow-hidden animate-in fade-in duration-300">
                   <Table>
                     <TableHeader className="bg-muted/50">
                       <TableRow>
@@ -406,7 +681,7 @@ useEffect(() => {
                 </div>
               ) : (
                 /* VUE DÉTAIL PROFESSIONNELLE */
-                <div className="max-w-5xl mx-auto my-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20">
+                <div className="w-full mb-8 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-20 px-4 md:px-8 lg:px-12">
                   
                   {/* Header de la Fiche */}
                   <div className="flex items-end justify-between mb-8 px-2 text-left">
@@ -456,7 +731,7 @@ useEffect(() => {
                                <Input type="email" value={selectedItem.email || ""} onChange={v => setSelectedItem({...selectedItem, email: v.target.value})} placeholder="jean.dupont@campushub.cm" />
                              </FormGroup>
                              <FormGroup label="Département" icon={<Building className="h-4 w-4" />}>
-                               <Input value={selectedItem.department || ""} onChange={v => setSelectedItem({...selectedItem, department: v.target.value})} placeholder="INFO, MATH, etc." />
+                               <Input value={selectedItem.department || ""} onChange={v => setSelectedItem({...selectedItem, department: v.target.value})} placeholder="INFORMATIQUE-INE" />
                              </FormGroup>
                              <FormGroup label="Numéro de bureau" icon={<MapPin className="h-4 w-4" />}>
                                <Input value={selectedItem.officeNumber || ""} onChange={v => setSelectedItem({...selectedItem, officeNumber: v.target.value})} placeholder="Ex: B-204" />
@@ -501,7 +776,7 @@ useEffect(() => {
                                <Input value={selectedItem.category || ""} onChange={v => setSelectedItem({...selectedItem, category: v.target.value})} placeholder="Fondamentale, Optionnelle..." />
                              </FormGroup>
                              <FormGroup label="Spécialité" icon={<GraduationCap className="h-4 w-4" />}>
-                               <Input value={selectedItem.specialite || ""} onChange={v => setSelectedItem({...selectedItem, specialite: v.target.value})} placeholder="Tronc commun, Réseaux..." />
+                               <Input value={selectedItem.specialite || ""} onChange={v => setSelectedItem({...selectedItem, specialite: v.target.value})} placeholder="INFORMATIQUE-INE" />
                              </FormGroup>
                            </>
                          )}
@@ -590,7 +865,7 @@ useEffect(() => {
                             {activeEntity === "rooms" && (
                               <>
                                 <FormGroup label="Filière dédiée" icon={<GraduationCap className="h-4 w-4" />}>
-                                  <Input value={selectedItem.filiere || ""} onChange={v => setSelectedItem({...selectedItem, filiere: v.target.value})} placeholder="INFO, MATH..." />
+                                  <Input value={selectedItem.filiere || ""} onChange={v => setSelectedItem({...selectedItem, filiere: v.target.value})} placeholder="INFORMATIQUE-INE" />
                                 </FormGroup>
                                 <div className="flex items-center justify-between p-5 bg-background border border-border/60 rounded-2xl shadow-sm">
                                   <div className="space-y-0.5">
@@ -649,6 +924,321 @@ useEffect(() => {
           </div>
         </main>
       </div>
+
+      {/* Panneau d'Import/Export (ERP Style) */}
+      <Sheet open={isIOModalOpen} onOpenChange={setIsIOModalOpen}>
+        <SheetContent className="sm:max-w-[500px] flex flex-col h-full border-l border-border/40 shadow-2xl">
+          <SheetHeader className="text-left border-b border-border/40 pb-6 mb-6">
+            <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
+              {ioType === "export" ? <Download className="h-6 w-6 text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
+              {ioType === "export" ? "PARAMÈTRES D'EXPORTATION" : "IMPORTATION DE DONNÉES"}
+            </SheetTitle>
+            <SheetDescription className="text-sm font-medium text-muted-foreground mt-2">
+              {ioType === "export" 
+                ? "Configurez le périmètre et le format de votre rapport académique."
+                : "Chargez un fichier JSON pour synchroniser massivement vos données."}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto pr-2 space-y-8 py-2">
+            {ioType === "export" ? (
+              <>
+                {/* SECTION FORMAT */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-primary/80">
+                    <Monitor className="h-4 w-4" />
+                    <Label className="text-[11px] font-black uppercase tracking-widest">Format du document</Label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => setExportFormat("pdf")}
+                      className={cn(
+                        "group flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all text-center",
+                        exportFormat === "pdf" ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 hover:border-primary/30"
+                      )}
+                    >
+                      <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-colors", exportFormat === "pdf" ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
+                        <Database className="h-6 w-6" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <span className="block font-bold text-sm">Rapport PDF</span>
+                        <span className="block text-[10px] opacity-60 uppercase font-bold">Imprimable</span>
+                      </div>
+                    </button>
+                    <button 
+                      onClick={() => setExportFormat("json")}
+                      className={cn(
+                        "group flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all text-center",
+                        exportFormat === "json" ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 hover:border-primary/30"
+                      )}
+                    >
+                      <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-colors", exportFormat === "json" ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
+                        <div className="font-black text-xs">JSON</div>
+                      </div>
+                      <div className="space-y-0.5">
+                        <span className="block font-bold text-sm">Données JSON</span>
+                        <span className="block text-[10px] opacity-60 uppercase font-bold">Sauvegarde</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <Separator className="bg-border/40" />
+
+                {/* SECTION PERIMETRE */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 text-primary/80">
+                    <Filter className="h-4 w-4" />
+                    <Label className="text-[11px] font-black uppercase tracking-widest">Périmètre des données</Label>
+                  </div>
+                  
+                  <div className="space-y-4 px-1">
+                    <FormGroup label="Filière / Département">
+                      <Select value="INFO" disabled>
+                        <SelectTrigger className="h-10 bg-muted/50 font-bold"><SelectValue placeholder="INFORMATIQUE-INE" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="INFO">INFORMATIQUE-INE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[10px] text-muted-foreground italic mt-1 px-1">Seule la filière INFORMATIQUE-INE est gérée actuellement.</p>
+                    </FormGroup>
+
+                    {activeEntity === "subjects" && (
+                      <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                        <FormGroup label="Niveau">
+                          <Select value={exportLevel} onValueChange={setExportLevel}>
+                            <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Tous</SelectItem>
+                              <SelectItem value="1">L1</SelectItem>
+                              <SelectItem value="2">L2</SelectItem>
+                              <SelectItem value="3">L3</SelectItem>
+                              <SelectItem value="4">M1</SelectItem>
+                              <SelectItem value="5">M2</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormGroup>
+                        <FormGroup label="Semestre">
+                          <Select value={exportSemester} onValueChange={setExportSemester}>
+                            <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Tous</SelectItem>
+                              <SelectItem value="1">S1</SelectItem>
+                              <SelectItem value="2">S2</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormGroup>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* IMPORT SECTION */
+              <div className="space-y-6">
+                <div 
+                  onClick={() => document.getElementById('io-file-input')?.click()}
+                  className="border-2 border-dashed border-border/60 rounded-3xl p-12 flex flex-col items-center justify-center gap-6 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all group"
+                >
+                  <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <Upload className="h-10 w-10" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="font-extrabold text-lg tracking-tight text-foreground">Déposez votre fichier</p>
+                    <p className="text-sm text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
+                      Sélectionnez un fichier <span className="font-mono text-primary font-bold">.JSON</span> formaté pour l'entité <span className="font-bold underline italic">{activeEntity}</span>
+                    </p>
+                  </div>
+                  <Button variant="outline" className="rounded-full px-8 font-bold border-primary/40 text-primary">Parcourir les fichiers</Button>
+                </div>
+                
+                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-4">
+                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+                   <div className="space-y-1">
+                      <p className="text-xs font-black text-amber-800 uppercase">Attention</p>
+                      <p className="text-xs text-amber-700/80 leading-relaxed font-medium">
+                        L'importation massive écrase ou ajoute des données directement en production. Assurez-vous de la validité de votre fichier JSON.
+                      </p>
+                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <SheetFooter className="border-t border-border/40 pt-6 mt-auto">
+            <div className="flex w-full gap-3">
+              <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold" onClick={() => setIsIOModalOpen(false)}>Fermer</Button>
+              {ioType === "export" && (
+                <Button onClick={handleExportAction} className="flex-[2] h-12 rounded-xl font-black gap-2 shadow-lg shadow-primary/20">
+                  <Download className="h-4 w-4" /> GÉNÉRER L'EXPORTATION
+                </Button>
+              )}
+            </div>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <input 
+        type="file" 
+        id="io-file-input" 
+        className="hidden" 
+        accept=".json" 
+        onChange={handleImportExecute} 
+      />
+
+      {/* Dialog: detailed import results (improved styling & actions) */}
+      <Dialog open={isImportResultOpen} onOpenChange={setIsImportResultOpen}>
+        <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-auto bg-popover/95">
+          <DialogHeader className="flex items-center justify-between gap-4">
+            <div>
+              <DialogTitle>Résultat de l'import</DialogTitle>
+              <DialogDescription className="text-sm">Détails des éléments insérés et des éléments rejetés avec explication.</DialogDescription>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Badge className="bg-emerald-800 text-emerald-50 border-emerald-700">Acceptés: {importResultAccepted.length}</Badge>
+              <Badge className="bg-rose-800 text-rose-50 border-rose-700">Rejetés: {importResultRejected.length}</Badge>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(JSON.stringify({ accepted: importResultAccepted.map(a => a.item), rejected: importResultRejected.map(r => ({ item: r.item, reason: r.reason })) }, null, 2));
+                  toast.success('Copié dans le presse-papier');
+                } catch (err) { toast.error('Impossible de copier'); }
+              }}>
+                <Copy className="h-4 w-4" /> Copier tout
+              </Button>
+            </div>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4">
+            <section className="p-3 rounded-lg bg-card/80 border border-border/30 border-l-4 border-emerald-600/40">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold">Acceptés</h4>
+                <span className="text-xs text-emerald-200">{importResultAccepted.length}</span>
+              </div>
+
+              <div className="space-y-3 max-h-96 overflow-auto pr-2">
+                {importResultAccepted.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">Aucun élément inséré.</div>
+                ) : (
+                  importResultAccepted.map((r, i) => (
+                    <div key={i} className="p-3 rounded-lg bg-popover/80 border border-border/30 flex flex-col gap-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                          <div>
+                            <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
+                            <div className="text-xs text-muted-foreground">{r.item?.email || r.item?.code || r.item?.subjectCode || (r.item?.teacherId ? `Teacher ${r.item.teacherId}` : '')}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            // toggle expand
+                            const key = `acc-${i}`;
+                            // use DOM to toggle a hidden pre (simple approach without adding more state)
+                            const node = document.getElementById(key);
+                            if (node) node.classList.toggle('hidden');
+                          }}>
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                            try { await navigator.clipboard.writeText(JSON.stringify(r.item, null, 2)); toast.success('Copié'); }
+                            catch { toast.error('Échec copie'); }
+                          }}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <pre id={`acc-${i}`} className="text-xs mt-1 overflow-auto max-h-40 hidden bg-card/90 p-2 rounded text-card-foreground font-mono">{JSON.stringify(r.item, null, 2)}</pre>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            <section className="p-3 rounded-lg bg-card/80 border border-border/30 border-l-4 border-rose-600/40">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold">Rejetés</h4>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-rose-700">{importResultRejected.length}</span>
+                </div>
+              </div>
+
+              <div className="space-y-3 max-h-96 overflow-auto pr-2">
+                {importResultRejected.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">Aucun élément rejeté.</div>
+                ) : (
+                  importResultRejected.map((r, i) => (
+                    <div key={i} className="p-3 rounded-lg bg-popover/80 border border-border/30 flex flex-col gap-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <AlertCircle className="h-5 w-5 text-rose-600" />
+                          <div>
+                            <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
+                            <div className="text-xs text-destructive">Raison : {r.reason}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            const key = `rej-${i}`;
+                            const node = document.getElementById(key);
+                            if (node) node.classList.toggle('hidden');
+                          }}>
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                            try { await navigator.clipboard.writeText(JSON.stringify(r.item, null, 2)); toast.success('Copié'); }
+                            catch { toast.error('Échec copie'); }
+                          }}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <pre id={`rej-${i}`} className="text-xs mt-1 overflow-auto max-h-40 hidden bg-card/90 p-2 rounded text-card-foreground font-mono">{JSON.stringify(r.item, null, 2)}</pre>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <Button className="px-3" onClick={async () => {
+                  if (importResultRejected.length === 0) return toast('Rien à réessayer');
+                  const stillRejected: Array<{item:any,reason:string}> = [];
+                  const newlyAccepted: any[] = [];
+                  for (const rr of importResultRejected) {
+                    let endpoint = '';
+                    switch (activeEntity) {
+                      case 'teachers': endpoint = '/campushub-user-service/api/auth/register'; break;
+                      case 'rooms': endpoint = '/campushub-salle-service/api/salles'; break;
+                      case 'subjects': endpoint = '/campushub-scheduling-service/api/subjects'; break;
+                      case 'assignments': endpoint = '/campushub-scheduling-service/api/scheduling/assignments'; break;
+                    }
+                    try {
+                      const res = await api.post(endpoint, rr.item);
+                      newlyAccepted.push(res.data || rr.item);
+                    } catch (err: any) {
+                      stillRejected.push({ item: rr.item, reason: err.response?.data?.message || rr.reason || 'Erreur serveur' });
+                    }
+                  }
+
+                  setImportResultAccepted(prev => [...prev, ...newlyAccepted.map(i => ({ item: i }))]);
+                  setImportResultRejected(stillRejected);
+
+                  if (newlyAccepted.length > 0) toast.success(`${newlyAccepted.length} élément(s) importé(s)`);
+                  if (stillRejected.length > 0) toast.error(`${stillRejected.length} élément(s) échoués`);
+
+                  fetchData(activeEntity);
+                }}>Réessayer les échecs</Button>
+
+              </div>
+            </section>
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button variant="outline" onClick={() => { setIsImportResultOpen(false); setImportResultAccepted([]); setImportResultRejected([]); }}>Fermer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </TooltipProvider>
   );
 };

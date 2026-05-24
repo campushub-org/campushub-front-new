@@ -1,13 +1,27 @@
 "use client"
 
-import { Clock, TrendingUp, BookOpen, Calendar, RefreshCw } from "lucide-react"
+import { Clock, TrendingUp, BookOpen, Calendar, RefreshCw, Layers, Plus, Download, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ScheduleEvent, courseTypeLabels, courseTypeColors, CourseType } from "@/lib/schedule-data"
+import { ScheduleEvent, SchedulePlan, courseTypeLabels, courseTypeColors, CourseType } from "@/lib/schedule-data"
 import { ResourceFilters } from "./resource-filters"
 import { useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 
 interface ScheduleSidebarProps {
   events: ScheduleEvent[]
+  plans?: SchedulePlan[]
+  selectedPlanId?: string
+  onPlanChange?: (planId: string) => void
+  onAddPlan?: () => void
+  onImportPlan?: () => void
+  onExportPlan?: (planId: string) => void
   selectedTypes: CourseType[]
   allProfessors: string[]
   allRooms: string[]
@@ -23,6 +37,12 @@ interface ScheduleSidebarProps {
 
 export function ScheduleSidebar({
   events,
+  plans = [],
+  selectedPlanId,
+  onPlanChange,
+  onAddPlan,
+  onImportPlan,
+  onExportPlan,
   selectedTypes,
   allProfessors,
   allRooms,
@@ -93,6 +113,48 @@ export function ScheduleSidebar({
           <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
         </button>
       </div>
+
+      {/* Sélecteur de Programmation (Plan) */}
+      <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-primary">
+            <Layers className="h-3.5 w-3.5" /> Programmation
+          </h3>
+          <div className="flex gap-1">
+             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onImportPlan} title="Importer">
+               <Upload className="h-3 w-3" />
+             </Button>
+             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={() => selectedPlanId && onExportPlan?.(selectedPlanId)} title="Exporter">
+               <Download className="h-3 w-3" />
+             </Button>
+             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onAddPlan} title="Nouveau plan">
+               <Plus className="h-3 w-3" />
+             </Button>
+          </div>
+        </div>
+
+        <Select value={selectedPlanId} onValueChange={onPlanChange}>
+          <SelectTrigger className="h-9 bg-background border-primary/20 text-xs font-medium">
+            <SelectValue placeholder="Choisir une version" />
+          </SelectTrigger>
+          <SelectContent>
+            {plans.length === 0 ? (
+              <SelectItem value="none" disabled>Aucun plan disponible</SelectItem>
+            ) : (
+              plans.map(plan => (
+                <SelectItem key={plan.id} value={plan.id} className="text-xs">
+                  <div className="flex items-center gap-2">
+                    <span>{plan.name}</span>
+                    {plan.status === 'ACTIVE' && <Badge className="h-3.5 px-1 text-[8px] bg-emerald-500 uppercase">Actif</Badge>}
+                    {plan.status === 'DRAFT' && <Badge variant="outline" className="h-3.5 px-1 text-[8px] uppercase">Draft</Badge>}
+                  </div>
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid gap-3">
         <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">

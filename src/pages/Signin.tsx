@@ -8,6 +8,7 @@ import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { isAuthenticated } from "@/lib/auth";
 
 interface LoginData {
   username: string;
@@ -26,8 +27,7 @@ const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
+    if (isAuthenticated()) {
       navigate('/dashboard', { replace: true });
     }
   }, [navigate]);
