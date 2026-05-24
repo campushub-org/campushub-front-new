@@ -102,6 +102,11 @@ const EditionPage: React.FC = () => {
   const [exportFormat, setExportFormat] = useState<"pdf" | "json">("pdf");
   const [exportLevel, setExportLevel] = useState<string>("all");
   const [exportSemester, setExportSemester] = useState<string>("all");
+
+  // Import result states (detailed)
+  const [isImportResultOpen, setIsImportResultOpen] = useState(false);
+  const [importResultAccepted, setImportResultAccepted] = useState<any[]>([]);
+  const [importResultRejected, setImportResultRejected] = useState<Array<{item:any,reason:string}>>([]);
   
   // Data states
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -341,23 +346,66 @@ const EditionPage: React.FC = () => {
             return;
         }
 
-        let successCount = 0;
-        for (const item of json) {
+        const accepted: any[] = [];
+        const rejected: Array<{item:any,reason:string}> = [];
+
+        for (const rawItem of json) {
             try {
-                let endpoint = "";
+                // Basic validation per entity
+                let reason = null;
+                const item = { ...rawItem };
                 switch (activeEntity) {
+                    case "teachers":
+                      if (!item.fullName || !item.email) reason = 'Champs manquants: fullName ou email';
+                      if (!reason && teachers.some(t => t.email === item.email)) reason = 'Existe déjà (email)';
+                      break;
+                    case "rooms":
+                      if (!item.nom && !item.code) reason = 'Champs manquants: nom ou code';
+                      if (!reason && (rooms.some(r => r.code === item.code) || rooms.some(r => r.nom === item.nom))) reason = 'Existe déjà (code/nom)';
+                      break;
+                    case "subjects":
+                      if (!item.code || !item.name) reason = 'Champs manquants: code ou name';
+                      if (!reason && subjects.some(s => s.code === item.code)) reason = 'Existe déjà (code)';
+                      break;
+                    case "assignments":
+                      if (!item.teacherId || !item.subjectCode) reason = 'Champs manquants: teacherId ou subjectCode';
+                      if (!reason && assignments.some(a => a.teacherId === item.teacherId && a.subjectCode === item.subjectCode)) reason = 'Existe déjà (assignation)';
+                      break;
+                }
+
+                if (reason) {
+                  rejected.push({ item: rawItem, reason });
+                } else {
+                  // attempt to insert
+                  let endpoint = "";
+                  switch (activeEntity) {
                     case "teachers": endpoint = "/campushub-user-service/api/auth/register"; break;
                     case "rooms": endpoint = "/campushub-salle-service/api/salles"; break;
                     case "subjects": endpoint = "/campushub-scheduling-service/api/subjects"; break;
                     case "assignments": endpoint = "/campushub-scheduling-service/api/scheduling/assignments"; break;
+                  }
+
+                  try {
+                    const res = await api.post(endpoint, item);
+                    accepted.push({ item: res.data || item });
+                  } catch (err: any) {
+                    console.error("Failed to import item:", item, err);
+                    rejected.push({ item: rawItem, reason: err.response?.data?.message || 'Erreur serveur' });
+                  }
                 }
-                await api.post(endpoint, item);
-                successCount++;
+
             } catch (err) {
-                console.error("Failed to import item:", item, err);
+                console.error("Failed to process item:", rawItem, err);
+                rejected.push({ item: rawItem, reason: 'Erreur parsing item' });
             }
         }
-        toast.success(`${successCount} éléments importés avec succès`);
+
+        // save results and show detailed dialog
+        setImportResultAccepted(accepted);
+        setImportResultRejected(rejected);
+        setIsImportResultOpen(true);
+
+        // refresh lists for UI
         fetchData(activeEntity);
         setIsIOModalOpen(false);
       } catch (err) {
@@ -389,9 +437,16 @@ const EditionPage: React.FC = () => {
             <div className="py-6">
               <div className="px-6 mb-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Navigation</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => fetchData(activeEntity)}>
-                   <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => fetchData(activeEntity)}>
+                    <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
+                  </Button>
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                    <Upload className="h-3 w-3" />
+                    <input type="file" accept="application/json" className="hidden" onChange={handleImportExecute} />
+                    <span>Importer</span>
+                  </label>
+                </div>
               </div>
               <nav className="px-3 space-y-1">
                 {navItems.map((item) => {
@@ -981,6 +1036,61 @@ const EditionPage: React.FC = () => {
         accept=".json" 
         onChange={handleImportExecute} 
       />
+
+      {/* Dialog: detailed import results */}
+      <Dialog open={isImportResultOpen} onOpenChange={setIsImportResultOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Résultat de l'import</DialogTitle>
+            <DialogDescription>Liste détaillée des éléments importés et des éléments rejetés avec la raison.</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4">
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Éléments acceptés ({importResultAccepted.length})</h4>
+              <div className="space-y-2 max-h-80 overflow-auto p-2 border border-border/40 rounded">
+                {importResultAccepted.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">Aucun élément inséré.</div>
+                ) : (
+                  importResultAccepted.map((r, i) => (
+                    <div key={i} className="p-2 bg-card/60 rounded flex items-start gap-3">
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
+                        <div className="text-xs text-muted-foreground">{r.item?.email || r.item?.code || r.item?.subjectCode || (r.item?.teacherId ? `Teacher ${r.item.teacherId}` : '')}</div>
+                        <pre className="text-xs mt-1 overflow-auto max-h-24">{JSON.stringify(r.item, null, 2)}</pre>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Éléments rejetés ({importResultRejected.length})</h4>
+              <div className="space-y-2 max-h-80 overflow-auto p-2 border border-border/40 rounded">
+                {importResultRejected.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">Aucun élément rejeté.</div>
+                ) : (
+                  importResultRejected.map((r, i) => (
+                    <div key={i} className="p-2 bg-card/60 rounded flex items-start gap-3">
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
+                        <div className="text-xs text-destructive">Raison : {r.reason}</div>
+                        <pre className="text-xs mt-1 overflow-auto max-h-24">{JSON.stringify(r.item, null, 2)}</pre>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => { setIsImportResultOpen(false); setImportResultAccepted([]); setImportResultRejected([]); }}>Fermer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </TooltipProvider>
   );
 };
