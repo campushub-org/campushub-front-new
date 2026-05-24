@@ -3,6 +3,7 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
   Layout,
   Search,
   Settings,
@@ -23,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { 
   Dialog, 
@@ -46,6 +48,7 @@ const DeanSchedulingPage: React.FC = () => {
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>(["L1"]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
   
   // Real data and loading state
   const [loading, setLoading] = useState(false);
@@ -424,6 +427,20 @@ const DeanSchedulingPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="h-9 w-9 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      onClick={() => navigate('/dashboard/dean/planning-hub')}
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Retour au Hub</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className={cn(
                         "h-9 w-9 transition-colors hover:bg-accent",
                         sidebarOpen ? "text-primary bg-primary/5" : "text-muted-foreground"
@@ -436,8 +453,8 @@ const DeanSchedulingPage: React.FC = () => {
                   <TooltipContent side="right">
                     {sidebarOpen ? "Masquer les filtres" : "Afficher les filtres"}
                   </TooltipContent>
-                  </Tooltip>
-                  <div className="flex items-center gap-3">
+                </Tooltip>
+                <div className="flex items-center gap-3">
                   <h1 className="text-xl font-semibold tracking-tight">Planning de l'établissement</h1>
                   {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                   </div>

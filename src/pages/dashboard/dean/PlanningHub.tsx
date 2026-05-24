@@ -26,9 +26,9 @@ const PlanningHub = () => {
   ];
 
   return (
-    <div className={cn("w-full h-full bg-card animate-in fade-in duration-300", layoutOverrider)}>
-      <div className="px-6 py-6 border-b border-border">
-        <h1 className="text-2xl font-black tracking-tighter text-foreground">Gestion de la Programmation</h1>
+    <div className={cn("w-full h-full bg-sidebar text-sidebar-foreground animate-in fade-in duration-300", layoutOverrider)}>
+      <div className="px-6 py-6 border-b border-sidebar-border">
+        <h1 className="text-2xl font-black tracking-tighter text-sidebar-primary">Gestion de la Programmation</h1>
       </div>
 
       <div className="flex flex-col">
@@ -38,21 +38,21 @@ const PlanningHub = () => {
             onClick={() => option.path !== '#' && navigate(option.path)}
             disabled={option.path === '#'}
             className={cn(
-              "flex items-center gap-6 px-6 py-8 w-full text-left transition-colors duration-150 border-b border-border",
-              "hover:bg-accent/50",
+              "flex items-center gap-6 px-6 py-8 w-full text-left transition-colors duration-150 border-b border-sidebar-border",
+              "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               option.path === '#' && "opacity-50 cursor-not-allowed"
             )}
           >
-            <div className="text-primary">
+            <div className="text-sidebar-primary">
               <option.icon className="h-6 w-6" />
             </div>
             
             <div className="flex-1">
               <div className="text-lg font-bold text-foreground">{option.title}</div>
-              <div className="text-sm text-muted-foreground">{option.description}</div>
+              <div className="text-sm text-sidebar-foreground/80">{option.description}</div>
             </div>
 
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <ChevronRight className="h-5 w-5 text-sidebar-foreground/70" />
           </button>
         ))}
       </div>
