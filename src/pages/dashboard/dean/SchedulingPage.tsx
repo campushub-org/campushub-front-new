@@ -590,6 +590,7 @@ const DeanSchedulingPage: React.FC = () => {
           isOpen={drawerOpen}
           event={selectedEvent}
           planId={selectedPlanId}
+          planLevel={plans.find(p => p.id === selectedPlanId)?.level}
           workingDate={currentDate}
           isNew={isNewEvent}
           onClose={() => {

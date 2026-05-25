@@ -47,6 +47,7 @@ interface EventDrawerProps {
   isOpen: boolean
   event: ScheduleEvent | null
   planId?: string
+  planLevel?: string
   workingDate: Date
   isNew?: boolean
   onClose: () => void
@@ -84,6 +85,7 @@ export function EventDrawer({
   isOpen,
   event,
   planId,
+  planLevel,
   isNew = false,
   workingDate,
   onClose,
@@ -173,12 +175,20 @@ export function EventDrawer({
     }
   }, [event])
 
-  // Charger les matières au montage
+  // Charger les matières au montage ou changement de planLevel
   useEffect(() => {
     const fetchSubjects = async () => {
       setLoadingSubjects(true)
       try {
-        const response = await api.get('/campushub-scheduling-service/api/subjects')
+        let url = '/campushub-scheduling-service/api/subjects';
+        if (planLevel) {
+            // Conversion L1/L2/L3/M1/M2 vers 1/2/3/4/5
+            const levelDigit = planLevel.replace(/\D/g, '');
+            if (levelDigit) {
+                url = `${url}?niveau=${levelDigit}`;
+            }
+        }
+        const response = await api.get(url)
         setSubjects(response.data)
       } catch (err) {
         console.error("Error fetching subjects", err)
@@ -188,7 +198,7 @@ export function EventDrawer({
     }
     
     if (isOpen) fetchSubjects()
-  }, [isOpen])
+  }, [isOpen, planLevel])
 
   const [isSaving, setIsSaving] = useState(false)
   const [conflict, setConflict] = useState(false)
