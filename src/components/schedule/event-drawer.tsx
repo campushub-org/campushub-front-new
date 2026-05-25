@@ -433,20 +433,25 @@ export function EventDrawer({
               <div className="space-y-2">
                 <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignant responsable</Label>
                 <Select 
-                  value={formData.teacherId?.toString()} 
+                  value={formData.teacherId?.toString() || "none"} 
                   onValueChange={(v) => {
-                    const t = teachers.find(prof => prof.id.toString() === v)
-                    setFormData({ ...formData, teacherId: parseInt(v), professor: t?.fullName })
+                    if (v === "none") {
+                        setFormData({ ...formData, teacherId: undefined, professor: undefined })
+                    } else {
+                        const t = teachers.find(prof => prof.id.toString() === v)
+                        setFormData({ ...formData, teacherId: parseInt(v), professor: t?.fullName })
+                    }
                     setHasChanges(true)
                   }}
                 >
                   <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-primary/60" />
-                      <SelectValue placeholder="Choisir l'intervenant" />
+                      <SelectValue placeholder="À DÉTERMINER" />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none" className="font-bold text-amber-600">À DÉTERMINER</SelectItem>
                     {teachers.map(t => (
                       <SelectItem key={t.id} value={t.id.toString()}>{t.fullName}</SelectItem>
                     ))}

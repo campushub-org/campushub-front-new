@@ -1,6 +1,6 @@
 "use client"
 
-import { MapPin, User, Clock, GripVertical, Move } from "lucide-react"
+import { MapPin, User, Clock, GripVertical, Move, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent, courseTypeColors, courseTypeLabels, CourseType } from "@/lib/schedule-data"
 import {
@@ -116,8 +116,17 @@ export function EventCardEditable({
           {!isShort && (
             <>
               <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
-                <User className="h-3 w-3 shrink-0 opacity-70" />
-                <span className="truncate text-[10px] font-medium">{event.professor}</span>
+                {event.professor ? (
+                  <>
+                    <User className="h-3 w-3 shrink-0 opacity-70" />
+                    <span className="truncate text-[10px] font-medium">{event.professor}</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-500 animate-pulse" />
+                    <span className="truncate text-[9px] font-black text-amber-600 uppercase">À DÉTERMINER</span>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
                 <MapPin className="h-3 w-3 shrink-0 opacity-70" />
@@ -165,8 +174,10 @@ export function EventCardEditable({
                   <span className="font-medium text-foreground">{event.startTime} — {event.endTime}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <User className="h-3.5 w-3.5 text-primary" />
-                  <span className="font-medium text-foreground">{event.professor || "Non assigné"}</span>
+                  {event.professor ? <User className="h-3.5 w-3.5 text-primary" /> : <AlertCircle className="h-3.5 w-3.5 text-amber-500" />}
+                  <span className={cn("font-medium", !event.professor && "text-amber-600 font-bold")}>
+                    {event.professor || "À DÉTERMINER (Non assigné)"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5 text-primary" />
