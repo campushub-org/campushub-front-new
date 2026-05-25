@@ -93,7 +93,7 @@ export function EventCardEditable({
             {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
           </p>
           
-          {!isShort && (
+          {/*{!isShort && (
             <div className="flex flex-wrap gap-1 mt-1 mb-1.5">
               <span className={cn(
                 "inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-extrabold uppercase tracking-widest bg-background/40 border border-current/10",
@@ -107,7 +107,7 @@ export function EventCardEditable({
                 </span>
               )}
             </div>
-          )}
+          )}*/}
         </div>
 
         <div className={cn("space-y-0.5 min-w-0", isVeryShort && "hidden", isShort && "flex items-center gap-2 space-y-0 mt-1")}>
@@ -194,6 +194,12 @@ export function EventCardEditable({
                   <MapPin className="h-3.5 w-3.5 text-primary" />
                   <span className="font-medium text-foreground">{event.room || "Salle non définie"}</span>
                 </div>
+                {event.groupName && (
+                  <div className="flex items-center gap-2 text-xs text-primary font-bold">
+                    <Layers className="h-3.5 w-3.5" />
+                    <span>{event.groupName}</span>
+                  </div>
+                )}
               </div>
               {isEditMode && (
                 <div className="mt-2 pt-2 border-t border-border/50 text-[9px] text-primary/70 font-bold uppercase tracking-tighter">
