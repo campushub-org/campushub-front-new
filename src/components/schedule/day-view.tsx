@@ -71,8 +71,8 @@ export function DayView({
     const [startH, startM] = event.startTime.split(":").map(Number)
     const [endH, endM] = event.endTime.split(":").map(Number)
     
-    const startMinutes = (startH - 8) * 60 + startM
-    const endMinutes = (endH - 8) * 60 + endM
+    const startMinutes = (startH - 7) * 60 + startM
+    const endMinutes = (endH - 7) * 60 + endM
     const duration = endMinutes - startMinutes
     
     const top = (startMinutes / 60) * 80

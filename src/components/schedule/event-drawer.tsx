@@ -465,36 +465,35 @@ export function EventDrawer({
               </div>
 
               <div className="grid gap-6 pt-2">
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de début</Label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {["08:00", "10:00", "13:00", "15:00"].map((time) => (
-                      <Button
-                        key={time}
-                        variant={formData.startTime === time ? "default" : "outline"}
-                        size="sm"
-                        className="h-10 rounded-xl font-bold text-xs"
-                        onClick={() => {
-                          const [h, m] = time.split(":").map(Number)
-                          const duration = getCurrentDuration()
-                          const endH = Math.floor((h * 60 + m + duration) / 60)
-                          const endM = (h * 60 + m + duration) % 60
-                          setFormData({ 
-                            ...formData, 
-                            startTime: time,
-                            endTime: `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`
-                          })
-                          setHasChanges(true)
-                        }}
-                      >
-                        {time}
-                      </Button>
-                    ))}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de début</Label>
+                    <Input 
+                      type="time" 
+                      value={formData.startTime} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, startTime: e.target.value })
+                        setHasChanges(true)
+                      }}
+                      className="h-11 bg-background border-border/60 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de fin</Label>
+                    <Input 
+                      type="time" 
+                      value={formData.endTime} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, endTime: e.target.value })
+                        setHasChanges(true)
+                      }}
+                      className="h-11 bg-background border-border/60 font-mono"
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Durée de la séance</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Raccourcis de durée</Label>
                   <div className="grid grid-cols-4 gap-2">
                     {durationOptions.slice(1, 5).map((opt) => (
                       <Button
