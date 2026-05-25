@@ -1,6 +1,6 @@
 "use client"
 
-import { MapPin, User, Clock, GripVertical, Move, AlertCircle } from "lucide-react"
+import { MapPin, User, Clock, GripVertical, Move, AlertCircle, Layers } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent, courseTypeColors, courseTypeLabels, CourseType } from "@/lib/schedule-data"
 import {
@@ -91,7 +91,6 @@ export function EventCardEditable({
             isVeryShort ? "text-[9px]" : isShort ? "text-[10px]" : "text-xs"
           )}>
             {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
-            {event.groupName && <span className="ml-1.5 text-primary opacity-80">[{event.groupName}]</span>}
           </p>
           
           {!isShort && (
@@ -102,6 +101,11 @@ export function EventCardEditable({
               )}>
                 {courseTypeLabels[event.type]}
               </span>
+              {event.groupName && (
+                <span className="inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
+                  {event.groupName}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -133,6 +137,12 @@ export function EventCardEditable({
                 <MapPin className="h-3 w-3 shrink-0 opacity-70" />
                 <span className="truncate text-[10px] font-medium">{event.room}</span>
               </div>
+              {event.groupName && (
+                <div className="flex items-center gap-1 text-primary/80 overflow-hidden">
+                  <Layers className="h-3 w-3 shrink-0 opacity-70" />
+                  <span className="truncate text-[10px] font-bold uppercase tracking-tighter">{event.groupName}</span>
+                </div>
+              )}
             </>
           )}
         </div>
