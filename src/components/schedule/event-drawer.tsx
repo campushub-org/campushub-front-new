@@ -48,6 +48,7 @@ interface EventDrawerProps {
   event: ScheduleEvent | null
   planId?: string
   planLevel?: string
+  planSemester?: number
   workingDate: Date
   isNew?: boolean
   onClose: () => void
@@ -86,6 +87,7 @@ export function EventDrawer({
   event,
   planId,
   planLevel,
+  planSemester,
   isNew = false,
   workingDate,
   onClose,
@@ -175,19 +177,26 @@ export function EventDrawer({
     }
   }, [event])
 
-  // Charger les matières au montage ou changement de planLevel
+  // Charger les matières au montage ou changement de planLevel/planSemester
   useEffect(() => {
     const fetchSubjects = async () => {
       setLoadingSubjects(true)
       try {
         let url = '/campushub-scheduling-service/api/subjects';
+        const params = new URLSearchParams();
+        
         if (planLevel) {
-            // Conversion L1/L2/L3/M1/M2 vers 1/2/3/4/5
             const levelDigit = planLevel.replace(/\D/g, '');
-            if (levelDigit) {
-                url = `${url}?niveau=${levelDigit}`;
-            }
+            if (levelDigit) params.append('niveau', levelDigit);
         }
+        
+        if (planSemester) {
+            params.append('semester', planSemester.toString());
+        }
+
+        const queryString = params.toString();
+        if (queryString) url = `${url}?${queryString}`;
+
         const response = await api.get(url)
         setSubjects(response.data)
       } catch (err) {
@@ -198,7 +207,7 @@ export function EventDrawer({
     }
     
     if (isOpen) fetchSubjects()
-  }, [isOpen, planLevel])
+  }, [isOpen, planLevel, planSemester])
 
   const [isSaving, setIsSaving] = useState(false)
   const [conflict, setConflict] = useState(false)

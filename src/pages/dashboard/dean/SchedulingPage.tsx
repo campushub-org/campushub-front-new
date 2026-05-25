@@ -591,6 +591,7 @@ const DeanSchedulingPage: React.FC = () => {
           event={selectedEvent}
           planId={selectedPlanId}
           planLevel={plans.find(p => p.id === selectedPlanId)?.level}
+          planSemester={plans.find(p => p.id === selectedPlanId)?.semester}
           workingDate={currentDate}
           isNew={isNewEvent}
           onClose={() => {
