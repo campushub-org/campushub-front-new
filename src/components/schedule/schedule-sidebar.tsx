@@ -6,6 +6,7 @@ import { ScheduleEvent, SchedulePlan, courseTypeLabels, courseTypeColors, Course
 import { ResourceFilters } from "./resource-filters"
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { 
   Select, 
   SelectContent, 
