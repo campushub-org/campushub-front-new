@@ -8,6 +8,8 @@ export interface SchedulePlan {
   academicYear: string
   semester: number
   level: string
+  startDate: string // ISO date
+  endDate: string   // ISO date
   createdAt?: string
 }
 

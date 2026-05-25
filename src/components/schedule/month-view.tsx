@@ -17,6 +17,7 @@ interface MonthViewProps {
   selectedProfessors?: string[]
   selectedRooms?: string[]
   selectedLevels?: string[]
+  isPlanActive?: boolean
   onEventClick?: (event: ScheduleEvent) => void
   onDayClick?: (date: Date) => void
 }
@@ -28,6 +29,7 @@ export function MonthView({
   selectedProfessors = [],
   selectedRooms = [],
   selectedLevels = [],
+  isPlanActive = false,
   onEventClick,
   onDayClick 
 }: MonthViewProps) {
@@ -36,6 +38,11 @@ export function MonthView({
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
       const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
       const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
+      
+      if (isPlanActive) {
+          return typeMatch && professorMatch && roomMatch
+      }
+
       const levelMatch = selectedLevels.length === 0 || (() => {
         const digit = event.subjectCode?.replace(/\D/g, '')[0]
         const deducedLevel = digit === '4' ? "M1" : (digit === '5' ? "M2" : `L${digit}`)

@@ -18,7 +18,8 @@ import { MonthView } from "@/components/schedule/month-view";
 import { EventDrawer } from "@/components/schedule/event-drawer";
 import { EditModeToolbar } from "@/components/schedule/edit-mode-toolbar";
 import { ScheduleSidebar } from "@/components/schedule/schedule-sidebar";
-import { sampleEvents, ScheduleEvent, CourseType } from "@/lib/schedule-data";
+import { PlanManagementDrawer } from "@/components/schedule/plan-management-drawer";
+import { sampleEvents, ScheduleEvent, SchedulePlan, CourseType } from "@/lib/schedule-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
@@ -52,10 +53,11 @@ const DeanSchedulingPage: React.FC = () => {
   
   // Real data and loading state
   const [loading, setLoading] = useState(false);
+  const [isSavingPlan, setIsSavingPlan] = useState(false);
   const [plans, setPlans] = useState<SchedulePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
-  const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
-  const [newPlanName, setNewPlanName] = useState("");
+  const [isPlanDrawerOpen, setIsPlanDrawerOpen] = useState(false);
+  const [planToEdit, setPlanToEdit] = useState<SchedulePlan | null>(null);
   
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
@@ -73,7 +75,8 @@ const DeanSchedulingPage: React.FC = () => {
   const fetchEvents = useCallback(async (planId?: string) => {
     setLoading(true);
     try {
-      const url = planId 
+      // On ne passe le planId que s'il est défini et non vide
+      const url = (planId && planId !== "") 
         ? `/campushub-scheduling-service/api/scheduling/events?planId=${planId}`
         : "/campushub-scheduling-service/api/scheduling/events";
 
@@ -95,6 +98,9 @@ const DeanSchedulingPage: React.FC = () => {
         if (!planId && plansRes.data.length > 0) {
           const activePlan = plansRes.data.find(p => p.status === "ACTIVE") || plansRes.data[0];
           setSelectedPlanId(activePlan.id);
+          if (activePlan.level) {
+            setSelectedLevels([activePlan.level]);
+          }
         }
       }
 
@@ -206,6 +212,12 @@ const DeanSchedulingPage: React.FC = () => {
   }, []);
 
   const handleCreateEvent = useCallback((day: number, startTime: string) => {
+    if (!selectedPlanId) {
+      toast.error("Veuillez d'abord sélectionner ou créer une programmation.");
+      setIsPlanDrawerOpen(true); // Proposer d'en créer une
+      return;
+    }
+
     const [hours] = startTime.split(":").map(Number);
     const endHour = Math.min(hours + 2, 19);
     
@@ -219,10 +231,11 @@ const DeanSchedulingPage: React.FC = () => {
       endTime: `${endHour.toString().padStart(2, "0")}:00`,
       day,
       description: "",
+      planId: selectedPlanId // Lier au plan courant
     });
     setIsNewEvent(true);
     setDrawerOpen(true);
-  }, []);
+  }, [selectedPlanId]);
 
   const handleAddEvent = useCallback(() => {
     handleCreateEvent(0, "08:00");
@@ -326,23 +339,44 @@ const DeanSchedulingPage: React.FC = () => {
     reader.readAsText(file);
   };
 
-  const handleCreatePlan = async () => {
-    if (!newPlanName.trim()) return;
-    
+  const handleSavePlan = async (planData: Partial<SchedulePlan>) => {
+    setIsSavingPlan(true);
     try {
-      const response = await api.post("/campushub-scheduling-service/api/scheduling/plans", {
-        name: newPlanName,
-        status: "DRAFT",
-        academicYear: "2024-2025", // Valeurs par défaut pour l'instant
-        semester: 1,
-        level: selectedLevels[0] || "L1"
-      });
-      toast.success("Nouveau plan créé");
-      setIsCreatePlanOpen(false);
-      setNewPlanName("");
+      const isNew = !planData.id;
+      let response;
+      
+      if (isNew) {
+        response = await api.post("/campushub-scheduling-service/api/scheduling/plans", planData);
+        toast.success("Nouvelle programmation créée");
+      } else {
+        response = await api.put(`/campushub-scheduling-service/api/scheduling/plans/${planData.id}`, planData);
+        toast.success("Programmation mise à jour");
+      }
+      
+      // Si le plan est activé
+      if (planData.status === 'ACTIVE' && !isNew) {
+          await api.post(`/campushub-scheduling-service/api/scheduling/plans/${planData.id}/activate`);
+      }
+
+      setIsPlanDrawerOpen(false);
       fetchEvents(response.data.id);
     } catch (err) {
-      toast.error("Erreur lors de la création");
+      toast.error("Erreur lors de l'enregistrement de la programmation");
+    } finally {
+      setIsSavingPlan(false);
+    }
+  };
+
+  const handleDeletePlan = async (id: string) => {
+    if (!window.confirm("Supprimer cette programmation et tous ses cours ?")) return;
+    
+    try {
+      await api.delete(`/campushub-scheduling-service/api/scheduling/plans/${id}`);
+      toast.success("Programmation supprimée");
+      setIsPlanDrawerOpen(false);
+      fetchEvents();
+    } catch (err) {
+      toast.error("Erreur lors de la suppression");
     }
   };
 
@@ -376,10 +410,22 @@ const DeanSchedulingPage: React.FC = () => {
               selectedPlanId={selectedPlanId}
               onPlanChange={(id) => {
                 setSelectedPlanId(id);
+                const plan = plans.find(p => p.id === id);
+                if (plan && plan.level) {
+                  setSelectedLevels([plan.level]);
+                }
                 fetchEvents(id);
               }}
               onAddPlan={() => {
-                setIsCreatePlanOpen(true);
+                setPlanToEdit(null);
+                setIsPlanDrawerOpen(true);
+              }}
+              onEditPlan={(id) => {
+                const plan = plans.find(p => p.id === id);
+                if (plan) {
+                    setPlanToEdit(plan);
+                    setIsPlanDrawerOpen(true);
+                }
               }}
               onImportPlan={() => {
                 document.getElementById('import-plan-input')?.click();
@@ -503,6 +549,7 @@ const DeanSchedulingPage: React.FC = () => {
                   selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
                   isEditMode={isEditMode}
+                  isPlanActive={!!selectedPlanId}
                   onEventClick={handleEventClick}
                   onEventUpdate={handleEventUpdate}
                   onCreateEvent={handleCreateEvent}
@@ -517,6 +564,7 @@ const DeanSchedulingPage: React.FC = () => {
                   selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
                   isEditMode={isEditMode}
+                  isPlanActive={!!selectedPlanId}
                   onEventClick={handleEventClick}
                   onCreateEvent={handleCreateEvent}
                 />
@@ -529,6 +577,7 @@ const DeanSchedulingPage: React.FC = () => {
                   selectedProfessors={selectedProfessors}
                   selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
+                  isPlanActive={!!selectedPlanId}
                   onEventClick={handleEventClick}
                   onDayClick={handleDayClick}
                 />
@@ -540,6 +589,7 @@ const DeanSchedulingPage: React.FC = () => {
         <EventDrawer
           isOpen={drawerOpen}
           event={selectedEvent}
+          planId={selectedPlanId}
           workingDate={currentDate}
           isNew={isNewEvent}
           onClose={() => {
@@ -559,31 +609,14 @@ const DeanSchedulingPage: React.FC = () => {
           onChange={handleImportFile} 
           />
 
-          <Dialog open={isCreatePlanOpen} onOpenChange={setIsCreatePlanOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Nouvelle Programmation</DialogTitle>
-              <DialogDescription>
-                Créez une nouvelle version de l'emploi du temps. Elle sera initialement en mode brouillon (Draft).
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2 text-left">
-                <Label htmlFor="name">Nom de la version</Label>
-                <Input
-                  id="name"
-                  placeholder="Ex: Semestre 1 - Version B"
-                  value={newPlanName}
-                  onChange={(e) => setNewPlanName(e.target.value)}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreatePlanOpen(false)}>Annuler</Button>
-              <Button onClick={handleCreatePlan} disabled={!newPlanName.trim()}>Créer la version</Button>
-            </DialogFooter>
-          </DialogContent>
-          </Dialog>
+          <PlanManagementDrawer
+            open={isPlanDrawerOpen}
+            onOpenChange={setIsPlanDrawerOpen}
+            plan={planToEdit}
+            onSave={handleSavePlan}
+            onDelete={handleDeletePlan}
+            isSaving={isSavingPlan}
+          />
           </div>    </TooltipProvider>
   );
 };

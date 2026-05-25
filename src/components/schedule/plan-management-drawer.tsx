@@ -47,7 +47,9 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
     semester: 1,
     status: 'DRAFT',
     isDefault: false,
-    level: 'L1'
+    level: 'L1',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // +4 mois par défaut
   });
 
   useEffect(() => {
@@ -60,7 +62,9 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
         semester: 1,
         status: 'DRAFT',
         isDefault: false,
-        level: 'L1'
+        level: 'L1',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       });
     }
   }, [plan, open]);
@@ -144,6 +148,31 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
                   <SelectItem value="2025-2026">2025-2026</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="start-date" className="text-[11px] font-black uppercase tracking-widest text-primary/70">Date de début</Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  className="h-11 bg-muted/30 border-border/60"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="end-date" className="text-[11px] font-black uppercase tracking-widest text-primary/70">Date de fin</Label>
+                <Input
+                  id="end-date"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  className="h-11 bg-muted/30 border-border/60"
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-4">

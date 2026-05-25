@@ -123,6 +123,11 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* Ensure the HTML background is set immediately to avoid a white flash during route transitions */
+  html {
+    background-color: hsl(var(--background));
+  }
+
   body {
     @apply bg-background text-foreground;
   }

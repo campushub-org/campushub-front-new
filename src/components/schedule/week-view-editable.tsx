@@ -14,6 +14,7 @@ interface WeekViewEditableProps {
   selectedRooms?: string[]
   selectedLevels?: string[]
   isEditMode: boolean
+  isPlanActive?: boolean
   onEventClick?: (event: ScheduleEvent) => void
   onEventUpdate?: (event: ScheduleEvent) => void
   onCreateEvent?: (day: number, startTime: string) => void
@@ -35,6 +36,7 @@ export function WeekViewEditable({
   selectedRooms = [],
   selectedLevels = [],
   isEditMode,
+  isPlanActive = false,
   onEventClick,
   onEventUpdate,
   onCreateEvent,
@@ -74,6 +76,12 @@ export function WeekViewEditable({
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
       const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
       const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
+      
+      // Si un plan est actif, on ne filtre pas par niveau (le plan est déjà le filtre)
+      if (isPlanActive) {
+          return typeMatch && professorMatch && roomMatch
+      }
+
       const levelMatch = selectedLevels.length === 0 || (() => {
         const digit = event.subjectCode?.replace(/\D/g, '')[0]
         const deducedLevel = digit === '4' ? "M1" : (digit === '5' ? "M2" : `L${digit}`)
@@ -82,7 +90,7 @@ export function WeekViewEditable({
 
       return typeMatch && professorMatch && roomMatch && levelMatch
     })
-  }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels])
+  }, [events, selectedTypes, selectedProfessors, selectedRooms, selectedLevels, isPlanActive])
   const getEventsForSlot = (dayIndex: number) => {
     return filteredEvents.filter((event) => event.day === dayIndex)
   }
