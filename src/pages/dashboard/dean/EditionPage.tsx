@@ -474,11 +474,6 @@ const EditionPage: React.FC = () => {
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => fetchData(activeEntity)}>
                     <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
                   </Button>
-                  <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-                    <Upload className="h-3 w-3" />
-                    <input type="file" accept="application/json" className="hidden" onChange={handleImportExecute} />
-                    <span>Importer</span>
-                  </label>
                 </div>
               </div>
               <nav className="px-3 space-y-1">

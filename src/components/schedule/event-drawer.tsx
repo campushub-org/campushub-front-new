@@ -440,6 +440,22 @@ export function EventDrawer({
               </div>
 
               <div className="space-y-2">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Groupe (Optionnel)</Label>
+                <div className="relative">
+                  <Layers className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/60" />
+                  <Input 
+                    placeholder="Ex: G1, Groupe A..." 
+                    value={formData.groupName || ""} 
+                    onChange={(e) => {
+                      setFormData({ ...formData, groupName: e.target.value })
+                      setHasChanges(true)
+                    }}
+                    className="h-12 pl-10 bg-muted/30 border-border/60 rounded-xl focus:bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignant responsable</Label>
                 <Select 
                   value={formData.teacherId?.toString() || "none"} 

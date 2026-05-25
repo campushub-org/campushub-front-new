@@ -71,64 +71,71 @@ const DeanSchedulingPage: React.FC = () => {
   const [historyIndex, setHistoryIndex] = useState(0);
   const [pendingChanges, setPendingChanges] = useState(0);
 
-  // Fetch real events from API
-  const fetchEvents = useCallback(async (planId?: string) => {
-    setLoading(true);
+  // 1. Fetch des données de base (Plans, Profs, Salles)
+  const fetchInitialData = useCallback(async () => {
     try {
-      // On ne passe le planId que s'il est défini et non vide
-      const url = (planId && planId !== "") 
-        ? `/campushub-scheduling-service/api/scheduling/events?planId=${planId}`
-        : "/campushub-scheduling-service/api/scheduling/events";
-
-      const [eventsRes, teachersRes, roomsRes, plansRes] = await Promise.all([
-        api.get<ScheduleEvent[]>(url),
+      const [teachersRes, roomsRes, plansRes] = await Promise.all([
         api.get<any[]>("/campushub-user-service/api/users"),
         api.get<any[]>("/campushub-salle-service/api/salles"),
         api.get<SchedulePlan[]>("/campushub-scheduling-service/api/scheduling/plans")
       ]);
 
-      if (eventsRes.data) {
-        setEvents(eventsRes.data);
-        setHistory([eventsRes.data]);
-        setHistoryIndex(0);
-      }
-
-      if (plansRes.data) {
+      if (plansRes.data && Array.isArray(plansRes.data)) {
         setPlans(plansRes.data);
-        if (!planId && plansRes.data.length > 0) {
+        if (plansRes.data.length > 0) {
           const activePlan = plansRes.data.find(p => p.status === "ACTIVE") || plansRes.data[0];
           setSelectedPlanId(activePlan.id);
-          if (activePlan.level) {
-            setSelectedLevels([activePlan.level]);
-          }
+          if (activePlan.level) setSelectedLevels([activePlan.level]);
+          // Une fois le plan identifié, on charge ses événements
+          fetchEvents(activePlan.id);
+        } else {
+          // Aucun plan en base : on vide tout
+          setSelectedPlanId("");
+          setEvents([]);
         }
       }
 
-      // Filter and map names
-      if (teachersRes.data) {
-        const profNames = teachersRes.data
-          .filter(u => u.role === "TEACHER")
-          .map(u => u.fullName)
-          .sort();
+      if (teachersRes.data && Array.isArray(teachersRes.data)) {
+        const profNames = teachersRes.data.filter(u => u.role === "TEACHER").map(u => u.fullName).sort();
         setAllProfessors(profNames);
       }
 
-      if (roomsRes.data) {
-        const roomNames = roomsRes.data
-          .map(r => r.nom)
-          .sort();
+      if (roomsRes.data && Array.isArray(roomsRes.data)) {
+        const roomNames = roomsRes.data.map(r => r.nom).sort();
         setAllRooms(roomNames);
       }
     } catch (err) {
-      console.error("Failed to fetch data:", err);
+      console.error("Failed to fetch initial data:", err);
+      toast.error("Erreur de connexion aux services");
+    }
+  }, []);
+
+  // 2. Fetch des événements (uniquement si un planId est fourni)
+  const fetchEvents = useCallback(async (planId?: string) => {
+    if (!planId || planId === "" || planId === "none") {
+      setEvents([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.get<ScheduleEvent[]>(`/campushub-scheduling-service/api/scheduling/events?planId=${planId}`);
+      if (response.data) {
+        setEvents(response.data);
+        setHistory([response.data]);
+        setHistoryIndex(0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    fetchInitialData();
+  }, [fetchInitialData]);
 
   // Fix pour neutraliser les contraintes du DashboardLayout parent
   // On utilise des marges négatives pour annuler les paddings p-4, p-6, p-8 et le max-w-7xl
@@ -410,9 +417,11 @@ const DeanSchedulingPage: React.FC = () => {
               selectedPlanId={selectedPlanId}
               onPlanChange={(id) => {
                 setSelectedPlanId(id);
-                const plan = plans.find(p => p.id === id);
-                if (plan && plan.level) {
-                  setSelectedLevels([plan.level]);
+                if (Array.isArray(plans)) {
+                  const plan = plans.find(p => p.id === id);
+                  if (plan && plan.level) {
+                    setSelectedLevels([plan.level]);
+                  }
                 }
                 fetchEvents(id);
               }}
@@ -421,16 +430,19 @@ const DeanSchedulingPage: React.FC = () => {
                 setIsPlanDrawerOpen(true);
               }}
               onEditPlan={(id) => {
-                const plan = plans.find(p => p.id === id);
-                if (plan) {
-                    setPlanToEdit(plan);
-                    setIsPlanDrawerOpen(true);
+                if (Array.isArray(plans)) {
+                  const plan = plans.find(p => p.id === id);
+                  if (plan) {
+                      setPlanToEdit(plan);
+                      setIsPlanDrawerOpen(true);
+                  }
                 }
               }}
               onImportPlan={() => {
                 document.getElementById('import-plan-input')?.click();
               }}
               onExportPlan={(id) => {
+                if (!Array.isArray(plans)) return;
                 const plan = plans.find(p => p.id === id);
                 if (!plan) return;
 
@@ -456,7 +468,7 @@ const DeanSchedulingPage: React.FC = () => {
               onRoomToggle={handleRoomToggle}
               onLevelToggle={handleLevelToggle}
               isLoading={loading}
-              onRefresh={fetchEvents}
+              onRefresh={() => fetchEvents(selectedPlanId)}
             />
           </div>
         </aside>
@@ -590,8 +602,8 @@ const DeanSchedulingPage: React.FC = () => {
           isOpen={drawerOpen}
           event={selectedEvent}
           planId={selectedPlanId}
-          planLevel={plans.find(p => p.id === selectedPlanId)?.level}
-          planSemester={plans.find(p => p.id === selectedPlanId)?.semester}
+          planLevel={Array.isArray(plans) ? plans.find(p => p.id === selectedPlanId)?.level : undefined}
+          planSemester={Array.isArray(plans) ? plans.find(p => p.id === selectedPlanId)?.semester : undefined}
           workingDate={currentDate}
           isNew={isNewEvent}
           onClose={() => {

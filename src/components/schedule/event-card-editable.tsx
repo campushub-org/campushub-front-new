@@ -91,6 +91,7 @@ export function EventCardEditable({
             isVeryShort ? "text-[9px]" : isShort ? "text-[10px]" : "text-xs"
           )}>
             {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+            {event.groupName && <span className="ml-1.5 text-primary opacity-80">[{event.groupName}]</span>}
           </p>
           
           {!isShort && (
