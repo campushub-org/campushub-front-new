@@ -2,13 +2,14 @@
 
 import { MapPin, User, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ScheduleEvent, courseTypeColors, courseTypeLabels } from "@/lib/schedule-data"
+import { ScheduleEvent, courseTypeColors, courseTypeLabels as staticCourseTypeLabels } from "@/lib/schedule-data"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useTranslation } from "react-i18next"
 
 interface EventCardProps {
   event: ScheduleEvent
@@ -17,7 +18,9 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, compact = false, onClick }: EventCardProps) {
+  const { t } = useTranslation()
   const colors = courseTypeColors[event.type]
+  const courseTypeLabels = t('dean.scheduling.common.course_types', { returnObjects: true }) as Record<string, string>;
   
   const calculateDuration = () => {
     const [startH, startM] = event.startTime.split(":").map(Number)

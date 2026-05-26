@@ -26,6 +26,7 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { 
   Dialog, 
@@ -40,6 +41,7 @@ import { Label } from "@/components/ui/label";
 type ViewMode = "week" | "day" | "month";
 
 const DeanSchedulingPage: React.FC = () => {
+  const { t } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [selectedTypes, setSelectedTypes] = useState<CourseType[]>([
@@ -106,9 +108,9 @@ const DeanSchedulingPage: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to fetch initial data:", err);
-      toast.error("Erreur de connexion aux services");
+      toast.error(t('dean.scheduling.errors.fetch_initial'));
     }
-  }, []);
+  }, [t]);
 
   // 2. Fetch des événements (uniquement si un planId est fourni)
   const fetchEvents = useCallback(async (planId?: string) => {
@@ -220,7 +222,7 @@ const DeanSchedulingPage: React.FC = () => {
 
   const handleCreateEvent = useCallback((day: number, startTime: string) => {
     if (!selectedPlanId) {
-      toast.error("Veuillez d'abord sélectionner ou créer une programmation.");
+      toast.error(t('dean.scheduling.errors.no_plan'));
       setIsPlanDrawerOpen(true); // Proposer d'en créer une
       return;
     }
@@ -304,7 +306,7 @@ const DeanSchedulingPage: React.FC = () => {
     const duplicatedEvent: ScheduleEvent = {
       ...event,
       id: `event-${Date.now()}`,
-      title: `${event.title} (copie)`,
+      title: `${event.title} ${t('dean.scheduling.messages.copy_suffix')}`,
     };
     const newEvents = [...events, duplicatedEvent];
     setEvents(newEvents);
@@ -336,11 +338,11 @@ const DeanSchedulingPage: React.FC = () => {
       try {
         const json = JSON.parse(event.target?.result as string);
         const response = await api.post("/campushub-scheduling-service/api/scheduling/plans/import", json);
-        toast.success("Plan importé avec succès");
+        toast.success(t('dean.scheduling.messages.import_success'));
         fetchEvents(response.data.id);
       } catch (err) {
         console.error("Import failed:", err);
-        toast.error("Échec de l'importation");
+        toast.error(t('dean.scheduling.messages.import_error'));
       }
     };
     reader.readAsText(file);
@@ -354,10 +356,10 @@ const DeanSchedulingPage: React.FC = () => {
       
       if (isNew) {
         response = await api.post("/campushub-scheduling-service/api/scheduling/plans", planData);
-        toast.success("Nouvelle programmation créée");
+        toast.success(t('dean.scheduling.messages.plan_created'));
       } else {
         response = await api.put(`/campushub-scheduling-service/api/scheduling/plans/${planData.id}`, planData);
-        toast.success("Programmation mise à jour");
+        toast.success(t('dean.scheduling.messages.plan_updated'));
       }
       
       // Si le plan est activé
@@ -368,22 +370,22 @@ const DeanSchedulingPage: React.FC = () => {
       setIsPlanDrawerOpen(false);
       fetchEvents(response.data.id);
     } catch (err) {
-      toast.error("Erreur lors de l'enregistrement de la programmation");
+      toast.error(t('dean.scheduling.messages.save_error'));
     } finally {
       setIsSavingPlan(false);
     }
   };
 
   const handleDeletePlan = async (id: string) => {
-    if (!window.confirm("Supprimer cette programmation et tous ses cours ?")) return;
+    if (!window.confirm(t('dean.scheduling.messages.delete_confirm'))) return;
     
     try {
       await api.delete(`/campushub-scheduling-service/api/scheduling/plans/${id}`);
-      toast.success("Programmation supprimée");
+      toast.success(t('dean.scheduling.messages.plan_deleted'));
       setIsPlanDrawerOpen(false);
       fetchEvents();
     } catch (err) {
-      toast.error("Erreur lors de la suppression");
+      toast.error(t('dean.scheduling.messages.delete_error'));
     }
   };
 
@@ -456,7 +458,7 @@ const DeanSchedulingPage: React.FC = () => {
                 document.body.appendChild(downloadAnchorNode);
                 downloadAnchorNode.click();
                 downloadAnchorNode.remove();
-                toast.success("Plan exporté avec succès");
+                toast.success(t('dean.scheduling.messages.export_success'));
               }}
               selectedTypes={selectedTypes}
               allProfessors={allProfessors}
@@ -491,7 +493,7 @@ const DeanSchedulingPage: React.FC = () => {
                       <ArrowLeft className="h-5 w-5" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">Retour au Hub</TooltipContent>
+                  <TooltipContent side="right">{t('dean.scheduling.back_to_hub')}</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
@@ -509,11 +511,11 @@ const DeanSchedulingPage: React.FC = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    {sidebarOpen ? "Masquer les filtres" : "Afficher les filtres"}
+                    {sidebarOpen ? t('dean.scheduling.hide_filters') : t('dean.scheduling.show_filters')}
                   </TooltipContent>
                 </Tooltip>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-extrabold text-sidebar-primary tracking-tight">Planning de l'établissement</h1>
+                  <h1 className="text-2xl font-extrabold text-sidebar-primary tracking-tight">{t('dean.scheduling.title')}</h1>
                   {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                   </div>
                   </div>

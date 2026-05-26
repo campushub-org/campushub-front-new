@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface EditModeToolbarProps {
   isEditMode: boolean
@@ -47,6 +48,7 @@ export function EditModeToolbar({
   canRedo = false,
   hasConflicts = false,
 }: EditModeToolbarProps) {
+  const { t } = useTranslation();
   return (
     <TooltipProvider>
       <div
@@ -71,10 +73,10 @@ export function EditModeToolbar({
                 onClick={() => isEditMode && onToggleEditMode()}
               >
                 <Eye className="h-4 w-4" />
-                <span className="hidden sm:inline">Aperçu</span>
+                <span className="hidden sm:inline">{t('dean.scheduling.toolbar.view')}</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Mode visualisation</TooltipContent>
+            <TooltipContent>{t('dean.scheduling.toolbar.view_mode_tooltip')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -89,10 +91,10 @@ export function EditModeToolbar({
                 onClick={() => !isEditMode && onToggleEditMode()}
               >
                 <Pencil className="h-4 w-4" />
-                <span className="hidden sm:inline">Édition</span>
+                <span className="hidden sm:inline">{t('dean.scheduling.toolbar.edition')}</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Mode édition</TooltipContent>
+            <TooltipContent>{t('dean.scheduling.toolbar.edit_mode_tooltip')}</TooltipContent>
           </Tooltip>
         </div>
 
@@ -183,8 +185,7 @@ export function EditModeToolbar({
         {/* Status */}
         {isEditMode && hasConflicts && (
             <Badge variant="destructive" className="gap-1 mx-4">
-                <AlertTriangle className="h-3 w-3" />
-                Conflits
+                <AlertTriangle className="h-3 w-3" /> {t('dean.scheduling.toolbar.conflicts')}
             </Badge>
         )}
       </div>

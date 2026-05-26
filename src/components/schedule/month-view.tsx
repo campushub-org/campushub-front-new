@@ -2,7 +2,8 @@
 
 import { useMemo } from "react"
 import { cn } from "@/lib/utils"
-import { ScheduleEvent, CourseType, courseTypeColors } from "@/lib/schedule-data"
+import { ScheduleEvent, weekDays as staticWeekDays, CourseType, courseTypeColors } from "@/lib/schedule-data"
+import { useTranslation } from "react-i18next"
 import {
   Tooltip,
   TooltipContent,
@@ -22,17 +23,19 @@ interface MonthViewProps {
   onDayClick?: (date: Date) => void
 }
 
-export function MonthView({ 
-  events, 
-  currentDate, 
+export function MonthView({
+  events,
+  currentDate,
   selectedTypes,
   selectedProfessors = [],
   selectedRooms = [],
   selectedLevels = [],
   isPlanActive = false,
   onEventClick,
-  onDayClick 
+  onDayClick,
 }: MonthViewProps) {
+  const { t } = useTranslation()
+  const weekDays = t('dean.scheduling.common.days', { returnObjects: true }) as string[]
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)

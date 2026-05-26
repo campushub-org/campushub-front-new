@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { ChevronDown, Check, X, Filter } from "lucide-react"
+import { ChevronDown, Check, X, Filter, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent } from "@/lib/schedule-data"
+import { useTranslation } from "react-i18next"
 
 interface ResourceFiltersProps {
   events: ScheduleEvent[]
@@ -29,8 +30,9 @@ export function ResourceFilters({
   selectedLevels,
   onProfessorToggle,
   onRoomToggle,
-  onLevelToggle
+  onLevelToggle,
 }: ResourceFiltersProps) {
+  const { t } = useTranslation()
   // Par défaut, la section Niveaux est ouverte
   const [expandedSection, setExpandedSection] = useState<string | null>("levels")
   const [showOnlyActive, setShowOnlyActive] = useState(false)
@@ -60,7 +62,7 @@ export function ResourceFilters({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Filter className="h-4 w-4 text-primary" />
-            Filtrer par ressource
+            {t('dean.scheduling.sidebar.resource_filters.title')}
           </h3>
           {totalFilters > 1 && ( // On ne montre réinitialiser que s'il y a plus que le niveau par défaut
             <button
@@ -68,7 +70,7 @@ export function ResourceFilters({
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               <X className="h-3 w-3" />
-              Réinitialiser
+              {t('dean.scheduling.sidebar.resource_filters.reset')}
             </button>
           )}
         </div>
@@ -77,10 +79,10 @@ export function ResourceFilters({
         <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/10 p-2.5 transition-colors">
           <div className="flex flex-col gap-0.5">
             <Label htmlFor="active-mode" className="text-sm font-medium text-foreground">
-              Mode d'affichage
+              {t('dean.scheduling.sidebar.resource_filters.display_mode')}
             </Label>
             <span className="text-xs text-muted-foreground">
-              {showOnlyActive ? "Seulement programmés" : "Toutes les ressources"}
+              {showOnlyActive ? t('dean.scheduling.sidebar.resource_filters.only_scheduled') : t('dean.scheduling.sidebar.resource_filters.all_resources')}
             </span>
           </div>
           <Switch 
@@ -92,13 +94,13 @@ export function ResourceFilters({
         </div>
       </div>
 
-      {/* Levels Section - FIRST */}
+      {/* Levels Section */}
       <div className="rounded-lg border border-border bg-secondary/30 overflow-hidden">
         <button
           onClick={() => setExpandedSection(expandedSection === "levels" ? null : "levels")}
           className="w-full flex items-center justify-between px-3 py-2 hover:bg-secondary/50 transition-colors"
         >
-          <span className="text-sm font-medium text-foreground">Niveaux</span>
+          <span className="text-sm font-medium text-foreground">{t('dean.scheduling.sidebar.resource_filters.sections.levels')}</span>
           <div className="flex items-center gap-2">
             {selectedLevels.length > 0 && (
               <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-semibold">
@@ -150,7 +152,12 @@ export function ResourceFilters({
           onClick={() => setExpandedSection(expandedSection === "professors" ? null : "professors")}
           className="w-full flex items-center justify-between px-3 py-2 hover:bg-secondary/50 transition-colors"
         >
-          <span className="text-sm font-medium text-foreground">Enseignants</span>
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              {t('dean.scheduling.sidebar.resource_filters.sections.teachers')}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             {selectedProfessors.length > 0 && (
               <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-semibold">
@@ -169,35 +176,52 @@ export function ResourceFilters({
         {expandedSection === "professors" && (
           <div className="border-t border-border px-3 py-2 space-y-1.5 bg-card/20">
             <div className="flex gap-2 mb-2 pb-2 border-b border-border/30">
-                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => professorsList.forEach(p => !selectedProfessors.includes(p) && onProfessorToggle(p))}>Tout cocher</Button>
-                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => selectedProfessors.forEach(onProfessorToggle)}>Tout décocher</Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 text-[10px]" 
+                onClick={() => professorsList.forEach(p => !selectedProfessors.includes(p) && onProfessorToggle(p))}
+              >
+                {t('dean.scheduling.sidebar.resource_filters.actions.check_all')}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 text-[10px]" 
+                onClick={() => selectedProfessors.forEach(onProfessorToggle)}
+              >
+                {t('dean.scheduling.sidebar.resource_filters.actions.uncheck_all')}
+              </Button>
             </div>
+
             {professorsList.length === 0 ? (
-              <p className="text-xs text-muted-foreground py-2 text-center">Aucun enseignant trouvé</p>
+              <p className="text-xs text-muted-foreground py-2 text-center">
+                {t('dean.scheduling.sidebar.resource_filters.empty_states.no_teacher')}
+              </p>
             ) : (
-              professorsList.map(professor => (
+              professorsList.map((professor) => (
                 <label
-                  key={professor}
-                  className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/30 px-1.5 py-1.5 rounded transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedProfessors.includes(professor)}
-                    onChange={() => onProfessorToggle(professor)}
-                    className="sr-only"
-                  />
-                  <div className={cn(
-                    "h-4 w-4 rounded border border-border flex items-center justify-center transition-colors",
-                    selectedProfessors.includes(professor)
-                      ? "bg-primary border-primary"
-                      : "bg-secondary group-hover:border-primary/50"
-                  )}>
-                    {selectedProfessors.includes(professor) && (
-                      <Check className="h-3 w-3 text-primary-foreground" />
-                    )}
-                  </div>
-                  <span className="text-xs text-foreground truncate">{professor}</span>
-                </label>
+  key={professor}
+  className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/30 px-1.5 py-1.5 rounded transition-colors"
+>
+  <input
+    type="checkbox"
+    checked={selectedProfessors.includes(professor)}
+    onChange={() => onProfessorToggle(professor)}
+    className="sr-only"
+  />
+  <div className={cn(
+    "h-4 w-4 rounded border border-border flex items-center justify-center transition-colors",
+    selectedProfessors.includes(professor)
+      ? "bg-primary border-primary"
+      : "bg-secondary group-hover:border-primary/50"
+  )}>
+    {selectedProfessors.includes(professor) && (
+      <Check className="h-3 w-3 text-primary-foreground" />
+    )}
+  </div>
+  <span className="text-xs text-foreground truncate">{professor}</span>
+</label>
               ))
             )}
           </div>
@@ -210,7 +234,9 @@ export function ResourceFilters({
           onClick={() => setExpandedSection(expandedSection === "rooms" ? null : "rooms")}
           className="w-full flex items-center justify-between px-3 py-2 hover:bg-secondary/50 transition-colors"
         >
-          <span className="text-sm font-medium text-foreground">Salles</span>
+          <span className="text-sm font-medium text-foreground">
+            {t('dean.scheduling.sidebar.resource_filters.sections.rooms')}
+          </span>
           <div className="flex items-center gap-2">
             {selectedRooms.length > 0 && (
               <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-semibold">
@@ -228,12 +254,12 @@ export function ResourceFilters({
 
         {expandedSection === "rooms" && (
           <div className="border-t border-border px-3 py-2 space-y-1.5 bg-card/20">
-             <div className="flex gap-2 mb-2 pb-2 border-b border-border/30">
-                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => roomsList.forEach(r => !selectedRooms.includes(r) && onRoomToggle(r))}>Tout cocher</Button>
-                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => selectedRooms.forEach(onRoomToggle)}>Tout décocher</Button>
+            <div className="flex gap-2 mb-2 pb-2 border-b border-border/30">
+              <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => roomsList.forEach(r => !selectedRooms.includes(r) && onRoomToggle(r))}>{t('dean.scheduling.sidebar.resource_filters.actions.check_all')}</Button>
+              <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => selectedRooms.forEach(onRoomToggle)}>{t('dean.scheduling.sidebar.resource_filters.actions.uncheck_all')}</Button>
             </div>
             {roomsList.length === 0 ? (
-              <p className="text-xs text-muted-foreground py-2 text-center">Aucune salle trouvée</p>
+              <p className="text-xs text-muted-foreground py-2 text-center">{t('dean.scheduling.sidebar.resource_filters.empty_states.no_room')}</p>
             ) : (
               roomsList.map(room => (
                 <label
@@ -267,7 +293,7 @@ export function ResourceFilters({
       {/* Active Filters Display */}
       {totalFilters > 0 && (
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-          <p className="text-xs font-medium text-primary mb-2">Filtres actifs:</p>
+          <p className="text-xs font-medium text-primary mb-2">{t('dean.scheduling.sidebar.resource_filters.active_filters')}</p>
           <div className="flex flex-wrap gap-1.5">
             {selectedLevels.map(level => (
               <button

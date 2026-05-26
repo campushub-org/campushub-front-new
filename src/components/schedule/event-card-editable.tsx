@@ -29,7 +29,9 @@ export function EventCardEditable({
   onClick,
   onDragStart,
 }: EventCardEditableProps) {
+  const { t } = useTranslation()
   const colors = courseTypeColors[event.type]
+  const courseTypeLabels = t('dean.scheduling.common.course_types', { returnObjects: true }) as Record<string, string>;
 
   const calculateDuration = () => {
     const [startH, startM] = event.startTime.split(":").map(Number)
@@ -129,7 +131,7 @@ export function EventCardEditable({
                 ) : (
                   <>
                     <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-500 animate-pulse" />
-                    <span className="truncate text-[9px] font-black text-amber-600 uppercase">À DÉTERMINER</span>
+                    <span className="truncate text-[9px] font-black text-amber-600 uppercase">{t('dean.scheduling.event_card.to_be_determined')}</span>
                   </>
                 )}
               </div>
@@ -187,12 +189,12 @@ export function EventCardEditable({
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   {event.professor ? <User className="h-3.5 w-3.5 text-primary" /> : <AlertCircle className="h-3.5 w-3.5 text-amber-500" />}
                   <span className={cn("font-medium", !event.professor && "text-amber-600 font-bold")}>
-                    {event.professor || "À DÉTERMINER (Non assigné)"}
+                    {event.professor || `${t('dean.scheduling.event_card.to_be_determined')} (${t('dean.scheduling.event_card.unassigned')})`}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5 text-primary" />
-                  <span className="font-medium text-foreground">{event.room || "Salle non définie"}</span>
+                  <span className="font-medium text-foreground">{event.room || t('dean.scheduling.event_card.no_room')}</span>
                 </div>
                 {event.groupName && (
                   <div className="flex items-center gap-2 text-xs text-primary font-bold">
@@ -203,7 +205,7 @@ export function EventCardEditable({
               </div>
               {isEditMode && (
                 <div className="mt-2 pt-2 border-t border-border/50 text-[9px] text-primary/70 font-bold uppercase tracking-tighter">
-                  Mode Édition Actif • Glisser pour déplacer
+                  {t('dean.scheduling.event_card.edit_active')}
                 </div>
               )}
             </CardContent>

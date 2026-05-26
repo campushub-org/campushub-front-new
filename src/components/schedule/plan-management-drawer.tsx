@@ -23,6 +23,7 @@ import { SchedulePlan } from "@/lib/schedule-data";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle, Calendar, Layers, Save, Trash2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PlanManagementDrawerProps {
   open: boolean;
@@ -41,6 +42,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
   onDelete,
   isSaving = false
 }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<Partial<SchedulePlan>>({
     name: '',
     academicYear: '2024-2025',
@@ -84,10 +86,10 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
             </div>
             <div>
               <SheetTitle className="text-xl font-black tracking-tight">
-                {plan ? "Éditer la Programmation" : "Nouvelle Programmation"}
+                {plan ? t('dean.scheduling.sidebar.plan_management.titles.edit') : t('dean.scheduling.sidebar.plan_management.titles.new')}
               </SheetTitle>
               <SheetDescription className="text-xs font-medium">
-                Configurez les paramètres de cette version de l'emploi du temps.
+                {t('dean.scheduling.sidebar.plan_management.description')}
               </SheetDescription>
             </div>
           </div>
@@ -97,10 +99,10 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
           {/* Section: Identité */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="plan-name" className="text-[11px] font-black uppercase tracking-widest text-primary/70">Nom de la version</Label>
+              <Label htmlFor="plan-name" className="text-[11px] font-black uppercase tracking-widest text-primary/70">{t('dean.scheduling.sidebar.plan_management.labels.version_name')}</Label>
               <Input
                 id="plan-name"
-                placeholder="Ex: Semestre 1 - Version B"
+                placeholder={t('dean.scheduling.sidebar.plan_management.placeholders.name')}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="h-11 bg-muted/30 border-border/60 focus:bg-background"
@@ -110,7 +112,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">Niveau</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">{t('dean.scheduling.sidebar.plan_management.labels.level')}</Label>
                 <Select value={formData.level} onValueChange={(v) => setFormData({ ...formData, level: v })}>
                   <SelectTrigger className="h-11 bg-muted/30"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -123,12 +125,12 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">Semestre</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">{t('dean.scheduling.sidebar.plan_management.labels.semester')}</Label>
                 <Select value={formData.semester?.toString()} onValueChange={(v) => setFormData({ ...formData, semester: parseInt(v) })}>
                   <SelectTrigger className="h-11 bg-muted/30"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Semestre 1</SelectItem>
-                    <SelectItem value="2">Semestre 2</SelectItem>
+                    <SelectItem value="1">{t('dean.scheduling.sidebar.plan_management.labels.semester')} 1</SelectItem>
+                    <SelectItem value="2">{t('dean.scheduling.sidebar.plan_management.labels.semester')} 2</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -140,7 +142,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
           {/* Section: Année & Statut */}
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">Année Académique</Label>
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">{t('dean.scheduling.sidebar.plan_management.labels.academic_year')}</Label>
               <Select value={formData.academicYear} onValueChange={(v) => setFormData({ ...formData, academicYear: v })}>
                 <SelectTrigger className="h-11 bg-muted/30"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -176,7 +178,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
             </div>
 
             <div className="space-y-4">
-              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">Statut de la version</Label>
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70">{t('dean.scheduling.sidebar.plan_management.labels.version_status')}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {['DRAFT', 'ACTIVE'].map((status) => (
                   <button
@@ -189,10 +191,10 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
                     )}
                   >
                     <Badge variant={formData.status === status ? "default" : "outline"} className="uppercase text-[9px] px-1.5">
-                      {status === 'ACTIVE' ? 'Actif' : 'Brouillon'}
+                      {status === 'ACTIVE' ? t('dean.scheduling.sidebar.plan_management.status.active') : t('dean.scheduling.sidebar.plan_management.status.draft')}
                     </Badge>
                     <span className="text-[10px] text-muted-foreground text-center leading-tight">
-                      {status === 'ACTIVE' ? 'Visible par tous' : 'Privé pour édition'}
+                      {status === 'ACTIVE' ? t('dean.scheduling.sidebar.plan_management.status.active_desc') : t('dean.scheduling.sidebar.plan_management.status.draft_desc')}
                     </span>
                   </button>
                 ))}
@@ -202,9 +204,9 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
             <div className="flex items-center justify-between p-5 bg-primary/5 border border-primary/20 rounded-2xl shadow-sm">
               <div className="space-y-0.5">
                 <Label className="text-sm font-bold flex items-center gap-2">
-                   Version par défaut
+                   {t('dean.scheduling.sidebar.plan_management.labels.default_version')}
                 </Label>
-                <p className="text-[10px] text-muted-foreground italic">Chargée automatiquement au démarrage</p>
+                <p className="text-[10px] text-muted-foreground italic">{t('dean.scheduling.sidebar.plan_management.labels.default_version_desc')}</p>
               </div>
               <Switch 
                 checked={formData.isDefault} 
@@ -219,9 +221,9 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
                   <AlertCircle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
                   <div className="space-y-3">
                      <div className="space-y-1">
-                        <p className="text-xs font-black text-rose-800 uppercase">Zone de danger</p>
+                        <p className="text-xs font-black text-rose-800 uppercase">{t('dean.scheduling.sidebar.plan_management.danger_zone.title')}</p>
                         <p className="text-[11px] text-rose-700/80 leading-relaxed font-medium">
-                          La suppression de cette programmation entraînera la suppression définitive de tous les cours qui lui sont associés.
+                          {t('dean.scheduling.sidebar.plan_management.danger_zone.description')}
                         </p>
                      </div>
                      <Button 
@@ -231,7 +233,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
                         className="h-8 rounded-lg font-bold text-[10px] uppercase gap-2"
                         onClick={() => onDelete(plan.id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5" /> Supprimer définitivement
+                        <Trash2 className="h-3.5 w-3.5" /> {t('dean.scheduling.sidebar.plan_management.danger_zone.delete_button')}
                      </Button>
                   </div>
                </div>
@@ -242,7 +244,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
         <SheetFooter className="border-t border-border/40 pt-6 mt-auto">
           <div className="flex w-full gap-3">
             <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold" onClick={() => onOpenChange(false)}>
-              Annuler
+              {t('dean.scheduling.event_drawer.actions.cancel')}
             </Button>
             <Button 
               className="flex-[2] h-12 rounded-xl font-black gap-2 shadow-lg shadow-primary/20" 
@@ -250,7 +252,7 @@ export const PlanManagementDrawer: React.FC<PlanManagementDrawerProps> = ({
               disabled={isSaving || !formData.name}
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              ENREGISTRER LA VERSION
+              {t('dean.scheduling.sidebar.plan_management.actions.save_version')}
             </Button>
           </div>
         </SheetFooter>

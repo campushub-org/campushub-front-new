@@ -7,6 +7,7 @@ import { ResourceFilters } from "./resource-filters"
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useTranslation } from "react-i18next"
 import { 
   Select, 
   SelectContent, 
@@ -58,6 +59,7 @@ export function ScheduleSidebar({
   isLoading = false,
   onRefresh
 }: ScheduleSidebarProps) {
+  const { t } = useTranslation();
   const today = new Date()
   const dayOfWeek = today.getDay()
   const todayIndex = dayOfWeek === 0 ? -1 : dayOfWeek - 1
@@ -103,14 +105,14 @@ export function ScheduleSidebar({
     <div className="flex h-full flex-col gap-4 overflow-auto">
       {/* Header avec indicateur de chargement */}
       <div className="flex items-center justify-between px-2">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Tableau de bord</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">{t('dean.scheduling.sidebar.dashboard')}</span>
         <button 
           onClick={onRefresh}
           className={cn(
             "p-1.5 rounded-lg transition-all duration-200",
             !onRefresh ? "opacity-20 cursor-default" : "hover:bg-primary/10 text-primary"
           )}
-          title="Actualiser les événements"
+          title={t('dean.scheduling.sidebar.tooltips.refresh')}
           disabled={!onRefresh}
         >
           <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
@@ -121,10 +123,10 @@ export function ScheduleSidebar({
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-primary">
-            <Layers className="h-3.5 w-3.5" /> Programmation
+            <Layers className="h-3.5 w-3.5" /> {t('dean.scheduling.sidebar.programming')}
           </h3>
           <div className="flex gap-1">
-             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onAddPlan} title="Nouveau plan">
+             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onAddPlan} title={t('dean.scheduling.sidebar.tooltips.new_plan')}>
                <Plus className="h-3 w-3" />
              </Button>
           </div>
@@ -132,18 +134,18 @@ export function ScheduleSidebar({
 
         <Select value={selectedPlanId} onValueChange={onPlanChange}>
           <SelectTrigger className="h-9 bg-background border-primary/20 text-xs font-medium">
-            <SelectValue placeholder="Choisir une version" />
+            <SelectValue placeholder={t('dean.scheduling.sidebar.placeholders.choose_version')} />
           </SelectTrigger>
           <SelectContent>
             {plans.length === 0 ? (
-              <SelectItem value="none" disabled>Aucun plan disponible</SelectItem>
+              <SelectItem value="none" disabled>{t('dean.scheduling.sidebar.empty_states.no_plan')}</SelectItem>
             ) : (
               plans.map(plan => (
                 <SelectItem key={plan.id} value={plan.id} className="text-xs">
                   <div className="flex items-center gap-2">
                     <span>{plan.name}</span>
-                    {plan.status === 'ACTIVE' && <Badge className="h-3.5 px-1 text-[8px] bg-emerald-500 uppercase">Actif</Badge>}
-                    {plan.status === 'DRAFT' && <Badge variant="outline" className="h-3.5 px-1 text-[8px] uppercase">Draft</Badge>}
+                    {plan.status === 'ACTIVE' && <Badge className="h-3.5 px-1 text-[8px] bg-emerald-500 uppercase">{t('dean.scheduling.sidebar.badges.active')}</Badge>}
+                    {plan.status === 'DRAFT' && <Badge variant="outline" className="h-3.5 px-1 text-[8px] uppercase">{t('dean.scheduling.sidebar.badges.draft')}</Badge>}
                   </div>
                 </SelectItem>
               ))
@@ -160,7 +162,7 @@ export function ScheduleSidebar({
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{stats.totalWeekHours.toFixed(0)}h</p>
-              <p className="text-xs text-muted-foreground">Cette semaine</p>
+              <p className="text-xs text-muted-foreground">{t('dean.scheduling.sidebar.stats.week_hours')}</p>
             </div>
           </div>
         </div>
@@ -171,7 +173,7 @@ export function ScheduleSidebar({
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{filteredEvents.length}</p>
-              <p className="text-xs text-muted-foreground">Cours planifiés</p>
+              <p className="text-xs text-muted-foreground">{t('dean.scheduling.sidebar.stats.planned_courses')}</p>
             </div>
           </div>
         </div>
@@ -193,7 +195,7 @@ export function ScheduleSidebar({
 
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <TrendingUp className="h-4 w-4" /> Répartition
+          <TrendingUp className="h-4 w-4" /> {t('dean.scheduling.sidebar.distribution')}
         </h3>
         <div className="mt-3 space-y-2">
           {(Object.entries(stats.coursesByType) as [CourseType, number][])
@@ -201,6 +203,7 @@ export function ScheduleSidebar({
             .map(([type, count]) => {
               const colors = courseTypeColors[type]
               const percentage = (count / (filteredEvents.length || 1)) * 100
+              const courseTypeLabels = t('dean.scheduling.common.course_types', { returnObjects: true }) as Record<CourseType, string>;
               return (
                 <div key={type} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
@@ -218,12 +221,12 @@ export function ScheduleSidebar({
       
       <div className="flex-1 rounded-xl border border-border bg-card p-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Calendar className="h-4 w-4" /> {"Aujourd'hui"}
+          <Calendar className="h-4 w-4" /> {t('dean.scheduling.sidebar.today')}
         </h3>
         {todayIndex < 0 || todayIndex > 4 ? (
-          <p className="mt-4 text-center text-sm text-muted-foreground">Pas de cours ce week-end</p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">{t('dean.scheduling.sidebar.empty_states.no_weekend')}</p>
         ) : todayEvents.length === 0 ? (
-          <p className="mt-4 text-center text-sm text-muted-foreground">Aucun cours prévu</p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">{t('dean.scheduling.sidebar.empty_states.no_courses')}</p>
         ) : (
           <div className="mt-3 space-y-2">
             {todayEvents.map(event => {
@@ -231,7 +234,7 @@ export function ScheduleSidebar({
               const isUpcoming = event.id === upcomingEvent?.id
               return (
                 <div key={event.id} className={cn("rounded-lg border-l-3 p-3 transition-colors", colors.bg, colors.border, isUpcoming && "ring-1 ring-primary")}>
-                  {isUpcoming && <span className="mb-1 inline-block rounded-full bg-primary/30 px-2 py-0.5 text-[10px] font-medium text-primary">Prochain cours</span>}
+                  {isUpcoming && <span className="mb-1 inline-block rounded-full bg-primary/30 px-2 py-0.5 text-[10px] font-medium text-primary">{t('dean.scheduling.sidebar.upcoming_course')}</span>}
                   <p className="text-sm font-medium text-foreground line-clamp-1">{event.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{event.startTime} - {event.endTime}</p>
                   <p className="text-xs text-muted-foreground">{event.room}</p>

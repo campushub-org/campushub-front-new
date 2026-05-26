@@ -831,6 +831,314 @@
       "schedule": "Planning Global",
       "edition": "Édition"
     },
+    "planning_hub": {
+      "title": "Gestion de la Programmation",
+      "options": {
+        "global": {
+          "title": "Planning Global",
+          "description": "Vue d'ensemble et outils d'édition complets"
+        },
+        "fast": {
+          "title": "Planning Rapide",
+          "description": "Ajustements rapides des créneaux critiques"
+        }
+      }
+    },
+    "scheduling": {
+      "title": "Planning de l'établissement",
+      "back_to_hub": "Retour au Hub",
+      "hide_filters": "Masquer les filtres",
+      "show_filters": "Afficher les filtres",
+      "common": {
+        "days": ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
+        "course_types": {
+          "lecture": "Cours Magistral",
+          "td": "Travaux Dirigés",
+          "tp": "Travaux Pratiques",
+          "exam": "Examen",
+          "meeting": "Réunion",
+          "availability": "Disponibilité"
+        }
+      },
+      "event_drawer": {
+        "titles": {
+          "new": "Nouvel événement",
+          "edit": "Modifier l'événement",
+          "loading": "Chargement..."
+        },
+        "tabs": {
+          "general": "Général",
+          "details": "Détails"
+        },
+        "labels": {
+          "activity_type": "Type d'activité",
+          "subject": "Matière / Unité d'enseignement",
+          "day": "Jour",
+          "room": "Salle",
+          "group": "Groupe (Optionnel)",
+          "teacher": "Enseignant responsable",
+          "schedule_duration": "Horaire & Durée",
+          "start_time": "Heure de début",
+          "end_time": "Heure de fin",
+          "duration_shortcuts": "Raccourcis de durée",
+          "notes": "Notes & Consignes"
+        },
+        "placeholders": {
+          "select_subject": "Sélectionner une matière",
+          "room": "Salle",
+          "to_be_determined": "À DÉTERMINER",
+          "group": "Ex: G1, Groupe A...",
+          "notes": "Objectifs du cours, matériel requis, chapitres abordés..."
+        },
+        "conflict": {
+          "title": "Conflit détecté",
+          "description": "Cet enseignant ou cette salle est déjà occupé sur ce créneau."
+        },
+        "actions": {
+          "cancel": "Annuler",
+          "create": "CRÉER LA SÉANCE",
+          "save": "ENREGISTRER"
+        }
+      },
+      "header": {
+        "today": "Aujourd'hui",
+        "view_modes": {
+          "day": "Jour",
+          "week": "Semaine",
+          "month": "Mois"
+        },
+        "filter": {
+          "title": "Filtrer",
+          "course_type": "Type de cours"
+        },
+        "export": "Exporter"
+      },
+      "toolbar": {
+        "view": "Aperçu",
+        "edition": "Édition",
+        "view_mode_tooltip": "Mode visualisation",
+        "edit_mode_tooltip": "Mode édition",
+        "add_event_tooltip": "Ajouter un événement",
+        "undo_tooltip": "Annuler (Ctrl+Z)",
+        "redo_tooltip": "Rétablir (Ctrl+Y)",
+        "export_tooltip": "Exporter",
+        "import_tooltip": "Importer",
+        "print_tooltip": "Imprimer",
+        "conflicts": "Conflits",
+        "quit_edition": "Quitter l'édition"
+      },
+      "sidebar": {
+        "dashboard": "Tableau de bord",
+        "programming": "Programmation",
+        "stats": {
+          "week_hours": "Cette semaine",
+          "planned_courses": "Cours planifiés"
+        },
+        "distribution": "Répartition",
+        "today": "Aujourd'hui",
+        "upcoming_course": "Prochain cours",
+        "tooltips": {
+          "refresh": "Actualiser les événements",
+          "new_plan": "Nouveau plan"
+        },
+        "placeholders": {
+          "choose_version": "Choisir une version"
+        },
+        "empty_states": {
+          "no_plan": "Aucun plan disponible",
+          "no_weekend": "Pas de cours ce week-end",
+          "no_courses": "Aucun cours prévu"
+        },
+        "badges": {
+          "active": "Actif",
+          "draft": "Brouillon"
+        },
+        "resource_filters": {
+          "title": "Filtrer par ressource",
+          "reset": "Réinitialiser",
+          "display_mode": "Mode d'affichage",
+          "only_scheduled": "Seulement programmés",
+          "all_resources": "Toutes les ressources",
+          "sections": {
+            "levels": "Niveaux",
+            "teachers": "Enseignants",
+            "rooms": "Salles"
+          },
+          "actions": {
+            "check_all": "Tout cocher",
+            "uncheck_all": "Tout décocher"
+          },
+          "empty_states": {
+            "no_teacher": "Aucun enseignant trouvé",
+            "no_room": "Aucune salle trouvée"
+          },
+          "active_filters": "Filtres actifs:"
+        },
+        "plan_management": {
+          "titles": {
+            "edit": "Éditer la Programmation",
+            "new": "Nouvelle Programmation"
+          },
+          "description": "Configurez les paramètres de cette version de l'emploi du temps.",
+          "labels": {
+            "version_name": "Nom de la version",
+            "level": "Niveau",
+            "semester": "Semestre",
+            "academic_year": "Année Académique",
+            "start_date": "Date de début",
+            "end_date": "Date de fin",
+            "version_status": "Statut de la version",
+            "default_version": "Version par défaut",
+            "default_version_desc": "Chargée automatiquement au démarrage"
+          },
+          "status": {
+            "active": "Actif",
+            "draft": "Brouillon",
+            "active_desc": "Visible par tous",
+            "draft_desc": "Privé pour édition"
+          },
+          "danger_zone": {
+            "title": "Zone de danger",
+            "description": "La suppression de cette programmation entraînera la suppression définitive de tous les cours qui lui sont associés.",
+            "delete_button": "Supprimer définitivement"
+          },
+          "placeholders": {
+            "name": "Ex: Semestre 1 - Version B"
+          },
+          "actions": {
+            "save_version": "ENREGISTRER LA VERSION"
+          }
+        }
+        },      "view": {
+        "add": "Ajouter"
+      },
+      "event_modal": {
+        "labels": {
+          "day": "Jour",
+          "schedule": "Horaire",
+          "teacher": "Enseignant",
+          "room": "Salle",
+          "description": "Description"
+        },
+        "actions": {
+          "close": "Fermer",
+          "modify": "Modifier"
+        }
+      },
+      "event_card": {
+        "to_be_determined": "À DÉTERMINER",
+        "unassigned": "Non assigné",
+        "no_room": "Salle non définie",
+        "edit_active": "Mode Édition Actif • Glisser pour déplacer"
+      },
+      "errors": {
+        "fetch_initial": "Erreur de connexion aux services",
+        "no_plan": "Veuillez d'abord sélectionner ou créer une programmation."
+      },
+      "messages": {
+        "import_success": "Plan importé avec succès",
+        "import_error": "Échec de l'importation",
+        "plan_created": "Nouvelle programmation créée",
+        "plan_updated": "Programmation mise à jour",
+        "plan_deleted": "Programmation supprimée",
+        "save_error": "Erreur lors de l'enregistrement de la programmation",
+        "delete_confirm": "Supprimer cette programmation et tous ses cours ?",
+        "delete_error": "Erreur lors de la suppression",
+        "export_success": "Plan exporté avec succès",
+        "copy_suffix": "(copie)"
+      }
+    },
+    "edition": {
+      "title": "Mode Édition",
+      "active_mode": "Mode Édition Actif",
+      "navigation": "Navigation",
+      "syncing": "Synchronisation...",
+      "detail_title": "Fiche détaillée",
+      "search_placeholder": "Chercher dans {{entity}}...",
+      "new_button": "Nouveau",
+      "save_data": "Enregistrer les données",
+      "delete_button": "Supprimer",
+      "delete_confirm": "Supprimer définitivement cet élément ?",
+      "messages": {
+        "sync_error": "Erreur de synchronisation",
+        "validation_error": "Veuillez remplir le nom et l'email",
+        "assignment_error": "Veuillez sélectionner un enseignant et une matière",
+        "save_success": "Enregistrement réussi",
+        "save_error": "Erreur lors de l'enregistrement",
+        "delete_success": "Élément supprimé",
+        "delete_error": "Erreur lors de la suppression",
+        "json_invalid": "Fichier JSON invalide"
+      },
+      "entities": {
+        "teachers": "Enseignants",
+        "rooms": "Salles",
+        "subjects": "Matières",
+        "assignments": "Assignations"
+      },
+      "import_export": {
+        "title_export": "PARAMÈTRES D'EXPORTATION",
+        "title_import": "IMPORTATION DE DONNÉES",
+        "desc_export": "Configurez le périmètre et le format de votre rapport académique.",
+        "desc_import": "Chargez un fichier JSON pour synchroniser massivement vos données.",
+        "format_label": "Format du document",
+        "pdf_report": "Rapport PDF",
+        "pdf_printable": "Imprimable",
+        "json_data": "Données JSON",
+        "json_backup": "Sauvegarde",
+        "scope_label": "Périmètre des données",
+        "dept_label": "Filière / Département",
+        "dept_info": "Seule la filière INFORMATIQUE-INE est gérée actuellement.",
+        "level": "Niveau",
+        "semester": "Semestre",
+        "drop_file": "Déposez votre fichier",
+        "select_json": "Sélectionnez un fichier .JSON formaté pour l'entité {{entity}}",
+        "browse": "Parcourir les fichiers",
+        "warning": "Attention",
+        "warning_desc": "L'importation massive écrase ou ajoute des données directement en production.",
+        "generate": "GÉNÉRER L'EXPORTATION"
+      },
+      "import_result": {
+        "title": "Résultat de l'import",
+        "desc": "Détails des éléments insérés et des éléments rejetés avec explication.",
+        "accepted": "Acceptés",
+        "rejected": "Rejetés",
+        "copy_all": "Copier tout",
+        "none_inserted": "Aucun élément inséré.",
+        "none_rejected": "Aucun élément rejeté.",
+        "reason": "Raison",
+        "retry_failed": "Réessayer les échecs"
+      },
+      "form": {
+        "basic_info": "Informations de base",
+        "advanced_params": "Paramètres spécifiques",
+        "full_name": "Nom complet",
+        "username": "Identifiant de connexion",
+        "email": "Email académique",
+        "department": "Département",
+        "office_number": "Numéro de bureau",
+        "profile_pic": "Photo de profil (URL)",
+        "password": "Mot de passe temporaire",
+        "room_name": "Nom de la salle",
+        "room_code": "Code technique",
+        "building": "Bâtiment / Zone",
+        "capacity": "Capacité d'accueil",
+        "subject_name": "Intitulé du cours",
+        "subject_code": "Code de l'unité",
+        "category": "Catégorie",
+        "specialty": "Spécialité",
+        "teacher": "Enseignant",
+        "course_ue": "Cours / Unité d'Enseignement",
+        "role_assigned": "Rôle assigné",
+        "grade": "Grade / Rang",
+        "dedicated_filiere": "Filière dédiée",
+        "room_state": "État de la salle",
+        "room_available": "Disponible pour planification",
+        "equipment": "Équipements & Inventaire",
+        "credits": "Crédits (ECTS)",
+        "academic_level": "Niveau académique",
+        "semester": "Semestre"
+      }
+    },
     "dashboard": {
       "title": "Espace Équipe Pédagogique 🏛️",
       "subtitle": "Supervision académique et validation des supports.",

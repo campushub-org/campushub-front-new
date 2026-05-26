@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { CourseType, courseTypeLabels } from "@/lib/schedule-data"
+import { CourseType } from "@/lib/schedule-data" // Corrigé : On n'importe plus courseTypeLabels ici pour éviter le conflit
+import { useTranslation } from "react-i18next"
 
 type ViewMode = "week" | "day" | "month"
 
@@ -36,6 +37,10 @@ export function ScheduleHeader({
   selectedTypes,
   onTypeToggle,
 }: ScheduleHeaderProps) {
+  // Corrigé : On extrait aussi "i18n" pour récupérer la langue courante (fr, en, etc.)
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language; 
+
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: "long", year: "numeric" }
     
@@ -49,30 +54,34 @@ export function ScheduleHeader({
       endOfWeek.setDate(startOfWeek.getDate() + 4)
       
       if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
-        return `${startOfWeek.getDate()} - ${endOfWeek.getDate()} ${startOfWeek.toLocaleDateString("fr-FR", options)}`
+        // Remplacement de 'locale' par 'currentLang'
+        return `${startOfWeek.getDate()} - ${endOfWeek.getDate()} ${startOfWeek.toLocaleDateString(currentLang, options)}`
       }
-      return `${startOfWeek.getDate()} ${startOfWeek.toLocaleDateString("fr-FR", { month: "short" })} - ${endOfWeek.getDate()} ${endOfWeek.toLocaleDateString("fr-FR", options)}`
+      return `${startOfWeek.getDate()} ${startOfWeek.toLocaleDateString(currentLang, { month: "short" })} - ${endOfWeek.getDate()} ${startOfWeek.toLocaleDateString(currentLang, options)}`
     }
-    
+
     if (viewMode === "day") {
-      return currentDate.toLocaleDateString("fr-FR", { 
+      // Remplacement de 'locale' par 'currentLang'
+      return currentDate.toLocaleDateString(currentLang, { 
         weekday: "long", 
         day: "numeric", 
         month: "long", 
         year: "numeric" 
       })
     }
-    
-    return currentDate.toLocaleDateString("fr-FR", options)
+
+    // Remplacement de 'locale' par 'currentLang'
+    return currentDate.toLocaleDateString(currentLang, options)
   }
 
   const viewModes: { mode: ViewMode; label: string; icon: React.ReactNode }[] = [
-    { mode: "day", label: "Jour", icon: <CalendarDays className="h-4 w-4" /> },
-    { mode: "week", label: "Semaine", icon: <LayoutGrid className="h-4 w-4" /> },
-    { mode: "month", label: "Mois", icon: <Calendar className="h-4 w-4" /> },
+    { mode: "day", label: t('dean.scheduling.header.view_modes.day'), icon: <CalendarDays className="h-4 w-4" /> },
+    { mode: "week", label: t('dean.scheduling.header.view_modes.week'), icon: <LayoutGrid className="h-4 w-4" /> },
+    { mode: "month", label: t('dean.scheduling.header.view_modes.month'), icon: <Calendar className="h-4 w-4" /> },
   ]
 
   const allTypes: CourseType[] = ["lecture", "td", "tp", "exam", "meeting"]
+  const dynamicCourseLabels = t('dean.scheduling.common.course_types', { returnObjects: true }) as Record<CourseType, string>;
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
@@ -103,7 +112,7 @@ export function ScheduleHeader({
           onClick={onToday}
           className="h-8 text-xs font-medium"
         >
-          Aujourd&apos;hui
+          {t('dean.scheduling.header.today')}
         </Button>
 
         <h2 className="text-lg font-semibold text-foreground capitalize">
@@ -132,12 +141,11 @@ export function ScheduleHeader({
           ))}
         </div>
 
-        {/* Filter dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 gap-1.5">
               <Filter className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Filtrer</span>
+              <span className="hidden sm:inline">{t('dean.scheduling.header.filter.title')}</span>
               {selectedTypes.length < 5 && (
                 <span className="ml-1 rounded-full bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
                   {selectedTypes.length}
@@ -146,7 +154,7 @@ export function ScheduleHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Type de cours</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('dean.scheduling.header.filter.course_type')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {allTypes.map((type) => (
               <DropdownMenuCheckboxItem
@@ -154,7 +162,7 @@ export function ScheduleHeader({
                 checked={selectedTypes.includes(type)}
                 onCheckedChange={() => onTypeToggle(type)}
               >
-                {courseTypeLabels[type]}
+                {dynamicCourseLabels[type]}
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
@@ -163,7 +171,7 @@ export function ScheduleHeader({
         {/* Export button */}
         <Button variant="outline" size="sm" className="h-8 gap-1.5">
           <Download className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Exporter</span>
+          <span className="hidden sm:inline">{t('dean.scheduling.header.export')}</span>
         </Button>
       </div>
     </div>

@@ -2,9 +2,10 @@
 
 import { useMemo, useState, useRef, useCallback } from "react"
 import { cn } from "@/lib/utils"
-import { ScheduleEvent, weekDays, timeSlots, CourseType, courseTypeColors } from "@/lib/schedule-data"
+import { ScheduleEvent, weekDays as staticWeekDays, timeSlots, CourseType, courseTypeColors } from "@/lib/schedule-data"
 import { EventCardEditable } from "./event-card-editable"
 import { Plus, GripVertical } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface WeekViewEditableProps {
   events: ScheduleEvent[]
@@ -41,6 +42,8 @@ export function WeekViewEditable({
   onEventUpdate,
   onCreateEvent,
 }: WeekViewEditableProps) {
+  const { t } = useTranslation()
+  const weekDays = t('dean.scheduling.common.days', { returnObjects: true }) as string[]
   const [dragState, setDragState] = useState<DragState>({
     eventId: null,
     type: null,
@@ -374,7 +377,7 @@ export function WeekViewEditable({
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1.5 text-xs font-medium text-primary">
                           <Plus className="h-3.5 w-3.5" />
-                          Ajouter
+                          {t('dean.scheduling.view.add')}
                         </div>
                       </div>
                     )}

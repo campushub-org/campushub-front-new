@@ -231,12 +231,12 @@ const DeanViewMaterialPage: React.FC = () => {
             <Card className="rounded-xl border-primary/20 bg-primary/5 shadow-sm overflow-hidden border-2">
               <CardHeader className="pb-4 border-b border-primary/10">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-primary" /> Panel de Validation
+                  <ShieldCheck className="h-5 w-5 text-primary" /> {t('dean.dashboard.view_material.validation_panel.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="remarque" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Remarques / Feedback</Label>
+                  <Label htmlFor="remarque" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('dean.dashboard.view_material.validation_panel.feedback_label')}</Label>
                   <Textarea 
                     id="remarque"
                     placeholder="Ajoutez vos commentaires pour l'enseignant..."
@@ -253,14 +253,14 @@ const DeanViewMaterialPage: React.FC = () => {
                     variant="outline" 
                     className="w-full rounded-lg border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:border-rose-900 dark:hover:bg-rose-950/30 gap-2 h-11 font-bold"
                   >
-                    <XCircle size={18} /> Rejeter
+                    <XCircle size={18} /> {t('dean.dashboard.view_material.validation_panel.reject_button')}
                   </Button>
                   <Button 
                     onClick={() => handleAction('VALIDÉ')}
                     disabled={isProcessing}
                     className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-11 font-bold shadow-lg shadow-emerald-500/20"
                   >
-                    <CheckCircle2 size={18} /> Valider
+                    <CheckCircle2 size={18} /> {t('dean.dashboard.view_material.validation_panel.validate_button')}
                   </Button>
                 </div>
               </CardContent>
@@ -275,14 +275,14 @@ const DeanViewMaterialPage: React.FC = () => {
               <CardContent className="p-5 bg-muted/30">
                 <h3 className="text-sm font-bold flex items-center gap-2 mb-3 text-foreground">
                   <MessageSquare size={16} className={material.statut === 'VALIDÉ' ? "text-emerald-500" : "text-rose-500"} />
-                  Retour pédagogique
+                  {t('dean.dashboard.view_material.academic_feedback.title')}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium italic">
                   "{material.remarqueDoyen}"
                 </p>
                 {material.dateValidation && (
                   <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-t border-border/10 pt-3 text-right">
-                    Décidé le {new Date(material.dateValidation).toLocaleDateString()}
+                    {t('dean.dashboard.view_material.academic_feedback.decided_on', { date: new Date(material.dateValidation).toLocaleDateString() })}
                   </p>
                 )}
               </CardContent>
@@ -291,12 +291,12 @@ const DeanViewMaterialPage: React.FC = () => {
 
           <Card className="rounded-xl border-border/50 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg font-bold">Informations</CardTitle>
+              <CardTitle className="text-lg font-bold">{t('dean.dashboard.view_material.info.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
-                  <Calendar className="h-4 w-4 text-primary" /> Date de dépôt
+                  <Calendar className="h-4 w-4 text-primary" /> {t('dean.dashboard.view_material.info.upload_date')}
                 </span>
                 <span className="text-sm font-bold">
                   {new Date(material.dateDepot).toLocaleDateString()}
@@ -304,16 +304,16 @@ const DeanViewMaterialPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
-                  <Clock className="h-4 w-4 text-primary" /> Statut
+                  <Clock className="h-4 w-4 text-primary" /> {t('dean.dashboard.view_material.info.status')}
                 </span>
                 <Badge variant="outline" className="rounded-lg text-[10px] font-bold uppercase">{material.statut}</Badge>
               </div>
               <div className="pt-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-primary mb-2 uppercase tracking-wider">
-                  <AlertCircle className="h-4 w-4" /> Visibilité
+                  <AlertCircle className="h-4 w-4" /> {t('dean.dashboard.view_material.info.visibility')}
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                  Visible par les étudiants de {material.niveau} après validation.
+                  {t('dean.dashboard.view_material.info.visibility_desc', { level: material.niveau })}
                 </p>
               </div>
             </CardContent>

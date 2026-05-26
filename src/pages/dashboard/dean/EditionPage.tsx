@@ -84,11 +84,13 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useTranslation } from "react-i18next";
 
 type EntityType = "teachers" | "rooms" | "subjects" | "assignments";
 type ViewMode = "list" | "detail";
 
 const EditionPage: React.FC = () => {
+  const { t } = useTranslation();
   const [activeEntity, setActiveEntity] = useState<EntityType>("teachers");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -150,11 +152,11 @@ const EditionPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("Erreur de synchronisation");
+      toast.error(t('dean.edition.messages.sync_error'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const filteredData = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -198,11 +200,11 @@ const EditionPage: React.FC = () => {
     
     // Validation stricte
     if (activeEntity === "teachers" && (!selectedItem.fullName || !selectedItem.email)) {
-        toast.error("Veuillez remplir le nom et l'email");
+        toast.error(t('dean.edition.messages.validation_error'));
         return;
     }
     if (activeEntity === "assignments" && (!selectedItem.teacherId || !selectedItem.subjectCode)) {
-        toast.error("Veuillez sélectionner un enseignant et une matière");
+        toast.error(t('dean.edition.messages.assignment_error'));
         return;
     }
 
@@ -227,11 +229,11 @@ const EditionPage: React.FC = () => {
       if (isNew) await api.post(endpoint, payload);
       else await api.put(endpoint, payload);
       
-      toast.success("Enregistrement réussi");
+      toast.success(t('dean.edition.messages.save_success'));
       setViewMode("list");
       fetchData(activeEntity);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Erreur lors de l'enregistrement");
+      toast.error(error.response?.data?.message || t('dean.edition.messages.save_error'));
     } finally {
       setIsSaving(false);
     }
@@ -239,7 +241,7 @@ const EditionPage: React.FC = () => {
 
   const handleDelete = async (id: any, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!window.confirm("Supprimer définitivement cet élément ?")) return;
+    if (!window.confirm(t('dean.edition.delete_confirm'))) return;
     try {
       let endpoint = "";
       switch (activeEntity) {
@@ -249,11 +251,11 @@ const EditionPage: React.FC = () => {
         case "assignments": endpoint = `/campushub-scheduling-service/api/scheduling/assignments/${id}`; break;
       }
       await api.delete(endpoint);
-      toast.success("Élément supprimé");
+      toast.success(t('dean.edition.messages.delete_success'));
       if (viewMode === "detail") setViewMode("list");
       fetchData(activeEntity);
     } catch (error) {
-      toast.error("Erreur lors de la suppression");
+      toast.error(t('dean.edition.messages.delete_error'));
     }
   };
 
@@ -273,7 +275,7 @@ const EditionPage: React.FC = () => {
   const handleExportAction = () => {
     // Application des filtres Niveau et Semestre si applicable
     let dataToExport = filteredData;
-    let description = "Liste complète des éléments";
+    let description = t('dean.edition.import_export.desc_export');
 
     if (activeEntity === "subjects") {
       if (exportLevel !== "all") {
@@ -282,10 +284,10 @@ const EditionPage: React.FC = () => {
       if (exportSemester !== "all") {
         dataToExport = dataToExport.filter(s => s.semester?.toString() === exportSemester);
       }
-      description = `Matières - Filière: INFORMATIQUE-INE | Niveau: ${exportLevel === "all" ? "Tous" : "L"+exportLevel} | Semestre: ${exportSemester === "all" ? "Tous" : "S"+exportSemester}`;
+      description = `${t('dean.edition.entities.subjects')} - ${t('dean.edition.import_export.dept_label')}: INFORMATIQUE-INE | ${t('dean.edition.import_export.level')}: ${exportLevel === "all" ? "Tous" : "L"+exportLevel} | ${t('dean.edition.import_export.semester')}: ${exportSemester === "all" ? "Tous" : "S"+exportSemester}`;
     } else {
       const entityLabel = navItems.find(i => i.id === activeEntity)?.label || activeEntity;
-      description = `Liste des ${entityLabel} - Filière: INFORMATIQUE-INE`;
+      description = `Liste des ${entityLabel} - ${t('dean.edition.import_export.dept_label')}: INFORMATIQUE-INE`;
     }
     
     if (!dataToExport || dataToExport.length === 0) {
@@ -358,7 +360,7 @@ const EditionPage: React.FC = () => {
       try {
         const json = JSON.parse(event.target?.result as string);
         if (!Array.isArray(json)) {
-            toast.error("Le format JSON doit être une liste d'objets");
+            toast.error(t('dean.edition.messages.json_invalid'));
             return;
         }
 
@@ -449,10 +451,10 @@ const EditionPage: React.FC = () => {
   };
 
   const navItems = [
-    { id: "teachers", label: "Enseignants", icon: Users },
-    { id: "rooms", label: "Salles", icon: MapPin },
-    { id: "subjects", label: "Matières", icon: BookOpen },
-    { id: "assignments", label: "Assignations", icon: LinkIcon },
+    { id: "teachers", label: t('dean.edition.entities.teachers'), icon: Users },
+    { id: "rooms", label: t('dean.edition.entities.rooms'), icon: MapPin },
+    { id: "subjects", label: t('dean.edition.entities.subjects'), icon: BookOpen },
+    { id: "assignments", label: t('dean.edition.entities.assignments'), icon: LinkIcon },
   ];
 
   return (
@@ -469,7 +471,7 @@ const EditionPage: React.FC = () => {
           <div className="w-[14.5rem] flex flex-col h-full">
             <div className="py-6">
               <div className="px-6 mb-4 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Navigation</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">{t('dean.edition.navigation')}</span>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => fetchData(activeEntity)}>
                     <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
@@ -503,7 +505,7 @@ const EditionPage: React.FC = () => {
             <div className="mt-auto p-4 border-t border-border/50">
               <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-primary/5 border border-primary/10">
                 <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[11px] font-bold uppercase tracking-tight text-primary/80">Mode Édition Actif</span>
+                <span className="text-[11px] font-bold uppercase tracking-tight text-primary/80">{t('dean.edition.active_mode')}</span>
               </div>
             </div>
           </div>
@@ -528,7 +530,7 @@ const EditionPage: React.FC = () => {
                 <h1 className="text-lg font-bold tracking-tight text-foreground capitalize">
                   {viewMode === "list" 
                     ? navItems.find(i => i.id === activeEntity)?.label 
-                    : "Fiche détaillée"}
+                    : t('dean.edition.detail_title')}
                 </h1>
               </div>
 
@@ -537,7 +539,7 @@ const EditionPage: React.FC = () => {
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder={`Chercher dans ${navItems.find(i => i.id === activeEntity)?.label.toLowerCase()}...`}
+                      placeholder={t('dean.edition.search_placeholder', { entity: navItems.find(i => i.id === activeEntity)?.label.toLowerCase() })}
                       className="h-9 pl-9 bg-muted/50 border-border/40 focus:bg-background focus:ring-1 focus:ring-primary/20"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -557,7 +559,7 @@ const EditionPage: React.FC = () => {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-xs font-bold uppercase tracking-wider">Importer la liste</p>
+                        <p className="text-xs font-bold uppercase tracking-wider">{t('dean.edition.import_export.title_import')}</p>
                       </TooltipContent>
                     </Tooltip>
 
@@ -573,13 +575,13 @@ const EditionPage: React.FC = () => {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-xs font-bold uppercase tracking-wider">Exporter la liste</p>
+                        <p className="text-xs font-bold uppercase tracking-wider">{t('dean.edition.import_export.title_export')}</p>
                       </TooltipContent>
                     </Tooltip>
 
                     <Button size="sm" className="h-9 gap-2 px-4 shadow-sm" onClick={handleAdd}>
                       <Plus className="h-4 w-4" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Nouveau</span>
+                      <span className="text-xs font-bold uppercase tracking-wider">{t('dean.edition.new_button')}</span>
                     </Button>
                   </div>
                 </div>
@@ -594,7 +596,7 @@ const EditionPage: React.FC = () => {
               {loading && viewMode === "list" ? (
                 <div className="h-full flex flex-col items-center justify-center gap-4">
                   <Loader2 className="h-10 w-10 animate-spin text-primary opacity-30" />
-                  <p className="text-sm font-medium text-muted-foreground">Synchronisation...</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('dean.edition.syncing')}</p>
                 </div>
               ) : viewMode === "list" ? (
                 /* VUE LISTE */
@@ -693,33 +695,33 @@ const EditionPage: React.FC = () => {
                     <section className="space-y-6">
                        <div className="flex items-center gap-3">
                           <Info className="h-5 w-5 text-primary" />
-                          <h3 className="text-lg font-bold text-foreground tracking-tight">Informations de base</h3>
+                          <h3 className="text-lg font-bold text-foreground tracking-tight">{t('dean.edition.form.basic_info')}</h3>
                        </div>
                        <Separator className="bg-border/60" />
                        
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-2">
                          {activeEntity === "teachers" && (
                            <>
-                             <FormGroup label="Nom complet" icon={<User className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.full_name')} icon={<User className="h-4 w-4" />}>
                                <Input value={selectedItem.fullName || ""} onChange={v => setSelectedItem({...selectedItem, fullName: v.target.value})} placeholder="Ex: Jean Dupont" />
                              </FormGroup>
-                             <FormGroup label="Identifiant de connexion" icon={<Shield className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.username')} icon={<Shield className="h-4 w-4" />}>
                                <Input value={selectedItem.username || ""} onChange={v => setSelectedItem({...selectedItem, username: v.target.value})} placeholder="j.dupont" />
                              </FormGroup>
-                             <FormGroup label="Email académique" icon={<Mail className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.email')} icon={<Mail className="h-4 w-4" />}>
                                <Input type="email" value={selectedItem.email || ""} onChange={v => setSelectedItem({...selectedItem, email: v.target.value})} placeholder="jean.dupont@campushub.cm" />
                              </FormGroup>
-                             <FormGroup label="Département" icon={<Building className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.department')} icon={<Building className="h-4 w-4" />}>
                                <Input value={selectedItem.department || ""} onChange={v => setSelectedItem({...selectedItem, department: v.target.value})} placeholder="INFORMATIQUE-INE" />
                              </FormGroup>
-                             <FormGroup label="Numéro de bureau" icon={<MapPin className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.office_number')} icon={<MapPin className="h-4 w-4" />}>
                                <Input value={selectedItem.officeNumber || ""} onChange={v => setSelectedItem({...selectedItem, officeNumber: v.target.value})} placeholder="Ex: B-204" />
                              </FormGroup>
-                             <FormGroup label="Photo de profil (URL)" icon={<Monitor className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.profile_pic')} icon={<Monitor className="h-4 w-4" />}>
                                <Input value={selectedItem.profilePictureUrl || ""} onChange={v => setSelectedItem({...selectedItem, profilePictureUrl: v.target.value})} placeholder="https://..." />
                              </FormGroup>
                              {!selectedItem.id && (
-                               <FormGroup label="Mot de passe temporaire" icon={<Lock className="h-4 w-4" />}>
+                               <FormGroup label={t('dean.edition.form.password')} icon={<Lock className="h-4 w-4" />}>
                                  <Input type="password" value={selectedItem.password || ""} onChange={v => setSelectedItem({...selectedItem, password: v.target.value})} placeholder="••••••••" />
                                </FormGroup>
                              )}
@@ -728,16 +730,16 @@ const EditionPage: React.FC = () => {
 
                          {activeEntity === "rooms" && (
                            <>
-                             <FormGroup label="Nom de la salle" icon={<Layout className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.room_name')} icon={<Layout className="h-4 w-4" />}>
                                <Input value={selectedItem.nom || ""} onChange={v => setSelectedItem({...selectedItem, nom: v.target.value})} placeholder="Ex: Amphi A" />
                              </FormGroup>
-                             <FormGroup label="Code technique" icon={<Shield className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.room_code')} icon={<Shield className="h-4 w-4" />}>
                                <Input value={selectedItem.code || ""} onChange={v => setSelectedItem({...selectedItem, code: v.target.value})} placeholder="AMPH-A" />
                              </FormGroup>
-                             <FormGroup label="Bâtiment / Zone" icon={<Building className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.building')} icon={<Building className="h-4 w-4" />}>
                                <Input value={selectedItem.batiment || ""} onChange={v => setSelectedItem({...selectedItem, batiment: v.target.value})} placeholder="Bâtiment Principal" />
                              </FormGroup>
-                             <FormGroup label="Capacité d'accueil" icon={<Users className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.capacity')} icon={<Users className="h-4 w-4" />}>
                                <Input type="number" value={selectedItem.capacite || ""} onChange={v => setSelectedItem({...selectedItem, capacite: parseInt(v.target.value)})} />
                              </FormGroup>
                            </>
@@ -745,24 +747,24 @@ const EditionPage: React.FC = () => {
 
                          {activeEntity === "subjects" && (
                            <>
-                             <FormGroup label="Intitulé du cours" icon={<BookOpen className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.subject_name')} icon={<BookOpen className="h-4 w-4" />}>
                                <Input value={selectedItem.name || ""} onChange={v => setSelectedItem({...selectedItem, name: v.target.value})} placeholder="Ex: Algorithmique" />
                              </FormGroup>
-                             <FormGroup label="Code de l'unité" icon={<Shield className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.subject_code')} icon={<Shield className="h-4 w-4" />}>
                                <Input value={selectedItem.code || ""} onChange={v => setSelectedItem({...selectedItem, code: v.target.value})} disabled={!!selectedItem.id && subjects.some(s => s.code === selectedItem.code)} className="bg-muted/50 font-mono" placeholder="INF111" />
                              </FormGroup>
-                             <FormGroup label="Catégorie" icon={<Layers className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.category')} icon={<Layers className="h-4 w-4" />}>
                                <Input value={selectedItem.category || ""} onChange={v => setSelectedItem({...selectedItem, category: v.target.value})} placeholder="Fondamentale, Optionnelle..." />
                              </FormGroup>
-                             <FormGroup label="Spécialité" icon={<GraduationCap className="h-4 w-4" />}>
-                               <Input value={selectedItem.specialite || ""} onChange={v => setSelectedItem({...selectedItem, specialite: v.target.value})} placeholder="INFORMATIQUE-INE" />
+                             <FormGroup label={t('dean.edition.form.specialty')} icon={<GraduationCap className="h-4 w-4" />}>
+                               <Input value={selectedItem.specialite || ""} onChange={v => setSelectedItem({...selectedItem, specialty: v.target.value})} placeholder="INFORMATIQUE-INE" />
                              </FormGroup>
                            </>
                          )}
 
                          {activeEntity === "assignments" && (
                            <>
-                             <FormGroup label="Enseignant" icon={<User className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.teacher')} icon={<User className="h-4 w-4" />}>
                                <Select 
                                  value={selectedItem.teacherId?.toString()} 
                                  onValueChange={v => {
@@ -771,7 +773,7 @@ const EditionPage: React.FC = () => {
                                  }}
                                >
                                  <SelectTrigger className="h-12 bg-background border-border/60">
-                                   <SelectValue placeholder="Choisir un enseignant" />
+                                   <SelectValue placeholder={t('dean.edition.form.teacher')} />
                                  </SelectTrigger>
                                  <SelectContent>
                                    {teachers.map(t => (
@@ -781,13 +783,13 @@ const EditionPage: React.FC = () => {
                                </Select>
                              </FormGroup>
 
-                             <FormGroup label="Cours / Unité d'Enseignement" icon={<BookOpen className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.course_ue')} icon={<BookOpen className="h-4 w-4" />}>
                                <Select 
                                  value={selectedItem.subjectCode} 
                                  onValueChange={v => setSelectedItem({...selectedItem, subjectCode: v})}
                                >
                                  <SelectTrigger className="h-12 bg-background border-border/60">
-                                   <SelectValue placeholder="Choisir une matière" />
+                                   <SelectValue placeholder={t('dean.edition.form.course_ue')} />
                                  </SelectTrigger>
                                  <SelectContent>
                                    {subjects.map(s => (
@@ -797,13 +799,13 @@ const EditionPage: React.FC = () => {
                                </Select>
                              </FormGroup>
                              
-                             <FormGroup label="Rôle assigné" icon={<LinkIcon className="h-4 w-4" />}>
+                             <FormGroup label={t('dean.edition.form.role_assigned')} icon={<LinkIcon className="h-4 w-4" />}>
                                <Select 
                                  value={selectedItem.role} 
                                  onValueChange={v => setSelectedItem({...selectedItem, role: v})}
                                >
                                  <SelectTrigger className="h-12 bg-background border-border/60">
-                                   <SelectValue placeholder="Choisir un rôle" />
+                                   <SelectValue placeholder={t('dean.edition.form.role_assigned')} />
                                  </SelectTrigger>
                                  <SelectContent>
                                    <SelectItem value="COURSE_LECTURER">Titulaire du cours (CM)</SelectItem>
@@ -821,13 +823,13 @@ const EditionPage: React.FC = () => {
                       <section className="space-y-6">
                         <div className="flex items-center gap-3">
                             <Settings className="h-5 w-5 text-primary" />
-                            <h3 className="text-lg font-bold text-foreground tracking-tight">Paramètres spécifiques</h3>
+                            <h3 className="text-lg font-bold text-foreground tracking-tight">{t('dean.edition.form.advanced_params')}</h3>
                         </div>
                         <Separator className="bg-border/60" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-2">
                             {activeEntity === "teachers" && (
-                              <FormGroup label="Grade / Rang" icon={<GraduationCap className="h-4 w-4" />}>
+                              <FormGroup label={t('dean.edition.form.grade')} icon={<GraduationCap className="h-4 w-4" />}>
                                 <Select value={selectedItem.grade || "Professeur"} onValueChange={v => setSelectedItem({...selectedItem, grade: v})}>
                                   <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
                                   <SelectContent>
@@ -843,18 +845,18 @@ const EditionPage: React.FC = () => {
 
                             {activeEntity === "rooms" && (
                               <>
-                                <FormGroup label="Filière dédiée" icon={<GraduationCap className="h-4 w-4" />}>
+                                <FormGroup label={t('dean.edition.form.dedicated_filiere')} icon={<GraduationCap className="h-4 w-4" />}>
                                   <Input value={selectedItem.filiere || ""} onChange={v => setSelectedItem({...selectedItem, filiere: v.target.value})} placeholder="INFORMATIQUE-INE" />
                                 </FormGroup>
                                 <div className="flex items-center justify-between p-5 bg-background border border-border/60 rounded-2xl shadow-sm">
                                   <div className="space-y-0.5">
-                                    <Label className="text-sm font-bold">État de la salle</Label>
-                                    <p className="text-xs text-muted-foreground">Disponible pour planification</p>
+                                    <Label className="text-sm font-bold">{t('dean.edition.form.room_state')}</Label>
+                                    <p className="text-xs text-muted-foreground">{t('dean.edition.form.room_available')}</p>
                                   </div>
                                   <Switch checked={selectedItem.actif !== false} onCheckedChange={v => setSelectedItem({...selectedItem, actif: v})} />
                                 </div>
                                 <div className="md:col-span-2 pt-2">
-                                  <FormGroup label="Équipements & Inventaire" icon={<Monitor className="h-4 w-4" />}>
+                                  <FormGroup label={t('dean.edition.form.equipment')} icon={<Monitor className="h-4 w-4" />}>
                                     <Textarea 
                                       className="min-h-[120px] bg-background border-border/60 focus:ring-1 focus:ring-primary/20 rounded-xl" 
                                       placeholder="Ex: Projecteur, Tableau blanc, 50 PCs, Climatisation..."
@@ -868,13 +870,13 @@ const EditionPage: React.FC = () => {
 
                             {activeEntity === "subjects" && (
                               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
-                                  <FormGroup label="Crédits (ECTS)" icon={<Plus className="h-4 w-4" />}>
+                                  <FormGroup label={t('dean.edition.form.credits')} icon={<Plus className="h-4 w-4" />}>
                                     <Input type="number" value={selectedItem.credits || ""} onChange={v => setSelectedItem({...selectedItem, credits: parseInt(v.target.value)})} />
                                   </FormGroup>
-                                  <FormGroup label="Niveau académique" icon={<Layers className="h-4 w-4" />}>
+                                  <FormGroup label={t('dean.edition.form.academic_level')} icon={<Layers className="h-4 w-4" />}>
                                     <Input type="number" value={selectedItem.niveau || ""} onChange={v => setSelectedItem({...selectedItem, niveau: parseInt(v.target.value)})} />
                                   </FormGroup>
-                                  <FormGroup label="Semestre" icon={<Clock className="h-4 w-4" />}>
+                                  <FormGroup label={t('dean.edition.form.semester')} icon={<Clock className="h-4 w-4" />}>
                                     <Input type="number" value={selectedItem.semester || ""} onChange={v => setSelectedItem({...selectedItem, semester: parseInt(v.target.value)})} />
                                   </FormGroup>
                               </div>
@@ -887,13 +889,13 @@ const EditionPage: React.FC = () => {
                   {/* BARRE D'ACTIONS FIXE */}
                   <div className="sticky bottom-0 left-0 w-full bg-background/95 backdrop-blur-xl border-t border-border p-4 flex items-center justify-between gap-4 mt-auto">
                       <Button variant="ghost" className="text-destructive hover:bg-destructive/10 font-bold gap-2" onClick={() => handleDelete(selectedItem.id || selectedItem.code)}>
-                        <Trash2 className="h-4 w-4" /> Supprimer
+                        <Trash2 className="h-4 w-4" /> {t('dean.edition.delete_button')}
                       </Button>
                       <div className="flex gap-3">
-                        <Button variant="outline" className="px-6 rounded-xl font-semibold border-border/60 hover:bg-muted" onClick={() => setViewMode("list")}>Annuler</Button>
+                        <Button variant="outline" className="px-6 rounded-xl font-semibold border-border/60 hover:bg-muted" onClick={() => setViewMode("list")}>{t('common.cancel')}</Button>
                         <Button className="px-10 rounded-xl font-bold gap-2 shadow-sm shadow-primary/20 h-11" onClick={handleSave} disabled={isSaving}>
                           {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                          Enregistrer les données
+                          {t('dean.edition.save_data')}
                         </Button>
                       </div>
                     </div>
@@ -910,12 +912,12 @@ const EditionPage: React.FC = () => {
           <SheetHeader className="text-left border-b border-border/40 pb-6 mb-6">
             <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
               {ioType === "export" ? <Download className="h-6 w-6 text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
-              {ioType === "export" ? "PARAMÈTRES D'EXPORTATION" : "IMPORTATION DE DONNÉES"}
+              {ioType === "export" ? t('dean.edition.import_export.title_export') : t('dean.edition.import_export.title_import')}
             </SheetTitle>
             <SheetDescription className="text-sm font-medium text-muted-foreground mt-2">
               {ioType === "export" 
-                ? "Configurez le périmètre et le format de votre rapport académique."
-                : "Chargez un fichier JSON pour synchroniser massivement vos données."}
+                ? t('dean.edition.import_export.desc_export')
+                : t('dean.edition.import_export.desc_import')}
             </SheetDescription>
           </SheetHeader>
 
@@ -926,7 +928,7 @@ const EditionPage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-primary/80">
                     <Monitor className="h-4 w-4" />
-                    <Label className="text-[11px] font-black uppercase tracking-widest">Format du document</Label>
+                    <Label className="text-[11px] font-black uppercase tracking-widest">{t('dean.edition.import_export.format_label')}</Label>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <button 
@@ -940,8 +942,8 @@ const EditionPage: React.FC = () => {
                         <Database className="h-6 w-6" />
                       </div>
                       <div className="space-y-0.5">
-                        <span className="block font-bold text-sm">Rapport PDF</span>
-                        <span className="block text-[10px] opacity-60 uppercase font-bold">Imprimable</span>
+                        <span className="block font-bold text-sm">{t('dean.edition.import_export.pdf_report')}</span>
+                        <span className="block text-[10px] opacity-60 uppercase font-bold">{t('dean.edition.import_export.pdf_printable')}</span>
                       </div>
                     </button>
                     <button 
@@ -955,8 +957,8 @@ const EditionPage: React.FC = () => {
                         <div className="font-black text-xs">JSON</div>
                       </div>
                       <div className="space-y-0.5">
-                        <span className="block font-bold text-sm">Données JSON</span>
-                        <span className="block text-[10px] opacity-60 uppercase font-bold">Sauvegarde</span>
+                        <span className="block font-bold text-sm">{t('dean.edition.import_export.json_data')}</span>
+                        <span className="block text-[10px] opacity-60 uppercase font-bold">{t('dean.edition.import_export.json_backup')}</span>
                       </div>
                     </button>
                   </div>
@@ -968,23 +970,23 @@ const EditionPage: React.FC = () => {
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 text-primary/80">
                     <Filter className="h-4 w-4" />
-                    <Label className="text-[11px] font-black uppercase tracking-widest">Périmètre des données</Label>
+                    <Label className="text-[11px] font-black uppercase tracking-widest">{t('dean.edition.import_export.scope_label')}</Label>
                   </div>
                   
                   <div className="space-y-4 px-1">
-                    <FormGroup label="Filière / Département">
+                    <FormGroup label={t('dean.edition.import_export.dept_label')}>
                       <Select value="INFO" disabled>
                         <SelectTrigger className="h-10 bg-muted/50 font-bold"><SelectValue placeholder="INFORMATIQUE-INE" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="INFO">INFORMATIQUE-INE</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-[10px] text-muted-foreground italic mt-1 px-1">Seule la filière INFORMATIQUE-INE est gérée actuellement.</p>
+                      <p className="text-[10px] text-muted-foreground italic mt-1 px-1">{t('dean.edition.import_export.dept_info')}</p>
                     </FormGroup>
 
                     {activeEntity === "subjects" && (
                       <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-                        <FormGroup label="Niveau">
+                        <FormGroup label={t('dean.edition.import_export.level')}>
                           <Select value={exportLevel} onValueChange={setExportLevel}>
                             <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -997,7 +999,7 @@ const EditionPage: React.FC = () => {
                             </SelectContent>
                           </Select>
                         </FormGroup>
-                        <FormGroup label="Semestre">
+                        <FormGroup label={t('dean.edition.import_export.semester')}>
                           <Select value={exportSemester} onValueChange={setExportSemester}>
                             <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -1023,20 +1025,20 @@ const EditionPage: React.FC = () => {
                     <Upload className="h-10 w-10" />
                   </div>
                   <div className="text-center space-y-2">
-                    <p className="font-extrabold text-lg tracking-tight text-foreground">Déposez votre fichier</p>
+                    <p className="font-extrabold text-lg tracking-tight text-foreground">{t('dean.edition.import_export.drop_file')}</p>
                     <p className="text-sm text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
-                      Sélectionnez un fichier <span className="font-mono text-primary font-bold">.JSON</span> formaté pour l'entité <span className="font-bold underline italic">{activeEntity}</span>
+                      {t('dean.edition.import_export.select_json', { entity: activeEntity })}
                     </p>
                   </div>
-                  <Button variant="outline" className="rounded-full px-8 font-bold border-primary/40 text-primary">Parcourir les fichiers</Button>
+                  <Button variant="outline" className="rounded-full px-8 font-bold border-primary/40 text-primary">{t('dean.edition.import_export.browse')}</Button>
                 </div>
                 
                 <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-4">
                    <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
                    <div className="space-y-1">
-                      <p className="text-xs font-black text-amber-800 uppercase">Attention</p>
+                      <p className="text-xs font-black text-amber-800 uppercase">{t('dean.edition.import_export.warning')}</p>
                       <p className="text-xs text-amber-700/80 leading-relaxed font-medium">
-                        L'importation massive écrase ou ajoute des données directement en production. Assurez-vous de la validité de votre fichier JSON.
+                        {t('dean.edition.import_export.warning_desc')}
                       </p>
                    </div>
                 </div>
@@ -1046,10 +1048,10 @@ const EditionPage: React.FC = () => {
 
           <SheetFooter className="border-t border-border/40 pt-6 mt-auto">
             <div className="flex w-full gap-3">
-              <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold" onClick={() => setIsIOModalOpen(false)}>Fermer</Button>
+              <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold" onClick={() => setIsIOModalOpen(false)}>{t('common.cancel')}</Button>
               {ioType === "export" && (
                 <Button onClick={handleExportAction} className="flex-[2] h-12 rounded-xl font-black gap-2 shadow-lg shadow-primary/20">
-                  <Download className="h-4 w-4" /> GÉNÉRER L'EXPORTATION
+                  <Download className="h-4 w-4" /> {t('dean.edition.import_export.generate')}
                 </Button>
               )}
             </div>
@@ -1070,20 +1072,20 @@ const EditionPage: React.FC = () => {
         <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-auto bg-popover/95">
           <DialogHeader className="flex items-center justify-between gap-4">
             <div>
-              <DialogTitle>Résultat de l'import</DialogTitle>
-              <DialogDescription className="text-sm">Détails des éléments insérés et des éléments rejetés avec explication.</DialogDescription>
+              <DialogTitle>{t('dean.edition.import_result.title')}</DialogTitle>
+              <DialogDescription className="text-sm">{t('dean.edition.import_result.desc')}</DialogDescription>
             </div>
 
             <div className="flex items-center gap-3">
-              <Badge className="bg-emerald-800 text-emerald-50 border-emerald-700">Acceptés: {importResultAccepted.length}</Badge>
-              <Badge className="bg-rose-800 text-rose-50 border-rose-700">Rejetés: {importResultRejected.length}</Badge>
+              <Badge className="bg-emerald-800 text-emerald-50 border-emerald-700">{t('dean.edition.import_result.accepted')}: {importResultAccepted.length}</Badge>
+              <Badge className="bg-rose-800 text-rose-50 border-rose-700">{t('dean.edition.import_result.rejected')}: {importResultRejected.length}</Badge>
               <Button variant="ghost" size="sm" className="gap-2" onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(JSON.stringify({ accepted: importResultAccepted.map(a => a.item), rejected: importResultRejected.map(r => ({ item: r.item, reason: r.reason })) }, null, 2));
                   toast.success('Copié dans le presse-papier');
                 } catch (err) { toast.error('Impossible de copier'); }
               }}>
-                <Copy className="h-4 w-4" /> Copier tout
+                <Copy className="h-4 w-4" /> {t('dean.edition.import_result.copy_all')}
               </Button>
             </div>
           </DialogHeader>
@@ -1091,13 +1093,13 @@ const EditionPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4">
             <section className="p-3 rounded-lg bg-card/80 border border-border/30 border-l-4 border-emerald-600/40">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold">Acceptés</h4>
+                <h4 className="text-sm font-semibold">{t('dean.edition.import_result.accepted')}</h4>
                 <span className="text-xs text-emerald-200">{importResultAccepted.length}</span>
               </div>
 
               <div className="space-y-3 max-h-96 overflow-auto pr-2">
                 {importResultAccepted.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">Aucun élément inséré.</div>
+                  <div className="text-sm text-muted-foreground">{t('dean.edition.import_result.none_inserted')}</div>
                 ) : (
                   importResultAccepted.map((r, i) => (
                     <div key={i} className="p-3 rounded-lg bg-popover/80 border border-border/30 flex flex-col gap-2">
@@ -1136,7 +1138,7 @@ const EditionPage: React.FC = () => {
 
             <section className="p-3 rounded-lg bg-card/80 border border-border/30 border-l-4 border-rose-600/40">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold">Rejetés</h4>
+                <h4 className="text-sm font-semibold">{t('dean.edition.import_result.rejected')}</h4>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-rose-700">{importResultRejected.length}</span>
                 </div>
@@ -1144,7 +1146,7 @@ const EditionPage: React.FC = () => {
 
               <div className="space-y-3 max-h-96 overflow-auto pr-2">
                 {importResultRejected.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">Aucun élément rejeté.</div>
+                  <div className="text-sm text-muted-foreground">{t('dean.edition.import_result.none_rejected')}</div>
                 ) : (
                   importResultRejected.map((r, i) => (
                     <div key={i} className="p-3 rounded-lg bg-popover/80 border border-border/30 flex flex-col gap-2">
@@ -1153,7 +1155,7 @@ const EditionPage: React.FC = () => {
                           <AlertCircle className="h-5 w-5 text-rose-600" />
                           <div>
                             <div className="text-sm font-medium">{r.item?.fullName || r.item?.name || r.item?.nom || r.item?.title || 'Élément'}</div>
-                            <div className="text-xs text-destructive">Raison : {r.reason}</div>
+                            <div className="text-xs text-destructive">{t('dean.edition.import_result.reason')} : {r.reason}</div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1206,14 +1208,14 @@ const EditionPage: React.FC = () => {
                   if (stillRejected.length > 0) toast.error(`${stillRejected.length} élément(s) échoués`);
 
                   fetchData(activeEntity);
-                }}>Réessayer les échecs</Button>
+                }}>{t('dean.edition.import_result.retry_failed')}</Button>
 
               </div>
             </section>
           </div>
 
           <DialogFooter className="pt-4">
-            <Button variant="outline" onClick={() => { setIsImportResultOpen(false); setImportResultAccepted([]); setImportResultRejected([]); }}>Fermer</Button>
+            <Button variant="outline" onClick={() => { setIsImportResultOpen(false); setImportResultAccepted([]); setImportResultRejected([]); }}>{t('common.cancel')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1232,7 +1234,9 @@ const FormGroup = ({ label, children, icon }: any) => (
   </div>
 );
 
-const ActionsMenu = ({ onDelete }: { onDelete: (e: React.MouseEvent) => void }) => (
+const ActionsMenu = ({ onDelete }: { onDelete: (e: React.MouseEvent) => void }) => {
+  const { t } = useTranslation();
+  return (
   <div className="flex items-center justify-center">
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -1242,11 +1246,12 @@ const ActionsMenu = ({ onDelete }: { onDelete: (e: React.MouseEvent) => void }) 
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[140px] p-1 shadow-md">
         <DropdownMenuItem onClick={onDelete} className="gap-2 text-destructive focus:text-destructive font-medium cursor-pointer text-xs">
-          <Trash2 className="h-3.5 w-3.5" /> Supprimer
+          <Trash2 className="h-3.5 w-3.5" /> {t('dean.edition.delete_button')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </div>
 );
+}
 
 export default EditionPage;

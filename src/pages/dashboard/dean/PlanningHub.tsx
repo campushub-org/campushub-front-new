@@ -3,23 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Zap, ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const PlanningHub = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const layoutOverrider = "-m-4 md:-m-6 lg:-m-8 max-w-none w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] min-h-[calc(100vh-4rem)]";
 
   const options = [
     {
       id: 'global',
-      title: 'Planning Global',
-      description: 'Vue d\'ensemble et outils d\'édition complets',
+      title: t('dean.planning_hub.options.global.title'),
+      description: t('dean.planning_hub.options.global.description'),
       icon: Calendar,
       path: '/dashboard/dean/schedule'
     },
     {
       id: 'fast',
-      title: 'Planning Rapide',
-      description: 'Ajustements rapides des créneaux critiques',
+      title: t('dean.planning_hub.options.fast.title'),
+      description: t('dean.planning_hub.options.fast.description'),
       icon: Zap,
       path: '#'
     }
@@ -28,7 +30,7 @@ const PlanningHub = () => {
   return (
     <div className={cn("w-full h-full bg-sidebar text-sidebar-foreground animate-in fade-in duration-300", layoutOverrider)}>
       <div className="px-6 py-6 border-b border-sidebar-border">
-        <h1 className="text-2xl font-black tracking-tighter text-sidebar-primary">Gestion de la Programmation</h1>
+        <h1 className="text-2xl font-black tracking-tighter text-sidebar-primary">{t('dean.planning_hub.title')}</h1>
       </div>
 
       <div className="space-y-4 p-6">

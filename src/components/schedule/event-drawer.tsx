@@ -43,6 +43,7 @@ import {
   weekDays,
 } from "@/lib/schedule-data"
 import api from "@/lib/api"
+import { useTranslation } from "react-i18next"
 
 interface EventDrawerProps {
   isOpen: boolean
@@ -96,6 +97,7 @@ export function EventDrawer({
   onDelete,
   onDuplicate,
 }: EventDrawerProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<Partial<ScheduleEvent>>({})
   const [hasChanges, setHasChanges] = useState(false)
   const [activeTab, setActiveTab] = useState("general")
@@ -244,12 +246,12 @@ export function EventDrawer({
             await api.post(endpoint, payload);
         }
 
-        toast.success("Enregistré avec succès !");
+        toast.success(t('dean.edition.messages.save_success'));
         onSave(payload as any);
         onClose();
         setHasChanges(false);
       } catch (e) {
-        toast.error("Erreur de sauvegarde");
+        toast.error(t('dean.edition.messages.save_error'));
         console.error(e);
       } finally {
         setIsSaving(false);
@@ -284,6 +286,8 @@ export function EventDrawer({
     return mins > 0 ? `${hours}h${mins}` : `${hours}h`
   }
 
+  const courseTypeLabels = t('dean.scheduling.common.course_types', { returnObjects: true }) as Record<CourseType, string>;
+
   if (!isOpen) return null
 
   return (
@@ -296,10 +300,10 @@ export function EventDrawer({
           </div>
           <div>
             <h2 className="text-lg font-bold tracking-tight">
-              {isNew ? "Nouvel événement" : "Modifier l'événement"}
+              {isNew ? t('dean.scheduling.event_drawer.titles.new') : t('dean.scheduling.event_drawer.titles.edit')}
             </h2>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              {formData.type ? courseTypeLabels[formData.type] : "Chargement..."}
+              {formData.type ? courseTypeLabels[formData.type] : t('dean.scheduling.event_drawer.titles.loading')}
             </p>
           </div>
         </div>
@@ -323,14 +327,14 @@ export function EventDrawer({
       <div className="flex-1 overflow-y-auto px-6 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl mb-8">
-            <TabsTrigger value="general" className="rounded-lg font-bold text-xs uppercase tracking-widest">Général</TabsTrigger>
-            <TabsTrigger value="settings" className="rounded-lg font-bold text-xs uppercase tracking-widest">Détails</TabsTrigger>
+            <TabsTrigger value="general" className="rounded-lg font-bold text-xs uppercase tracking-widest">{t('dean.scheduling.event_drawer.tabs.general')}</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-lg font-bold text-xs uppercase tracking-widest">{t('dean.scheduling.event_drawer.tabs.details')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-8 animate-in fade-in duration-300">
             {/* Type Selector */}
             <div className="space-y-4">
-              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Type d'activité</Label>
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.activity_type')}</Label>
               <div className="grid grid-cols-3 gap-2">
                 {(Object.entries(courseTypeLabels) as [CourseType, string][]).map(([type, label]) => (
                   <button
@@ -358,7 +362,7 @@ export function EventDrawer({
             {/* Main Fields */}
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Matière / Unité d'enseignement</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.subject')}</Label>
                 <Select 
                   value={formData.subjectCode} 
                   onValueChange={(v) => {
@@ -370,7 +374,7 @@ export function EventDrawer({
                   <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl focus:ring-primary/20">
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-primary/60" />
-                      <SelectValue placeholder="Sélectionner une matière" />
+                      <SelectValue placeholder={t('dean.scheduling.event_drawer.placeholders.select_subject')} />
                     </div>
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-border/60">
@@ -394,7 +398,7 @@ export function EventDrawer({
 
               <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-2">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Jour</Label>
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.day')}</Label>
                     <Select 
                       value={formData.day?.toString()} 
                       onValueChange={(v) => {
@@ -409,14 +413,14 @@ export function EventDrawer({
                         </div>
                       </SelectTrigger>
                       <SelectContent>
-                        {weekDays.map((day, i) => (
+                        {(t('dean.scheduling.common.days', { returnObjects: true }) as string[]).map((day, i) => (
                           <SelectItem key={i} value={i.toString()}>{day}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                  </div>
                  <div className="space-y-2">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Salle</Label>
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.room')}</Label>
                     <Select 
                       value={formData.roomId?.toString()} 
                       onValueChange={(v) => {
@@ -428,7 +432,7 @@ export function EventDrawer({
                       <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4 text-primary/60" />
-                          <SelectValue placeholder="Salle" />
+                          <SelectValue placeholder={t('dean.scheduling.event_drawer.placeholders.room')} />
                         </div>
                       </SelectTrigger>
                       <SelectContent>
@@ -441,11 +445,11 @@ export function EventDrawer({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Groupe (Optionnel)</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.group')}</Label>
                 <div className="relative">
                   <Layers className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/60" />
                   <Input 
-                    placeholder="Ex: G1, Groupe A..." 
+                    placeholder={t('dean.scheduling.event_drawer.placeholders.group')} 
                     value={formData.groupName || ""} 
                     onChange={(e) => {
                       setFormData({ ...formData, groupName: e.target.value })
@@ -457,7 +461,7 @@ export function EventDrawer({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignant responsable</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.teacher')}</Label>
                 <Select 
                   value={formData.teacherId?.toString() || "none"} 
                   onValueChange={(v) => {
@@ -473,11 +477,11 @@ export function EventDrawer({
                   <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-primary/60" />
-                      <SelectValue placeholder="À DÉTERMINER" />
+                      <SelectValue placeholder={t('dean.scheduling.event_drawer.placeholders.to_be_determined')} />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none" className="font-bold text-amber-600">À DÉTERMINER</SelectItem>
+                    <SelectItem value="none" className="font-bold text-amber-600">{t('dean.scheduling.event_drawer.placeholders.to_be_determined')}</SelectItem>
                     {teachers.map(t => (
                       <SelectItem key={t.id} value={t.id.toString()}>{t.fullName}</SelectItem>
                     ))}
@@ -496,7 +500,7 @@ export function EventDrawer({
                     <Clock className="h-5 w-5 text-primary" />
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-sm font-bold">Horaire & Durée</p>
+                    <p className="text-sm font-bold">{t('dean.scheduling.event_drawer.labels.schedule_duration')}</p>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{calculateDuration()}</p>
                   </div>
                 </div>
@@ -508,7 +512,7 @@ export function EventDrawer({
               <div className="grid gap-6 pt-2">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de début</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dean.scheduling.event_drawer.labels.start_time')}</Label>
                     <Input 
                       type="time" 
                       value={formData.startTime} 
@@ -520,7 +524,7 @@ export function EventDrawer({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de fin</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dean.scheduling.event_drawer.labels.end_time')}</Label>
                     <Input 
                       type="time" 
                       value={formData.endTime} 
@@ -534,7 +538,7 @@ export function EventDrawer({
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Raccourcis de durée</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dean.scheduling.event_drawer.labels.duration_shortcuts')}</Label>
                   <div className="grid grid-cols-4 gap-2">
                     {durationOptions.slice(1, 5).map((opt) => (
                       <Button
@@ -554,9 +558,9 @@ export function EventDrawer({
 
             {/* Description */}
             <div className="space-y-3 px-1">
-              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Notes & Consignes</Label>
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">{t('dean.scheduling.event_drawer.labels.notes')}</Label>
               <Textarea
-                placeholder="Objectifs du cours, matériel requis, chapitres abordés..."
+                placeholder={t('dean.scheduling.event_drawer.placeholders.notes')}
                 className="min-h-[120px] bg-muted/30 border-border/60 rounded-2xl focus:bg-background transition-all resize-none p-4 text-sm"
                 value={formData.description || ""}
                 onChange={(e) => {
@@ -572,9 +576,9 @@ export function EventDrawer({
                 <div className="flex gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 text-amber-500" />
                   <div>
-                    <p className="text-sm font-medium text-amber-400">Conflit détecté</p>
+                    <p className="text-sm font-medium text-amber-400">{t('dean.scheduling.event_drawer.conflict.title')}</p>
                     <p className="mt-1 text-xs text-amber-500/80">
-                      Cet enseignant ou cette salle est déjà occupé sur ce créneau.
+                      {t('dean.scheduling.event_drawer.conflict.description')}
                     </p>
                   </div>
                 </div>
@@ -588,7 +592,7 @@ export function EventDrawer({
       <div className="border-t bg-muted/20 p-6 backdrop-blur-md">
         <div className="flex gap-3">
           <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold border-border/60 hover:bg-muted" onClick={onClose}>
-            Annuler
+            {t('dean.scheduling.event_drawer.actions.cancel')}
           </Button>
           <Button
             className="flex-[2] h-12 rounded-xl font-black gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -596,7 +600,7 @@ export function EventDrawer({
             disabled={isSaving || (!formData.title && !formData.subjectCode)}
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            {isNew ? "CRÉER LA SÉANCE" : "ENREGISTRER"}
+            {isNew ? t('dean.scheduling.event_drawer.actions.create') : t('dean.scheduling.event_drawer.actions.save')}
           </Button>
         </div>
       </div>

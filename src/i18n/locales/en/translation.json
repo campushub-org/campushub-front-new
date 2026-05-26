@@ -831,6 +831,314 @@
       "schedule": "Global Planning",
       "edition": "Edition"
     },
+    "planning_hub": {
+      "title": "Programming Management",
+      "options": {
+        "global": {
+          "title": "Global Planning",
+          "description": "Overview and complete editing tools"
+        },
+        "fast": {
+          "title": "Quick Planning",
+          "description": "Quick adjustments for critical slots"
+        }
+      }
+    },
+    "scheduling": {
+      "title": "Institution Planning",
+      "back_to_hub": "Back to Hub",
+      "hide_filters": "Hide filters",
+      "show_filters": "Show filters",
+      "common": {
+        "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "course_types": {
+          "lecture": "Lecture",
+          "td": "Tutorial",
+          "tp": "Practical Work",
+          "exam": "Exam",
+          "meeting": "Meeting",
+          "availability": "Availability"
+        }
+      },
+      "event_drawer": {
+        "titles": {
+          "new": "New Event",
+          "edit": "Edit Event",
+          "loading": "Loading..."
+        },
+        "tabs": {
+          "general": "General",
+          "details": "Details"
+        },
+        "labels": {
+          "activity_type": "Activity Type",
+          "subject": "Subject / Teaching Unit",
+          "day": "Day",
+          "room": "Room",
+          "group": "Group (Optional)",
+          "teacher": "Responsible Teacher",
+          "schedule_duration": "Schedule & Duration",
+          "start_time": "Start Time",
+          "end_time": "End Time",
+          "duration_shortcuts": "Duration Shortcuts",
+          "notes": "Notes & Instructions"
+        },
+        "placeholders": {
+          "select_subject": "Select a subject",
+          "room": "Room",
+          "to_be_determined": "TO BE DETERMINED",
+          "group": "Ex: G1, Group A...",
+          "notes": "Course objectives, required material, chapters covered..."
+        },
+        "conflict": {
+          "title": "Conflict Detected",
+          "description": "This teacher or room is already occupied during this slot."
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "create": "CREATE SESSION",
+          "save": "SAVE"
+        }
+      },
+      "header": {
+        "today": "Today",
+        "view_modes": {
+          "day": "Day",
+          "week": "Week",
+          "month": "Month"
+        },
+        "filter": {
+          "title": "Filter",
+          "course_type": "Course Type"
+        },
+        "export": "Export"
+      },
+      "toolbar": {
+        "view": "Preview",
+        "edition": "Edition",
+        "view_mode_tooltip": "Visualization mode",
+        "edit_mode_tooltip": "Edition mode",
+        "add_event_tooltip": "Add an event",
+        "undo_tooltip": "Undo (Ctrl+Z)",
+        "redo_tooltip": "Redo (Ctrl+Y)",
+        "export_tooltip": "Export",
+        "import_tooltip": "Import",
+        "print_tooltip": "Print",
+        "conflicts": "Conflicts",
+        "quit_edition": "Quit edition"
+      },
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "programming": "Programming",
+        "stats": {
+          "week_hours": "This week",
+          "planned_courses": "Planned courses"
+        },
+        "distribution": "Distribution",
+        "today": "Today",
+        "upcoming_course": "Next course",
+        "tooltips": {
+          "refresh": "Refresh events",
+          "new_plan": "New plan"
+        },
+        "placeholders": {
+          "choose_version": "Choose a version"
+        },
+        "empty_states": {
+          "no_plan": "No plan available",
+          "no_weekend": "No courses this weekend",
+          "no_courses": "No courses planned"
+        },
+        "badges": {
+          "active": "Active",
+          "draft": "Draft"
+        },
+        "resource_filters": {
+          "title": "Filter by resource",
+          "reset": "Reset",
+          "display_mode": "Display mode",
+          "only_scheduled": "Scheduled only",
+          "all_resources": "All resources",
+          "sections": {
+            "levels": "Levels",
+            "teachers": "Teachers",
+            "rooms": "Rooms"
+          },
+          "actions": {
+            "check_all": "Check all",
+            "uncheck_all": "Uncheck all"
+          },
+          "empty_states": {
+            "no_teacher": "No teacher found",
+            "no_room": "No room found"
+          },
+          "active_filters": "Active filters:"
+        },
+        "plan_management": {
+          "titles": {
+            "edit": "Edit Programming",
+            "new": "New Programming"
+          },
+          "description": "Configure the parameters of this timetable version.",
+          "labels": {
+            "version_name": "Version name",
+            "level": "Level",
+            "semester": "Semester",
+            "academic_year": "Academic Year",
+            "start_date": "Start date",
+            "end_date": "End date",
+            "version_status": "Version status",
+            "default_version": "Default version",
+            "default_version_desc": "Loaded automatically at startup"
+          },
+          "status": {
+            "active": "Active",
+            "draft": "Draft",
+            "active_desc": "Visible to all",
+            "draft_desc": "Private for editing"
+          },
+          "danger_zone": {
+            "title": "Danger zone",
+            "description": "Deleting this programming will permanently delete all courses associated with it.",
+            "delete_button": "Permanently delete"
+          },
+          "placeholders": {
+            "name": "Ex: Semester 1 - Version B"
+          },
+          "actions": {
+            "save_version": "SAVE VERSION"
+          }
+        }
+        },      "view": {
+        "add": "Add"
+      },
+      "event_modal": {
+        "labels": {
+          "day": "Day",
+          "schedule": "Schedule",
+          "teacher": "Teacher",
+          "room": "Room",
+          "description": "Description"
+        },
+        "actions": {
+          "close": "Close",
+          "modify": "Modify"
+        }
+      },
+      "event_card": {
+        "to_be_determined": "TO BE DETERMINED",
+        "unassigned": "Unassigned",
+        "no_room": "Room not defined",
+        "edit_active": "Edition Mode Active • Drag to move"
+      },
+      "errors": {
+        "fetch_initial": "Error connecting to services",
+        "no_plan": "Please first select or create a programming."
+      },
+      "messages": {
+        "import_success": "Plan imported successfully",
+        "import_error": "Import failed",
+        "plan_created": "New programming created",
+        "plan_updated": "Programming updated",
+        "plan_deleted": "Programming deleted",
+        "save_error": "Error saving the programming",
+        "delete_confirm": "Delete this programming and all its courses?",
+        "delete_error": "Error during deletion",
+        "export_success": "Plan exported successfully",
+        "copy_suffix": "(copy)"
+      }
+    },
+    "edition": {
+      "title": "Edition Mode",
+      "active_mode": "Edition Mode Active",
+      "navigation": "Navigation",
+      "syncing": "Synchronizing...",
+      "detail_title": "Detailed sheet",
+      "search_placeholder": "Search in {{entity}}...",
+      "new_button": "New",
+      "save_data": "Save data",
+      "delete_button": "Delete",
+      "delete_confirm": "Permanently delete this item?",
+      "messages": {
+        "sync_error": "Sync error",
+        "validation_error": "Please fill in the name and email",
+        "assignment_error": "Please select a teacher and a subject",
+        "save_success": "Registration successful",
+        "save_error": "Error during registration",
+        "delete_success": "Item deleted",
+        "delete_error": "Error during deletion",
+        "json_invalid": "Invalid JSON file"
+      },
+      "entities": {
+        "teachers": "Teachers",
+        "rooms": "Rooms",
+        "subjects": "Subjects",
+        "assignments": "Assignments"
+      },
+      "import_export": {
+        "title_export": "EXPORT SETTINGS",
+        "title_import": "DATA IMPORT",
+        "desc_export": "Configure the scope and format of your academic report.",
+        "desc_import": "Upload a JSON file to massively synchronize your data.",
+        "format_label": "Document format",
+        "pdf_report": "PDF Report",
+        "pdf_printable": "Printable",
+        "json_data": "JSON Data",
+        "json_backup": "Backup",
+        "scope_label": "Data scope",
+        "dept_label": "Stream / Department",
+        "dept_info": "Only the INFORMATIQUE-INE stream is currently managed.",
+        "level": "Level",
+        "semester": "Semester",
+        "drop_file": "Drop your file",
+        "select_json": "Select a .JSON file formatted for the entity {{entity}}",
+        "browse": "Browse files",
+        "warning": "Warning",
+        "warning_desc": "Mass import overwrites or adds data directly in production.",
+        "generate": "GENERATE EXPORT"
+      },
+      "import_result": {
+        "title": "Import result",
+        "desc": "Details of inserted and rejected items with explanation.",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "copy_all": "Copy all",
+        "none_inserted": "No items inserted.",
+        "none_rejected": "No items rejected.",
+        "reason": "Reason",
+        "retry_failed": "Retry failures"
+      },
+      "form": {
+        "basic_info": "Basic info",
+        "advanced_params": "Specific parameters",
+        "full_name": "Full name",
+        "username": "Login ID",
+        "email": "Academic email",
+        "department": "Department",
+        "office_number": "Office number",
+        "profile_pic": "Profile picture (URL)",
+        "password": "Temporary password",
+        "room_name": "Room name",
+        "room_code": "Technical code",
+        "building": "Building / Zone",
+        "capacity": "Capacity",
+        "subject_name": "Course title",
+        "subject_code": "Unit code",
+        "category": "Category",
+        "specialty": "Specialty",
+        "teacher": "Teacher",
+        "course_ue": "Course / Teaching Unit",
+        "role_assigned": "Role assigned",
+        "grade": "Grade / Rank",
+        "dedicated_filiere": "Dedicated stream",
+        "room_state": "Room state",
+        "room_available": "Available for planning",
+        "equipment": "Equipment & Inventory",
+        "credits": "Credits (ECTS)",
+        "academic_level": "Academic level",
+        "semester": "Semester"
+      }
+    },
     "dashboard": {
       "title": "Pedagogical Team Workspace 🏛️",
       "subtitle": "Academic supervision and material validation.",

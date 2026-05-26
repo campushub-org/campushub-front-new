@@ -3,7 +3,8 @@
 import { X, Clock, MapPin, User, BookOpen, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ScheduleEvent, courseTypeColors, courseTypeLabels, weekDays } from "@/lib/schedule-data"
+import { ScheduleEvent, courseTypeColors, courseTypeLabels as staticCourseTypeLabels, weekDays as staticWeekDays } from "@/lib/schedule-data"
+import { useTranslation } from "react-i18next"
 
 interface EventModalProps {
   event: ScheduleEvent | null
@@ -11,9 +12,12 @@ interface EventModalProps {
 }
 
 export function EventModal({ event, onClose }: EventModalProps) {
+  const { t } = useTranslation()
   if (!event) return null
 
   const colors = courseTypeColors[event.type]
+  const courseTypeLabels = t('dean.scheduling.common.course_types', { returnObjects: true }) as Record<string, string>;
+  const weekDays = t('dean.scheduling.common.days', { returnObjects: true }) as string[];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -57,7 +61,7 @@ export function EventModal({ event, onClose }: EventModalProps) {
                 <Calendar className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Jour
+                    {t('dean.scheduling.event_modal.labels.day')}
                   </p>
                   <p className="mt-0.5 font-medium text-foreground">
                     {weekDays[event.day]}
@@ -69,7 +73,7 @@ export function EventModal({ event, onClose }: EventModalProps) {
                 <Clock className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Horaire
+                    {t('dean.scheduling.event_modal.labels.schedule')}
                   </p>
                   <p className="mt-0.5 font-medium text-foreground">
                     {event.startTime} - {event.endTime}
@@ -81,7 +85,7 @@ export function EventModal({ event, onClose }: EventModalProps) {
                 <User className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Enseignant
+                    {t('dean.scheduling.event_modal.labels.teacher')}
                   </p>
                   <p className="mt-0.5 font-medium text-foreground">
                     {event.professor}
@@ -93,7 +97,7 @@ export function EventModal({ event, onClose }: EventModalProps) {
                 <MapPin className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Salle
+                    {t('dean.scheduling.event_modal.labels.room')}
                   </p>
                   <p className="mt-0.5 font-medium text-foreground">
                     {event.room}
@@ -107,7 +111,7 @@ export function EventModal({ event, onClose }: EventModalProps) {
                 <BookOpen className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Description
+                    {t('dean.scheduling.event_modal.labels.description')}
                   </p>
                   <p className="mt-1 text-sm text-foreground">
                     {event.description}
@@ -120,10 +124,10 @@ export function EventModal({ event, onClose }: EventModalProps) {
           {/* Footer */}
           <div className="flex items-center justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
             <Button variant="outline" onClick={onClose}>
-              Fermer
+              {t('dean.scheduling.event_modal.actions.close')}
             </Button>
             <Button>
-              Modifier
+              {t('dean.scheduling.event_modal.actions.modify')}
             </Button>
           </div>
         </div>

@@ -19,9 +19,9 @@ interface DayViewProps {
   onCreateEvent?: (day: number, startTime: string) => void
 }
 
-export function DayView({ 
-  events, 
-  currentDate, 
+export function DayView({
+  events,
+  currentDate,
   selectedTypes,
   selectedProfessors = [],
   selectedRooms = [],
@@ -29,8 +29,10 @@ export function DayView({
   isEditMode = false,
   isPlanActive = false,
   onEventClick,
-  onCreateEvent 
+  onCreateEvent,
 }: DayViewProps) {
+  const { t } = useTranslation()
+  const weekDays = t('dean.scheduling.common.days', { returnObjects: true }) as string[]
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
   
   const filteredEvents = useMemo(() => {
@@ -166,8 +168,7 @@ export function DayView({
                     <div className="absolute inset-0 flex items-center justify-center">
                        <div className="flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary animate-in zoom-in-95 duration-200">
                           <Plus className="h-4 w-4" />
-                          Ajouter
-                       </div>
+                          {t('dean.scheduling.view.add')}                       </div>
                     </div>
                   )}
                 </div>
