@@ -50,6 +50,8 @@ import ActivityPage from "./pages/dashboard/admin/ActivityPage";
 import AdminNotificationsPage from "./pages/dashboard/admin/NotificationsPage";
 import AdminProfilePage from "./pages/dashboard/admin/ProfilePage";
 
+import TimeTablePDF from "./components/TimeTablePDF";
+
 
 import { ThemeProvider } from "./components/ThemeProvider";
 
@@ -66,6 +68,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
+
+            <Route path="/timetable" element={<TimeTablePDF />} />
 
             {/* Protected Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedRoute />}>

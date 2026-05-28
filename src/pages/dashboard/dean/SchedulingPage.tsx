@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { 
   Filter,
   ChevronLeft,
@@ -21,6 +21,8 @@ import { ScheduleSidebar } from "@/components/schedule/schedule-sidebar";
 import { PlanManagementDrawer } from "@/components/schedule/plan-management-drawer";
 import { sampleEvents, ScheduleEvent, SchedulePlan, CourseType } from "@/lib/schedule-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CoverPage, TimetablePage } from "@/components/schedule/pdf-export-template";
+import { usePdfExport } from "@/hooks/use-pdf-export";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -387,6 +389,22 @@ const DeanSchedulingPage: React.FC = () => {
     }
   };
 
+  // const pdfTimetableRef = useRef(null);
+  const {
+    coverRef,
+    timetableRef: pdfTimetableRef,
+    isExporting,
+    exportToPDF,
+  } = usePdfExport({
+    plans,
+    selectedPlanId,
+    events,
+    facultyFr: "FACULTE DES SCIENCES",    // adapter si besoin (provient du plan)
+    facultyEn: "FACULTY OF SCIENCE",
+  });
+  const isLoading = isExporting;
+  const handleEventExport = exportToPDF;
+
   return (
     <TooltipProvider>
       {/* Fix pour bloquer le slide horizontal de la navbar et de la page */}
@@ -545,13 +563,18 @@ const DeanSchedulingPage: React.FC = () => {
                 onToday={handleToday}
                 selectedTypes={selectedTypes}
                 onTypeToggle={handleTypeToggle}
+                onExport={handleEventExport}
+                isLoading={isLoading}
               />
             </div>
           </div>
 
           {/* Grille du Calendrier - OCCUPE TOUT LE RESTE DE L'ESPACE */}
           <div className="flex-1 overflow-hidden relative">
-            <div className="h-full overflow-auto bg-card/80 p-6 rounded-lg shadow-medium scrollbar-thin scrollbar-thumb-sidebar-border">
+            <div
+              // ref={timetableRef}
+              className="h-full overflow-auto bg-card/80 p-6 rounded-lg shadow-medium scrollbar-thin scrollbar-thumb-sidebar-border"
+            >
               {viewMode === "week" && (
                 <WeekViewEditable
                   events={events}
@@ -631,7 +654,37 @@ const DeanSchedulingPage: React.FC = () => {
             onDelete={handleDeletePlan}
             isSaving={isSavingPlan}
           />
-          </div>    </TooltipProvider>
+      </div>
+
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: "-9999px",
+          width: "794px",
+          zIndex: -1,
+          pointerEvents: "none",
+        }}
+      >
+        <CoverPage
+          ref={coverRef}
+          plan={plans.find((p) => p.id === selectedPlanId) ?? ({} as any)}
+          logoSrc="/logoUY1-rmbg.png"
+          facultyFr="FACULTE DES SCIENCES"
+          facultyEn="FACULTY OF SCIENCE"
+        />
+      
+        <TimetablePage
+          ref={pdfTimetableRef}
+          events={events}
+          plan={plans.find((p) => p.id === selectedPlanId) ?? ({} as any)}
+          facultyFr="FACULTE DES SCIENCES"
+          facultyEn="FACULTY OF SCIENCE"
+          // footerNotes="UE PRATIQUE : ..." // décommenter pour ajouter une note de bas de tableau
+        />
+      </div>
+    </TooltipProvider>
   );
 };
 
