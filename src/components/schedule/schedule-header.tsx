@@ -24,6 +24,8 @@ interface ScheduleHeaderProps {
   onToday: () => void
   selectedTypes: CourseType[]
   onTypeToggle: (type: CourseType) => void
+  onExport ?: () => void
+  isLoading ?: boolean
 }
 
 export function ScheduleHeader({
@@ -35,6 +37,8 @@ export function ScheduleHeader({
   onToday,
   selectedTypes,
   onTypeToggle,
+  onExport,
+  isLoading,
 }: ScheduleHeaderProps) {
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: "long", year: "numeric" }
@@ -161,7 +165,7 @@ export function ScheduleHeader({
         </DropdownMenu>
 
         {/* Export button */}
-        <Button variant="outline" size="sm" className="h-8 gap-1.5">
+        <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={onExport} disabled={isLoading}>
           <Download className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Exporter</span>
         </Button>
