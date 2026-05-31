@@ -24,8 +24,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download, FileJson, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { 
   Dialog, 
@@ -58,6 +60,8 @@ const DeanSchedulingPage: React.FC = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [isPlanDrawerOpen, setIsPlanDrawerOpen] = useState(false);
   const [planToEdit, setPlanToEdit] = useState<SchedulePlan | null>(null);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [importData, setImportData] = useState<any>(null);
   
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
@@ -327,6 +331,97 @@ const DeanSchedulingPage: React.FC = () => {
     }
   }, [history, historyIndex]);
 
+  const handleExportJSON = useCallback(() => {
+    if (!selectedPlanId) {
+      toast.error("Aucun plan sélectionné pour l'exportation.");
+      return;
+    }
+    const plan = plans.find(p => p.id === selectedPlanId);
+    if (!plan) return;
+
+    const exportData = {
+      planMetadata: {
+        name: plan.name,
+        academicYear: plan.academicYear,
+        semester: plan.semester,
+        level: plan.level,
+        status: plan.status
+      },
+      events: events.map(e => ({
+        title: e.title,
+        type: e.type,
+        professor: e.professor,
+        room: e.room,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        day: e.day,
+        description: e.description,
+        groupName: e.groupName,
+        teacherId: e.teacherId,
+        roomId: e.roomId,
+        subjectCode: e.subjectCode
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `planning_${plan.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Exportation JSON réussie");
+  }, [selectedPlanId, plans, events]);
+
+  const handleExportPDF = useCallback(() => {
+    if (!selectedPlanId) {
+      toast.error("Aucun plan sélectionné pour l'exportation PDF.");
+      return;
+    }
+    const plan = plans.find(p => p.id === selectedPlanId);
+    if (!plan) return;
+
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text(`Emploi du Temps - ${plan.name}`, 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Niveau: ${plan.level} | Semestre: ${plan.semester} | Année: ${plan.academicYear}`, 14, 30);
+    
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    const tableData: any[][] = [];
+
+    // Sort events by time and day
+    const sortedEvents = [...events].sort((a, b) => {
+      if (a.day !== b.day) return a.day - b.day;
+      return a.startTime.localeCompare(b.startTime);
+    });
+
+    sortedEvents.forEach(event => {
+      tableData.push([
+        days[event.day] || `Jour ${event.day}`,
+        `${event.startTime} - ${event.endTime}`,
+        event.title,
+        event.professor || "-",
+        event.room || "-",
+        event.type
+      ]);
+    });
+
+    autoTable(doc, {
+      startY: 40,
+      head: [['Jour', 'Heure', 'Matière', 'Enseignant', 'Salle', 'Type']],
+      body: tableData,
+      headStyles: { fillColor: [59, 130, 246] }, // Primary color
+    });
+
+    doc.save(`planning_${plan.name.replace(/\s+/g, '_')}.pdf`);
+    toast.success("Génération PDF réussie");
+  }, [selectedPlanId, plans, events]);
+
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -335,15 +430,76 @@ const DeanSchedulingPage: React.FC = () => {
     reader.onload = async (event) => {
       try {
         const json = JSON.parse(event.target?.result as string);
-        const response = await api.post("/campushub-scheduling-service/api/scheduling/plans/import", json);
-        toast.success("Plan importé avec succès");
-        fetchEvents(response.data.id);
+        if (!json.events || !Array.isArray(json.events)) {
+          toast.error("Format de fichier invalide. Le fichier doit contenir un tableau 'events'.");
+          return;
+        }
+        setImportData(json);
+        setIsImportDialogOpen(true);
       } catch (err) {
         console.error("Import failed:", err);
-        toast.error("Échec de l'importation");
+        toast.error("Échec de la lecture du fichier JSON");
       }
     };
     reader.readAsText(file);
+    // Reset input
+    e.target.value = '';
+  };
+
+  const executeImport = async (mode: 'merge' | 'new') => {
+    if (!importData) return;
+    setLoading(true);
+    try {
+      if (mode === 'new') {
+        const metadata = importData.planMetadata || {
+          name: "Import " + new Date().toLocaleDateString(),
+          academicYear: "2025-2026",
+          semester: 1,
+          level: "L1"
+        };
+        
+        // 1. Créer le plan
+        const planRes = await api.post("/campushub-scheduling-service/api/scheduling/plans", {
+          ...metadata,
+          status: 'DRAFT'
+        });
+        const newPlanId = planRes.data.id;
+
+        // 2. Injecter les événements
+        const eventsToCreate = importData.events.map((e: any) => ({
+          ...e,
+          planId: newPlanId,
+          id: undefined // Le backend générera les IDs
+        }));
+
+        await api.post(`/campushub-scheduling-service/api/scheduling/batch-save`, eventsToCreate);
+        
+        toast.success("Nouveau plan créé et importé avec succès");
+        fetchInitialData(); // Recharger tout pour voir le nouveau plan
+      } else {
+        if (!selectedPlanId) {
+          toast.error("Aucun plan sélectionné pour la fusion.");
+          return;
+        }
+        
+        const eventsToCreate = importData.events.map((e: any) => ({
+          ...e,
+          planId: selectedPlanId,
+          id: undefined
+        }));
+
+        await api.post(`/campushub-scheduling-service/api/scheduling/batch-save`, eventsToCreate);
+        toast.success("Événements fusionnés dans le plan actuel");
+        fetchEvents(selectedPlanId);
+      }
+    } catch (err) {
+      console.error("Import execution failed:", err);
+      toast.error("Erreur lors de l'importation");
+    } finally {
+      setLoading(false);
+      setIsImportDialogOpen(false);
+      setImportData(null);
+    }
   };
 
   const handleSavePlan = async (planData: Partial<SchedulePlan>) => {
@@ -545,9 +701,65 @@ const DeanSchedulingPage: React.FC = () => {
                 onToday={handleToday}
                 selectedTypes={selectedTypes}
                 onTypeToggle={handleTypeToggle}
+                onExportJSON={handleExportJSON}
+                onExportPDF={handleExportPDF}
+                onImportClick={() => document.getElementById('import-json-input')?.click()}
+              />
+              <input 
+                id="import-json-input"
+                type="file" 
+                accept=".json" 
+                className="hidden" 
+                onChange={handleImportFile} 
               />
             </div>
           </div>
+
+          {/* Dialogues et Overlays */}
+          <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+            <DialogContent className="sm:max-w-md rounded-2xl border-sidebar-border/50">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black tracking-tighter text-sidebar-primary">Confirmer l'importation</DialogTitle>
+                <DialogDescription className="text-sidebar-foreground/60">
+                  Vous allez importer un planning contenant <span className="font-bold text-primary">{importData?.events?.length}</span> événements.
+                  {importData?.planMetadata && (
+                    <div className="mt-4 p-4 bg-sidebar-accent/50 rounded-xl border border-sidebar-border/30 text-sm">
+                      <p className="flex justify-between"><strong>Nom du plan:</strong> <span>{importData.planMetadata.name}</span></p>
+                      <p className="flex justify-between"><strong>Niveau:</strong> <span>{importData.planMetadata.level}</span></p>
+                      <p className="flex justify-between"><strong>Semestre:</strong> <span>{importData.planMetadata.semester}</span></p>
+                    </div>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-6">
+                <p className="text-sm font-bold text-sidebar-foreground/80 uppercase tracking-widest text-center">Choix de la méthode</p>
+                <div className="grid grid-cols-1 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="justify-start h-auto py-4 px-5 flex-col items-start gap-1 rounded-2xl hover:bg-primary/5 hover:border-primary/30 transition-all group"
+                    onClick={() => executeImport('new')}
+                  >
+                    <span className="font-black text-sidebar-primary group-hover:text-primary transition-colors">Créer une nouvelle programmation</span>
+                    <span className="text-xs text-sidebar-foreground/60">Un nouveau plan indépendant sera créé avec ces données.</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="justify-start h-auto py-4 px-5 flex-col items-start gap-1 rounded-2xl hover:bg-primary/5 hover:border-primary/30 transition-all group"
+                    onClick={() => executeImport('merge')}
+                    disabled={!selectedPlanId}
+                  >
+                    <span className="font-black text-sidebar-primary group-hover:text-primary transition-colors">Fusionner avec le plan actuel</span>
+                    <span className="text-xs text-sidebar-foreground/60">Les événements seront ajoutés au plan "<span className="italic">{plans.find(p => p.id === selectedPlanId)?.name}</span>".</span>
+                  </Button>
+                </div>
+              </div>
+              <DialogFooter className="sm:justify-start gap-2">
+                <Button type="button" variant="ghost" className="rounded-xl" onClick={() => setIsImportDialogOpen(false)}>
+                  Annuler
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Grille du Calendrier - OCCUPE TOUT LE RESTE DE L'ESPACE */}
           <div className="flex-1 overflow-hidden relative">

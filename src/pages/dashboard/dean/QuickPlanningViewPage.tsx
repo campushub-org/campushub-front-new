@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Loader2, Calendar as CalendarIcon, Filter, Users, DoorOpen } from 'lucide-react';
+import { ArrowLeft, Loader2, Calendar as CalendarIcon, Filter, Users, DoorOpen, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
@@ -12,6 +12,9 @@ import {
   DropdownMenuCheckboxItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from 'sonner';
 
 const QuickPlanningViewPage = () => {
   const { entityType, entityId } = useParams<{ entityType: 'teachers' | 'rooms'; entityId: string }>();
@@ -22,6 +25,59 @@ const QuickPlanningViewPage = () => {
   const [selectedTypes, setSelectedTypes] = useState<CourseType[]>(['lecture', 'td', 'tp', 'exam', 'meeting']);
 
   const layoutOverrider = "-m-4 md:-m-6 lg:-m-8 max-w-none w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] min-h-[calc(100vh-4rem)]";
+
+  const handleExportPDF = () => {
+    if (events.length === 0) {
+      toast.error("Aucun événement à exporter.");
+      return;
+    }
+
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(59, 130, 246); // Primary blue
+    doc.text(`CampusHub - Planning Consolide`, 14, 20);
+    
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    const entityLabel = entityType === 'teachers' ? 'Enseignant' : 'Salle';
+    doc.text(`${entityLabel}: ${entityName}`, 14, 30);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Généré le: ${new Date().toLocaleString('fr-FR')}`, 14, 38);
+    doc.text(`Source: Tous les plans actifs`, 14, 43);
+
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+    
+    const tableData = events
+      .filter(e => selectedTypes.includes(e.type))
+      .sort((a, b) => {
+        if (a.day !== b.day) return a.day - b.day;
+        return a.startTime.localeCompare(b.startTime);
+      })
+      .map(event => [
+        days[event.day] || `Jour ${event.day}`,
+        `${event.startTime} - ${event.endTime}`,
+        event.title,
+        entityType === 'teachers' ? (event.room || "-") : (event.professor || "-"),
+        event.groupName || "-",
+        event.type.toUpperCase()
+      ]);
+
+    autoTable(doc, {
+      startY: 50,
+      head: [['Jour', 'Heure', 'Matière', entityType === 'teachers' ? 'Salle' : 'Enseignant', 'Groupe', 'Type']],
+      body: tableData,
+      headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+      styles: { fontSize: 9, cellPadding: 3 },
+    });
+
+    doc.save(`planning_${entityType}_${entityName.replace(/\s+/g, '_')}.pdf`);
+    toast.success("Exportation PDF réussie");
+  };
 
   useEffect(() => {
     const fetchAllActiveData = async () => {
@@ -107,6 +163,17 @@ const QuickPlanningViewPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleExportPDF}
+            className="gap-2 rounded-xl border-sidebar-border/50 hover:bg-primary/5 hover:text-primary transition-all"
+            disabled={loading || events.length === 0}
+          >
+            <FileText size={14} />
+            Exporter PDF
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 rounded-xl border-sidebar-border/50">
