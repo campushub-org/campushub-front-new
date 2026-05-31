@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logout } from "./auth";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -17,14 +18,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Le token est invalide ou expiré
-      localStorage.removeItem("token");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userProfileImage");
-      
-      // Redirection vers la page de login si on n'y est pas déjà
+      // Le token est invalide ou expiré côté serveur
       if (!window.location.pathname.includes("/signin")) {
-        window.location.href = "/signin";
+        logout();
       }
     }
     return Promise.reject(error);

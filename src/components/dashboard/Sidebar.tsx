@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from 'react-i18next';
+import { logout } from '@/lib/auth';
 
 export interface NavItem {
   to: string;
@@ -44,11 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
   const userRole = localStorage.getItem('userRole') || 'Utilisateur';
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('token');
-    localStorage.removeItem('userProfileImage');
-    window.location.href = '/';
+    logout();
   };
 
   const getTranslatedRole = (role: string) => {
@@ -115,42 +112,25 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-border/50">
+      <SidebarFooter className="p-4 border-t border-border/50 bg-muted/30">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="w-full data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg border border-border/50 shadow-sm">
-                {profileImage ? (
-                  <AvatarImage src={profileImage} alt="User" />
-                ) : (
-                  <AvatarFallback className="bg-primary/5 text-primary">
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
-                )}
+            <SidebarMenuButton size="lg" className="hover:bg-accent rounded-xl px-2 transition-all duration-200">
+              <Avatar className="h-9 w-9 border border-border/50 shadow-sm transition-transform group-hover:scale-105">
+                <AvatarImage src={profileImage || ""} />
+                <AvatarFallback className="bg-primary/5 text-primary">
+                  <User className="h-5 w-5" />
+                </AvatarFallback>
               </Avatar>
-              {!isCollapsed && (
-                <div className="flex flex-col items-start ml-3 overflow-hidden">
-                  <span className="text-sm font-semibold text-foreground truncate w-full">{t("sidebar.my_account")}</span>
-                  <span className="text-xs text-muted-foreground capitalize">{getTranslatedRole(userRole)}</span>
-                </div>
-              )}
+              <div className="flex flex-col gap-0.5 ml-2 text-left overflow-hidden">
+                <span className="text-sm font-bold text-foreground truncate">Mon Compte</span>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{getTranslatedRole(userRole)}</span>
+              </div>
+              <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/50" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="right"
-            align="end"
-            className="w-56 mb-2 animate-in fade-in-0 zoom-in-95"
-          >
-            <DropdownMenuItem asChild>
-              <NavLink to="./profile" className="flex items-center cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>{t("sidebar.profile")}</span>
-              </NavLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
+          <DropdownMenuContent side="right" align="end" className="w-56 rounded-xl shadow-xl border-border/50 p-1.5 animate-in fade-in zoom-in duration-200">
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/5 rounded-lg font-medium cursor-pointer py-2.5">
               <LogOut className="mr-2 h-4 w-4" />
               <span>{t("sidebar.logout")}</span>
             </DropdownMenuItem>
