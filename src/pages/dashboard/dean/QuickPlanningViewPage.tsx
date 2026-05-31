@@ -88,7 +88,8 @@ const QuickPlanningViewPage = () => {
                 !["N/A", "NULL", "UNDEFINED", "NON ASSIGNÉ", "NON ASSIGNE"].includes(rawProf) && 
                 !rawProf.includes("DÉTERMINER") && 
                 !rawProf.includes("DETERMINER")) {
-              profName = e.professor.trim().split(' ')[0].toUpperCase();
+              const profs = e.professor.split(',').map(p => p.trim().split(' ')[0].toUpperCase());
+              profName = profs.join(' ');
             }
             
             let codeDisplay = e.subjectCode || e.title;

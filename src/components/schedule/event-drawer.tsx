@@ -456,28 +456,60 @@ export function EventDrawer({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignant responsable</Label>
+              <div className="space-y-4">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignants assignés</Label>
+                
+                {/* Liste des enseignants sélectionnés (Badges) */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {formData.teacherIds && formData.teacherIds.length > 0 ? (
+                    formData.teacherIds.map(tid => {
+                      const t = teachers.find(prof => prof.id === tid);
+                      return (
+                        <Badge key={tid} variant="secondary" className="pl-3 pr-1 py-1 h-8 gap-2 rounded-lg bg-primary/10 border-primary/20 text-primary group">
+                          <span className="font-bold text-[10px]">{t?.fullName || `ID: ${tid}`}</span>
+                          <button 
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                teacherIds: prev.teacherIds?.filter(id => id !== tid)
+                              }));
+                              setHasChanges(true);
+                            }}
+                            className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          >
+                            <X size={12} />
+                          </button>
+                        </Badge>
+                      );
+                    })
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 rounded-xl border border-dashed border-border/60 bg-muted/20 w-full">
+                       <AlertCircle size={14} className="text-amber-600" />
+                       <span className="text-[10px] font-bold text-amber-600/80 uppercase">Aucun enseignant assigné</span>
+                    </div>
+                  )}
+                </div>
+
                 <Select 
-                  value={formData.teacherId?.toString() || "none"} 
                   onValueChange={(v) => {
-                    if (v === "none") {
-                        setFormData({ ...formData, teacherId: undefined, professor: undefined })
-                    } else {
-                        const t = teachers.find(prof => prof.id.toString() === v)
-                        setFormData({ ...formData, teacherId: parseInt(v), professor: t?.fullName })
-                    }
-                    setHasChanges(true)
+                    if (v === "none") return;
+                    const tid = parseInt(v);
+                    setFormData(prev => {
+                      const currentIds = prev.teacherIds || [];
+                      if (currentIds.includes(tid)) return prev;
+                      return { ...prev, teacherIds: [...currentIds, tid] };
+                    });
+                    setHasChanges(true);
                   }}
                 >
                   <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-primary/60" />
-                      <SelectValue placeholder="À DÉTERMINER" />
+                      <SelectValue placeholder="Ajouter un enseignant..." />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none" className="font-bold text-amber-600">À DÉTERMINER</SelectItem>
+                    <SelectItem value="none" disabled className="font-bold text-muted-foreground">CHOISIR DANS LA LISTE</SelectItem>
                     {teachers.map(t => (
                       <SelectItem key={t.id} value={t.id.toString()}>{t.fullName}</SelectItem>
                     ))}

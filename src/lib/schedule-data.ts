@@ -24,7 +24,7 @@ export interface ScheduleEvent {
   day: number // 0 = Monday, 4 = Friday
   description?: string
   groupName?: string
-  teacherId?: number
+  teacherIds?: number[]
   roomId?: number
   subjectCode?: string
   seriesId?: string
