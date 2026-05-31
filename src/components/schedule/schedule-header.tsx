@@ -166,40 +166,6 @@ export function ScheduleHeader({
             </button>
           ))}
         </div>
-
-        {/* Filter dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5">
-              <Filter className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Filtrer</span>
-              {selectedTypes.length < 5 && (
-                <span className="ml-1 rounded-full bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
-                  {selectedTypes.length}
-                </span>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Type de cours</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {allTypes.map((type) => (
-              <DropdownMenuCheckboxItem
-                key={type}
-                checked={selectedTypes.includes(type)}
-                onCheckedChange={() => onTypeToggle(type)}
-              >
-                {courseTypeLabels[type]}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Export button */}
-        <Button variant="outline" size="sm" className="h-8 gap-1.5">
-          <Download className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Exporter</span>
-        </Button>
       </div>
     </div>
   )
