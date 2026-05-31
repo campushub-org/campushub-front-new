@@ -42,6 +42,9 @@ import DeanProfilePage from "./pages/dashboard/dean/ProfilePage";
 import DeanViewMaterialPage from "./pages/dashboard/dean/ViewMaterialPage";
 import EditionPage from "./pages/dashboard/dean/EditionPage";
 import PlanningHub from "./pages/dashboard/dean/PlanningHub";
+import QuickPlanningPage from "./pages/dashboard/dean/QuickPlanningPage";
+import QuickPlanningSelectionPage from "./pages/dashboard/dean/QuickPlanningSelectionPage";
+import QuickPlanningViewPage from "./pages/dashboard/dean/QuickPlanningViewPage";
 
 // Admin Pages
 import AdminLayout from "./pages/dashboard/admin/AdminLayout";
@@ -97,6 +100,9 @@ const App = () => (
                 <Route path="support/view/:materialId" element={<DeanViewMaterialPage />} />
                 <Route path="timetable-upload" element={<EditionPage />} />
                 <Route path="planning-hub" element={<PlanningHub />} />
+                <Route path="quick-planning" element={<QuickPlanningPage />} />
+                <Route path="quick-planning/select/:entityType" element={<QuickPlanningSelectionPage />} />
+                <Route path="quick-planning/view/:entityType/:entityId" element={<QuickPlanningViewPage />} />
                 <Route path="schedule" element={<DeanSchedulingPage />} />
                 <Route path="schedule-courses" element={<DeanSchedulingPage />} />
                 <Route path="schedule-exams" element={<DeanSchedulingPage />} />

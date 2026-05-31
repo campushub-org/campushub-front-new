@@ -19,9 +19,9 @@ const PlanningHub = () => {
     {
       id: 'fast',
       title: 'Planning Rapide',
-      description: 'Ajustements rapides des créneaux critiques',
+      description: 'Consultation instantanée par salle ou enseignant',
       icon: Zap,
-      path: '#'
+      path: '/dashboard/dean/quick-planning'
     }
   ];
 
