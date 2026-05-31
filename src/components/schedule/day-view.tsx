@@ -14,6 +14,7 @@ interface DayViewProps {
   selectedRooms?: string[]
   selectedLevels?: string[]
   isEditMode?: boolean
+  isPlanActive?: boolean
   onEventClick?: (event: ScheduleEvent) => void
   onCreateEvent?: (day: number, startTime: string) => void
 }
@@ -26,6 +27,7 @@ export function DayView({
   selectedRooms = [],
   selectedLevels = [],
   isEditMode = false,
+  isPlanActive = false,
   onEventClick,
   onCreateEvent 
 }: DayViewProps) {
@@ -36,6 +38,11 @@ export function DayView({
       const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(event.type)
       const professorMatch = selectedProfessors.length === 0 || (event.professor && selectedProfessors.includes(event.professor))
       const roomMatch = selectedRooms.length === 0 || (event.room && selectedRooms.includes(event.room))
+      
+      if (isPlanActive) {
+          return typeMatch && professorMatch && roomMatch
+      }
+
       const levelMatch = selectedLevels.length === 0 || (() => {
         const digit = event.subjectCode?.replace(/\D/g, '')[0]
         const deducedLevel = digit === '4' ? "M1" : (digit === '5' ? "M2" : `L${digit}`)
@@ -64,8 +71,8 @@ export function DayView({
     const [startH, startM] = event.startTime.split(":").map(Number)
     const [endH, endM] = event.endTime.split(":").map(Number)
     
-    const startMinutes = (startH - 8) * 60 + startM
-    const endMinutes = (endH - 8) * 60 + endM
+    const startMinutes = (startH - 7) * 60 + startM
+    const endMinutes = (endH - 7) * 60 + endM
     const duration = endMinutes - startMinutes
     
     const top = (startMinutes / 60) * 80

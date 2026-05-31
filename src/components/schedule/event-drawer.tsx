@@ -16,6 +16,7 @@ import {
   Save,
   GripVertical,
   Loader2,
+  Layers,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,7 +47,10 @@ import api from "@/lib/api"
 interface EventDrawerProps {
   isOpen: boolean
   event: ScheduleEvent | null
-  currentDate: Date
+  planId?: string
+  planLevel?: string
+  planSemester?: number
+  workingDate: Date
   isNew?: boolean
   onClose: () => void
   onSave: (event: ScheduleEvent | ScheduleEvent[]) => void
@@ -82,6 +86,9 @@ const durationOptions = [
 export function EventDrawer({
   isOpen,
   event,
+  planId,
+  planLevel,
+  planSemester,
   isNew = false,
   workingDate,
   onClose,
@@ -93,8 +100,11 @@ export function EventDrawer({
   const [hasChanges, setHasChanges] = useState(false)
   const [activeTab, setActiveTab] = useState("general")
   
-  const [recurrenceFreq, setRecurrenceFreq] = useState("weekly")
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState<string>("")
+  const [notifications, setNotifications] = useState({
+    email: true,
+    push: false,
+    sms: false,
+  })
   
   // Real subjects data state
   const [subjects, setSubjects] = useState<{code: string, name: string}[]>([])
@@ -151,19 +161,44 @@ export function EventDrawer({
         setLoadingAssignments(false)
       }
     }
-    if (isOpen) fetchAssignments()
-  }, [formData.subjectCode, isOpen])
+    fetchAssignments()
+  }, [formData.subjectCode])
 
-  // Fetch subjects when level or semester changes
+  useEffect(() => {
+    if (event) {
+      setFormData(event)
+      setHasChanges(false)
+    } else {
+      setFormData({
+        type: "lecture",
+        startTime: "08:00",
+        endTime: "10:00",
+        day: 0,
+      })
+    }
+  }, [event])
+
+  // Charger les matières au montage ou changement de planLevel/planSemester
   useEffect(() => {
     const fetchSubjects = async () => {
-      const levelStr = formData.level || "L1"
-      const levelMap: Record<string, number> = { "L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5 }
-      const semester = formData.semester || 1
-      
       setLoadingSubjects(true)
       try {
-        const response = await api.get(`/campushub-scheduling-service/api/subjects?niveau=${levelMap[levelStr]}&semestre=${semester}`)
+        let url = '/campushub-scheduling-service/api/subjects';
+        const params = new URLSearchParams();
+        
+        if (planLevel) {
+            const levelDigit = planLevel.replace(/\D/g, '');
+            if (levelDigit) params.append('niveau', levelDigit);
+        }
+        
+        if (planSemester) {
+            params.append('semester', planSemester.toString());
+        }
+
+        const queryString = params.toString();
+        if (queryString) url = `${url}?${queryString}`;
+
+        const response = await api.get(url)
         setSubjects(response.data)
       } catch (err) {
         console.error("Error fetching subjects", err)
@@ -173,122 +208,42 @@ export function EventDrawer({
     }
     
     if (isOpen) fetchSubjects()
-  }, [formData.level, formData.semester, isOpen])
+  }, [isOpen, planLevel, planSemester])
 
-  const [showRecurrence, setShowRecurrence] = useState(false)
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    sms: false,
-  })
-
-  // Real conflict state
-  const [conflict, setConflict] = useState<string | null>(null)
-  
-  useEffect(() => {
-    const checkConflict = async () => {
-      if (!formData.room || !formData.startTime || formData.day === undefined) return
-      
-      console.log("Checking conflict for:", formData);
-      try {
-        const response = await api.post("/campushub-scheduling-service/api/scheduling/check-conflicts", formData)
-        if (response.data === true) {
-          setConflict("Un autre cours est déjà programmé dans cette salle à cette heure.")
-        } else {
-          setConflict(null)
-        }
-      } catch (err) {
-        console.error("Conflict check failed", err)
-      }
-    }
-    checkConflict()
-  }, [formData.room, formData.startTime, formData.day])
-
-  useEffect(() => {
-    if (event) {
-      setFormData({ ...event })
-    } else if (isNew) {
-      setFormData({
-        id: `new-${Date.now()}`,
-        title: "",
-        type: "lecture",
-        professor: "",
-        room: "",
-        teacherId: undefined,
-        roomId: undefined,
-        startTime: "08:00",
-        endTime: "10:00",
-        day: 0,
-        description: "",
-        semester: 1,
-        academicYear: "2025-2026",
-      })
-    }
-    setHasChanges(false)
-    setActiveTab("general")
-  }, [event, isNew])
-
-  const handleChange = (field: keyof ScheduleEvent, value: string | number) => {
-    setFormData((prev) => {
-      const next = { ...prev, [field]: value }
-      
-      // Si startTime ou endTime change, on recalcule la durée si nécessaire
-      // Note: On ne force pas la recalcul ici pour éviter les boucles, 
-      // la durée est calculée dynamiquement via getCurrentDuration() pour l'affichage.
-      return next
-    })
-    setHasChanges(true)
-  }
+  const [isSaving, setIsSaving] = useState(false)
+  const [conflict, setConflict] = useState(false)
 
   const handleSave = async () => {
-    if (formData.title && formData.type && formData.startTime && formData.endTime) {
+    if (formData.title || formData.subjectCode) {
+      setIsSaving(true)
       try {
-        let payload;
         let endpoint = "/campushub-scheduling-service/api/scheduling/events";
+        if (formData.id && !formData.id.toString().startsWith("new-")) {
+            endpoint = `${endpoint}/${formData.id}`;
+        }
         
         // Nettoyer l'ID temporaire avant l'envoi au backend
         const cleanFormData = { ...formData };
-        if (cleanFormData.id && cleanFormData.id.startsWith("new-")) {
+        if (cleanFormData.id && cleanFormData.id.toString().startsWith("new-")) {
           delete cleanFormData.id;
         }
 
-        if (showRecurrence && recurrenceEndDate) {
-          const seriesId = `serie-${Date.now()}`;
-          const endDate = new Date(recurrenceEndDate);
-          const recurringEvents: ScheduleEvent[] = [];
-          
-          let startDate = new Date(workingDate);
-          const targetDay = formData.day ?? 0;
-          const currentDay = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
-          startDate.setDate(startDate.getDate() + (targetDay - currentDay));
-
-          const step = recurrenceFreq === "daily" ? 1 : (recurrenceFreq === "weekly" ? 7 : 14);
-          
-          let loopDate = new Date(startDate);
-          while (loopDate <= endDate) {
-            recurringEvents.push({
-              ...(cleanFormData as ScheduleEvent),
-              seriesId: seriesId,
-              day: targetDay,
-              academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
-              semester: formData.semester || 1,
-            });
-            loopDate.setDate(loopDate.getDate() + step);
-          }
-          payload = recurringEvents;
-          endpoint = "/campushub-scheduling-service/api/scheduling/batch-save";
-        } else {
-          payload = { 
-            ...cleanFormData, 
-            seriesId: formData.seriesId || null ,
-            academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
-            semester: formData.semester || 1
-          };
-        }
+        const payload = { 
+          ...cleanFormData, 
+          planId: planId || formData.planId, 
+          seriesId: formData.seriesId || null ,
+          academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
+          semester: formData.semester || 1
+        };
 
         console.log("Payload envoyé au backend :", payload);
 
-        await api.post(endpoint, payload);
+        if (formData.id && !formData.id.toString().startsWith("new-")) {
+            await api.put(endpoint, payload);
+        } else {
+            await api.post(endpoint, payload);
+        }
+
         toast.success("Enregistré avec succès !");
         onSave(payload as any);
         onClose();
@@ -296,6 +251,8 @@ export function EventDrawer({
       } catch (e) {
         toast.error("Erreur de sauvegarde");
         console.error(e);
+      } finally {
+        setIsSaving(false);
       }
     }
   };
@@ -329,553 +286,352 @@ export function EventDrawer({
 
   if (!isOpen) return null
 
-  const colors = formData.type ? courseTypeColors[formData.type as CourseType] : courseTypeColors.lecture
-
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
-      <div
-        className={cn(
-          "fixed right-0 top-0 z-50 h-full w-full max-w-lg transform bg-card shadow-2xl transition-transform duration-300",
-          "border-l border-border",
-          isOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        {/* Header */}
-        <div className={cn("border-b border-border p-4", colors.bg)}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={cn("rounded-lg p-2", colors.bg, colors.border, "border-l-4")}>
-                <BookOpen className={cn("h-5 w-5", colors.text)} />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  {isNew ? "Nouvel Événement" : "Modifier l'Événement"}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {formData.type && courseTypeLabels[formData.type as CourseType]}
-                </p>
-              </div>
-            </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
+    <div className="fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-background shadow-2xl animate-in slide-in-from-right duration-300 sm:w-[500px] border-l border-border/40">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className={cn("rounded-xl p-2.5 shadow-sm", formData.type ? courseTypeColors[formData.type].bg : "bg-primary/10")}>
+            <Calendar className={cn("h-5 w-5", formData.type ? courseTypeColors[formData.type].text : "text-primary")} />
           </div>
-
-          {/* Quick Actions */}
-          {!isNew && (
-            <div className="mt-4 flex gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => event && onDuplicate?.(event)}
-                className="gap-1.5"
-              >
-                <Copy className="h-4 w-4" />
-                Dupliquer
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => event && onDelete?.(event.id)}
-                className="gap-1.5"
-              >
-                <Trash2 className="h-4 w-4" />
-                Supprimer
-              </Button>
-            </div>
-          )}
+          <div>
+            <h2 className="text-lg font-bold tracking-tight">
+              {isNew ? "Nouvel événement" : "Modifier l'événement"}
+            </h2>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              {formData.type ? courseTypeLabels[formData.type] : "Chargement..."}
+            </p>
+          </div>
         </div>
+        <div className="flex items-center gap-2">
+          {!isNew && onDuplicate && (
+            <Button variant="ghost" size="icon" onClick={() => onDuplicate(event as ScheduleEvent)} className="h-9 w-9">
+              <Copy className="h-4 w-4" />
+            </Button>
+          )}
+          {!isNew && onDelete && (
+            <Button variant="ghost" size="icon" onClick={() => onDelete(event!.id)} className="h-9 w-9 text-destructive hover:bg-destructive/10">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9">
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
 
-        {/* Content */}
-        <div className="flex h-[calc(100%-180px)] flex-col overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
-            <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3 bg-secondary">
-              <TabsTrigger value="general">Général</TabsTrigger>
-              <TabsTrigger value="details">Détails</TabsTrigger>
-              <TabsTrigger value="options">Options</TabsTrigger>
-            </TabsList>
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl mb-8">
+            <TabsTrigger value="general" className="rounded-lg font-bold text-xs uppercase tracking-widest">Général</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-lg font-bold text-xs uppercase tracking-widest">Détails</TabsTrigger>
+          </TabsList>
 
-            <div className="flex-1 overflow-auto p-4">
-              <TabsContent value="general" className="m-0 space-y-4">
-                {/* Academic Year */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Année Scolaire</Label>
-                  <Select
-                    value={formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`}
-                    onValueChange={(v) => handleChange("academicYear", v)}
-                  >
-                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                      <SelectValue placeholder="Sélectionner l'année" />
-                    </SelectTrigger>
-                    <SelectContent className="border-blue-500/20">
-                      {Array.from({ length: 2 }, (_, i) => {
-                        const start = new Date().getFullYear() - 1 + i;
-                        const yearRange = `${start}-${start + 1}`;
-                        return (
-                          <SelectItem 
-                            key={yearRange} 
-                            value={yearRange}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            {yearRange}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Level */}
-                <div className="space-y-2">
-                  <Label htmlFor="level" className="text-sm font-medium">
-                    Niveau académique
-                  </Label>
-                  <Select
-                    value={formData.level || "L1"}
-                    onValueChange={(v) => handleChange("level", v)}
-                  >
-                    <SelectTrigger id="level" className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                      <SelectValue placeholder="Sélectionner le niveau" />
-                    </SelectTrigger>
-                    <SelectContent className="border-blue-500/20">
-                      {["L1", "L2", "L3", "M1", "M2"].map((lvl) => (
-                        <SelectItem 
-                          key={lvl} 
-                          value={lvl}
-                          className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                        >
-                          {lvl}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Semester */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Semestre</Label>
-                  <Select
-                    value={formData.semester?.toString() || "1"}
-                    onValueChange={(v) => handleChange("semester", parseInt(v))}
-                  >
-                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                    <SelectContent className="border-blue-500/20">
-                      {[1, 2].map((sem) => (
-                        <SelectItem 
-                          key={sem} 
-                          value={sem.toString()}
-                          className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                        >
-                          Semestre {sem}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Title */}
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-sm font-medium">
-                    Cours / Matière
-                  </Label>
-                  <Select
-                    value={formData.title || ""}
-                    onValueChange={(v) => {
-                      const selected = subjects.find(s => s.name === v || s.code === v);
-                      setFormData(prev => ({ 
-                        ...prev, 
-                        title: selected?.name || v, 
-                        subjectCode: selected?.code || "",
-                        teacherId: undefined, // Réinitialiser le prof
-                        professor: "" 
-                      }));
-                      setHasChanges(true);
+          <TabsContent value="general" className="space-y-8 animate-in fade-in duration-300">
+            {/* Type Selector */}
+            <div className="space-y-4">
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Type d'activité</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.entries(courseTypeLabels) as [CourseType, string][]).map(([type, label]) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setFormData({ ...formData, type })
+                      setHasChanges(true)
                     }}
+                    className={cn(
+                      "flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-3 transition-all",
+                      formData.type === type
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border/60 hover:border-primary/20"
+                    )}
                   >
-                    <SelectTrigger id="title" className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
-                      {loadingSubjects ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                      <SelectValue placeholder="Sélectionner une UE" className="text-left" />
-                    </SelectTrigger>
-                    <SelectContent className="max-w-[calc(100vw-2rem)] sm:max-w-md border-blue-500/20">
-                      {subjects.length > 0 ? (
-                        subjects.map((sub) => (
-                          <SelectItem 
-                            key={sub.code} 
-                            value={sub.name || sub.code || "unknown"}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            <div className="flex flex-col min-w-0 w-full overflow-hidden">
-                              <span className="font-medium truncate w-full">{sub.name}</span>
-                              <span className="text-xs text-muted-foreground truncate w-full">{sub.code}</span>
-                            </div>
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-subject" disabled>Aucune matière disponible</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", courseTypeColors[type].bg)}>
+                        <div className={cn("h-2 w-2 rounded-full", type === "lecture" ? "bg-blue-500" : type === "td" ? "bg-emerald-500" : "bg-amber-500")} />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                {/* Type */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Type d&apos;événement</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(Object.keys(courseTypeLabels) as CourseType[]).map((type) => {
-                      const typeColors = courseTypeColors[type]
-                      const isSelected = formData.type === type
-                      return (
-                        <button
-                          key={type}
-                          onClick={() => handleChange("type", type)}
-                          className={cn(
-                            "rounded-lg border-2 p-3 text-center transition-all",
-                            isSelected
-                              ? cn(typeColors.bg, typeColors.border, "border-l-4")
-                              : "border-border bg-secondary/30 hover:bg-secondary"
-                          )}
-                        >
-                          <span className={cn("text-xs font-medium", isSelected && typeColors.text)}>
-                            {courseTypeLabels[type]}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
+            {/* Main Fields */}
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Matière / Unité d'enseignement</Label>
+                <Select 
+                  value={formData.subjectCode} 
+                  onValueChange={(v) => {
+                    const sub = subjects.find(s => s.code === v)
+                    setFormData({ ...formData, subjectCode: v, title: sub?.name })
+                    setHasChanges(true)
+                  }}
+                >
+                  <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl focus:ring-primary/20">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-primary/60" />
+                      <SelectValue placeholder="Sélectionner une matière" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/60">
+                    {loadingSubjects ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    ) : (
+                      subjects.map(s => (
+                        <SelectItem key={s.code} value={s.code} className="py-2.5 rounded-lg">
+                           <div className="flex flex-col">
+                             <span className="font-bold text-sm">{s.name}</span>
+                             <span className="text-[10px] font-mono opacity-50 uppercase">{s.code}</span>
+                           </div>
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                {/* Day and Time */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Jour</Label>
-                    <Select
-                      value={formData.day?.toString()}
-                      onValueChange={(v) => handleChange("day", parseInt(v))}
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Jour</Label>
+                    <Select 
+                      value={formData.day?.toString()} 
+                      onValueChange={(v) => {
+                        setFormData({ ...formData, day: parseInt(v) })
+                        setHasChanges(true)
+                      }}
                     >
-                      <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                        <SelectValue placeholder="Sélectionner" />
-                      </SelectTrigger>
-                      <SelectContent className="border-blue-500/20">
-                        {weekDays.map((day, index) => (
-                          <SelectItem 
-                            key={day} 
-                            value={index.toString()}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            {day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Durée</Label>
-                    <Select
-                      value={getCurrentDuration().toString()}
-                      onValueChange={(v) => handleDurationChange(parseInt(v))}
-                    >
-                      <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                        <div className="flex items-center">
-                          <Clock className="mr-2 h-4 w-4 text-blue-400" />
-                          <SelectValue placeholder="Durée" />
+                      <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-primary/60" />
+                          <SelectValue />
                         </div>
                       </SelectTrigger>
-                      <SelectContent className="border-blue-500/20">
-                        {durationOptions.map((opt) => (
-                          <SelectItem 
-                            key={opt.value} 
-                            value={opt.value.toString()}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            {opt.label}
-                          </SelectItem>
+                      <SelectContent>
+                        {weekDays.map((day, i) => (
+                          <SelectItem key={i} value={i.toString()}>{day}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                </div>
-
-                {/* Time Range */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Horaires</Label>
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={formData.startTime}
-                      onValueChange={(v) => handleChange("startTime", v)}
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Salle</Label>
+                    <Select 
+                      value={formData.roomId?.toString()} 
+                      onValueChange={(v) => {
+                        const r = rooms.find(room => room.id.toString() === v)
+                        setFormData({ ...formData, roomId: parseInt(v), room: r?.nom })
+                        setHasChanges(true)
+                      }}
                     >
-                      <SelectTrigger className="flex-1 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                        <SelectValue placeholder="Début" />
+                      <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-primary/60" />
+                          <SelectValue placeholder="Salle" />
+                        </div>
                       </SelectTrigger>
-                      <SelectContent className="border-blue-500/20">
-                        {timeOptions.map((time) => (
-                          <SelectItem 
-                            key={`start-${time}`} 
-                            value={time}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            {time}
-                          </SelectItem>
+                      <SelectContent>
+                        {rooms.map(r => (
+                          <SelectItem key={r.id} value={r.id.toString()}>{r.nom}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                 </div>
+              </div>
 
-                    <div className="flex h-10 w-10 items-center justify-center">
-                      <GripVertical className="h-4 w-4 rotate-90 text-blue-400/50" />
-                    </div>
-
-                    <Select
-                      value={formData.endTime}
-                      onValueChange={(v) => handleChange("endTime", v)}
-                    >
-                      <SelectTrigger className="flex-1 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                        <SelectValue placeholder="Fin" />
-                      </SelectTrigger>
-                      <SelectContent className="border-blue-500/20">
-                        {timeOptions.map((time) => (
-                          <SelectItem 
-                            key={`end-${time}`} 
-                            value={time}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="details" className="m-0 space-y-4">
-                {/* Professor */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    <User className="mr-1.5 inline h-4 w-4" />
-                    Enseignant (Assignation)
-                  </Label>
-                  <Select
-                    value={formData.teacherId?.toString() || ""}
-                    onValueChange={(v) => {
-                      const selected = assignments.find(a => a.id.toString() === v);
-                      setFormData(prev => ({ 
-                        ...prev, 
-                        teacherId: parseInt(v),
-                        professor: selected?.teacherName || "" 
-                      }));
-                      setHasChanges(true);
+              <div className="space-y-2">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Groupe (Optionnel)</Label>
+                <div className="relative">
+                  <Layers className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/60" />
+                  <Input 
+                    placeholder="Ex: G1, Groupe A..." 
+                    value={formData.groupName || ""} 
+                    onChange={(e) => {
+                      setFormData({ ...formData, groupName: e.target.value })
+                      setHasChanges(true)
                     }}
-                    disabled={!formData.subjectCode}
-                  >
-                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
-                      <SelectValue placeholder={!formData.subjectCode ? "Choisir une UE d'abord" : "Sélectionner un enseignant"} />
-                    </SelectTrigger>
-                    <SelectContent className="border-blue-500/20">
-                      {loadingAssignments ? (
-                        <SelectItem value="loading" disabled>Chargement...</SelectItem>
-                      ) : assignments.length > 0 ? (
-                        assignments.map((asg) => (
-                          <SelectItem 
-                            key={asg.id} 
-                            value={asg.id.toString()}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            <div className="flex flex-col">
-                              <span className="truncate font-medium">{asg.teacherName}</span>
-                              <span className="text-[10px] opacity-70 uppercase">{asg.role.replace("_", " ")}</span>
-                            </div>
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="none" disabled>Aucun enseignant assigné</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Room */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    <MapPin className="mr-1.5 inline h-4 w-4" />
-                    Salle
-                  </Label>
-                  <Select
-                    value={formData.roomId?.toString() || ""}
-                    onValueChange={(v) => handleChange("roomId", parseInt(v))}
-                  >
-                    <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors flex justify-start text-left">
-                      <SelectValue placeholder="Sélectionner une salle" />
-                    </SelectTrigger>
-                    <SelectContent className="border-blue-500/20">
-                      {loadingRooms ? (
-                        <SelectItem value="loading" disabled>Chargement...</SelectItem>
-                      ) : rooms.length > 0 ? (
-                        rooms.map((room) => (
-                          <SelectItem 
-                            key={room.id} 
-                            value={room.id.toString()}
-                            className="focus:bg-blue-500/20 focus:text-blue-400 border-l-2 border-transparent focus:border-blue-500"
-                          >
-                            <span className="truncate">{room.nom}</span>
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="none" disabled>Aucune salle trouvée</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Description</Label>
-                  <Textarea
-                    value={formData.description || ""}
-                    onChange={(e) => handleChange("description", e.target.value)}
-                    placeholder="Ajouter une description..."
-                    className="min-h-[100px] bg-blue-500/10 border-blue-500/20 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    className="h-12 pl-10 bg-muted/30 border-border/60 rounded-xl focus:bg-background"
                   />
                 </div>
-              </TabsContent>
+              </div>
 
-              <TabsContent value="options" className="m-0 space-y-4">
-                {/* Recurrence */}
-                <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-blue-500/10 p-2">
-                        <Repeat className="h-5 w-5 text-blue-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Récurrence</p>
-                        <p className="text-xs text-muted-foreground">
-                          Répéter cet événement
-                        </p>
-                      </div>
-                    </div>
-                    <Switch 
-                        checked={showRecurrence} 
-                        onCheckedChange={setShowRecurrence}
-                        className="data-[state=checked]:bg-blue-500"
-                    />
-                  </div>
-
-                  {showRecurrence && (
-                    <div className="mt-4 space-y-3 border-t border-blue-500/10 pt-4">
-                      <Select value={recurrenceFreq} onValueChange={setRecurrenceFreq}>
-                        <SelectTrigger className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-blue-500/20">
-                          <SelectItem value="daily" className="focus:bg-blue-500/20 focus:text-blue-400">Quotidien</SelectItem>
-                          <SelectItem value="weekly" className="focus:bg-blue-500/20 focus:text-blue-400">Hebdomadaire</SelectItem>
-                          <SelectItem value="biweekly" className="focus:bg-blue-500/20 focus:text-blue-400">Bi-hebdomadaire</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-blue-400" />
-                        <span className="text-sm text-muted-foreground">Jusqu&apos;au:</span>
-                        <Input 
-                            type="date" 
-                            className="bg-blue-500/10 border-blue-500/20 focus:border-blue-500" 
-                            value={recurrenceEndDate}
-                            onChange={(e) => setRecurrenceEndDate(e.target.value)}
-                        />
-                      </div>
+              <div className="space-y-4">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignants assignés</Label>
+                
+                {/* Liste des enseignants sélectionnés (Badges) */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {formData.teacherIds && formData.teacherIds.length > 0 ? (
+                    formData.teacherIds.map(tid => {
+                      const t = teachers.find(prof => prof.id === tid);
+                      return (
+                        <Badge key={tid} variant="secondary" className="pl-3 pr-1 py-1 h-8 gap-2 rounded-lg bg-primary/10 border-primary/20 text-primary group">
+                          <span className="font-bold text-[10px]">{t?.fullName || `ID: ${tid}`}</span>
+                          <button 
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                teacherIds: prev.teacherIds?.filter(id => id !== tid)
+                              }));
+                              setHasChanges(true);
+                            }}
+                            className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          >
+                            <X size={12} />
+                          </button>
+                        </Badge>
+                      );
+                    })
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 rounded-xl border border-dashed border-border/60 bg-muted/20 w-full">
+                       <AlertCircle size={14} className="text-amber-600" />
+                       <span className="text-[10px] font-bold text-amber-600/80 uppercase">Aucun enseignant assigné</span>
                     </div>
                   )}
                 </div>
 
-                {/* Notifications */}
-                <div className="rounded-lg border border-border p-4">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="rounded-lg bg-secondary p-2">
-                      <Bell className="h-5 w-5 text-muted-foreground" />
+                <Select 
+                  onValueChange={(v) => {
+                    if (v === "none") return;
+                    const tid = parseInt(v);
+                    setFormData(prev => {
+                      const currentIds = prev.teacherIds || [];
+                      if (currentIds.includes(tid)) return prev;
+                      return { ...prev, teacherIds: [...currentIds, tid] };
+                    });
+                    setHasChanges(true);
+                  }}
+                >
+                  <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-primary/60" />
+                      <SelectValue placeholder="Ajouter un enseignant..." />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">Notifications</p>
-                      <p className="text-xs text-muted-foreground">Rappels pour cet événement</p>
-                    </div>
-                  </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none" disabled className="font-bold text-muted-foreground">CHOISIR DANS LA LISTE</SelectItem>
+                    {teachers.map(t => (
+                      <SelectItem key={t.id} value={t.id.toString()}>{t.fullName}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </TabsContent>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Email</span>
-                      <Switch
-                        checked={notifications.email}
-                        onCheckedChange={(v) =>
-                          setNotifications((prev) => ({ ...prev, email: v }))
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Push</span>
-                      <Switch
-                        checked={notifications.push}
-                        onCheckedChange={(v) =>
-                          setNotifications((prev) => ({ ...prev, push: v }))
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">SMS</span>
-                      <Switch
-                        checked={notifications.sms}
-                        onCheckedChange={(v) =>
-                          setNotifications((prev) => ({ ...prev, sms: v }))
-                        }
-                      />
-                    </div>
+          <TabsContent value="settings" className="space-y-8 animate-in fade-in duration-300">
+            {/* Time & Duration */}
+            <div className="rounded-2xl border border-border/60 bg-muted/20 p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-background p-2 shadow-sm">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-bold">Horaire & Durée</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{calculateDuration()}</p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="font-mono text-[10px] py-1 px-3 rounded-full bg-background">
+                  {formData.startTime} — {formData.endTime}
+                </Badge>
+              </div>
+
+              <div className="grid gap-6 pt-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de début</Label>
+                    <Input 
+                      type="time" 
+                      value={formData.startTime} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, startTime: e.target.value })
+                        setHasChanges(true)
+                      }}
+                      className="h-11 bg-background border-border/60 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Heure de fin</Label>
+                    <Input 
+                      type="time" 
+                      value={formData.endTime} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, endTime: e.target.value })
+                        setHasChanges(true)
+                      }}
+                      className="h-11 bg-background border-border/60 font-mono"
+                    />
                   </div>
                 </div>
 
-                {/* Conflict Warning */}
-                {conflict && (
-                  <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 animate-in fade-in slide-in-from-top-2">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="mt-0.5 h-5 w-5 text-amber-500" />
-                      <div>
-                        <p className="text-sm font-medium text-amber-400">Conflit détecté</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{conflict}</p>
-                      </div>
-                    </div>
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Raccourcis de durée</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {durationOptions.slice(1, 5).map((opt) => (
+                      <Button
+                        key={opt.value}
+                        variant={getCurrentDuration() === opt.value ? "secondary" : "ghost"}
+                        size="sm"
+                        className={cn("h-10 rounded-xl font-bold text-xs border border-transparent", getCurrentDuration() === opt.value && "border-primary/20")}
+                        onClick={() => handleDurationChange(opt.value)}
+                      >
+                        {opt.label}
+                      </Button>
+                    ))}
                   </div>
-                )}
-              </TabsContent>
+                </div>
+              </div>
             </div>
-          </Tabs>
-        </div>
 
-        {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-card p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              {hasChanges && (
-                <span className="text-xs text-amber-400">Modifications non sauvegardées</span>
-              )}
+            {/* Description */}
+            <div className="space-y-3 px-1">
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Notes & Consignes</Label>
+              <Textarea
+                placeholder="Objectifs du cours, matériel requis, chapitres abordés..."
+                className="min-h-[120px] bg-muted/30 border-border/60 rounded-2xl focus:bg-background transition-all resize-none p-4 text-sm"
+                value={formData.description || ""}
+                onChange={(e) => {
+                  setFormData({ ...formData, description: e.target.value })
+                  setHasChanges(true)
+                }}
+              />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose}>
-                Annuler
-              </Button>
-              <Button onClick={handleSave} disabled={!hasChanges && !isNew} className="gap-1.5">
-                <Save className="h-4 w-4" />
-                {isNew ? "Créer" : "Enregistrer"}
-              </Button>
-            </div>
-          </div>
+            
+            {/* Conflict Warning */}
+            {conflict && (
+              <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 animate-in fade-in slide-in-from-top-2">
+                <div className="flex gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 text-amber-500" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-400">Conflit détecté</p>
+                    <p className="mt-1 text-xs text-amber-500/80">
+                      Cet enseignant ou cette salle est déjà occupé sur ce créneau.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="border-t bg-muted/20 p-6 backdrop-blur-md">
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold border-border/60 hover:bg-muted" onClick={onClose}>
+            Annuler
+          </Button>
+          <Button
+            className="flex-[2] h-12 rounded-xl font-black gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            onClick={handleSave}
+            disabled={isSaving || (!formData.title && !formData.subjectCode)}
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {isNew ? "CRÉER LA SÉANCE" : "ENREGISTRER"}
+          </Button>
         </div>
       </div>
-    </>
+    </div>
   )
 }

@@ -24,6 +24,9 @@ interface ScheduleHeaderProps {
   onToday: () => void
   selectedTypes: CourseType[]
   onTypeToggle: (type: CourseType) => void
+  onExportJSON?: () => void
+  onExportPDF?: () => void
+  onImportClick?: () => void
 }
 
 export function ScheduleHeader({
@@ -35,6 +38,9 @@ export function ScheduleHeader({
   onToday,
   selectedTypes,
   onTypeToggle,
+  onExportJSON,
+  onExportPDF,
+  onImportClick,
 }: ScheduleHeaderProps) {
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: "long", year: "numeric" }
@@ -113,6 +119,35 @@ export function ScheduleHeader({
 
       {/* Right side - Controls */}
       <div className="flex items-center gap-2">
+        {/* Actions Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-9 gap-2">
+              <Download className="h-4 w-4" />
+              <span>Actions</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>Données</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem onClick={onImportClick}>
+              <Plus className="mr-2 h-4 w-4" />
+              Importer JSON
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem onClick={onExportJSON}>
+              <Download className="mr-2 h-4 w-4" />
+              Exporter JSON
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Rendu</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem onClick={onExportPDF}>
+              <CalendarDays className="mr-2 h-4 w-4" />
+              Exporter PDF
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {/* View mode toggle */}
         <div className="flex items-center rounded-lg border border-border bg-secondary/50 p-1">
           {viewModes.map(({ mode, label, icon }) => (
@@ -131,40 +166,6 @@ export function ScheduleHeader({
             </button>
           ))}
         </div>
-
-        {/* Filter dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5">
-              <Filter className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Filtrer</span>
-              {selectedTypes.length < 5 && (
-                <span className="ml-1 rounded-full bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
-                  {selectedTypes.length}
-                </span>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Type de cours</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {allTypes.map((type) => (
-              <DropdownMenuCheckboxItem
-                key={type}
-                checked={selectedTypes.includes(type)}
-                onCheckedChange={() => onTypeToggle(type)}
-              >
-                {courseTypeLabels[type]}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Export button */}
-        <Button variant="outline" size="sm" className="h-8 gap-1.5">
-          <Download className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Exporter</span>
-        </Button>
       </div>
     </div>
   )

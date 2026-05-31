@@ -17,7 +17,7 @@ import { MonthView } from "@/components/schedule/month-view";
 import { EventDrawer } from "@/components/schedule/event-drawer";
 import { EditModeToolbar } from "@/components/schedule/edit-mode-toolbar";
 import { ScheduleSidebar } from "@/components/schedule/schedule-sidebar";
-import { sampleEvents, ScheduleEvent, CourseType } from "@/lib/schedule-data";
+import { ScheduleEvent, CourseType } from "@/lib/schedule-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
@@ -42,13 +42,13 @@ const UnifiedSchedulingPage: React.FC = () => {
   
   // Edit mode state (pour les profs, c'est désactivé par défaut)
   const [isEditMode, setIsEditMode] = useState(false);
-  const [events, setEvents] = useState<ScheduleEvent[]>(sampleEvents);
+  const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [allProfessors, setAllProfessors] = useState<string[]>([]);
   const [allRooms, setAllRooms] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
   const [isNewEvent, setIsNewEvent] = useState(false);
-  const [history, setHistory] = useState<ScheduleEvent[][]>([sampleEvents]);
+  const [history, setHistory] = useState<ScheduleEvent[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [pendingChanges, setPendingChanges] = useState(0);
 

@@ -1,11 +1,12 @@
 "use client"
 
-import { Clock, TrendingUp, BookOpen, Calendar, RefreshCw, Layers, Plus, Download, Upload } from "lucide-react"
+import { Clock, TrendingUp, BookOpen, Calendar, RefreshCw, Layers, Plus, Download, Upload, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent, SchedulePlan, courseTypeLabels, courseTypeColors, CourseType } from "@/lib/schedule-data"
 import { ResourceFilters } from "./resource-filters"
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { 
   Select, 
   SelectContent, 
@@ -20,6 +21,7 @@ interface ScheduleSidebarProps {
   selectedPlanId?: string
   onPlanChange?: (planId: string) => void
   onAddPlan?: () => void
+  onEditPlan?: (planId: string) => void
   onImportPlan?: () => void
   onExportPlan?: (planId: string) => void
   selectedTypes: CourseType[]
@@ -41,6 +43,7 @@ export function ScheduleSidebar({
   selectedPlanId,
   onPlanChange,
   onAddPlan,
+  onEditPlan,
   onImportPlan,
   onExportPlan,
   selectedTypes,
@@ -121,12 +124,6 @@ export function ScheduleSidebar({
             <Layers className="h-3.5 w-3.5" /> Programmation
           </h3>
           <div className="flex gap-1">
-             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onImportPlan} title="Importer">
-               <Upload className="h-3 w-3" />
-             </Button>
-             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={() => selectedPlanId && onExportPlan?.(selectedPlanId)} title="Exporter">
-               <Download className="h-3 w-3" />
-             </Button>
              <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onAddPlan} title="Nouveau plan">
                <Plus className="h-3 w-3" />
              </Button>

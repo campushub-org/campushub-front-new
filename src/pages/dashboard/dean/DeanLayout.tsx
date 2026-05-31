@@ -11,7 +11,7 @@ const DeanLayout: React.FC = () => {
   const deanNavItems: NavItem[] = [
     { to: '/dashboard/dean', icon: <LayoutDashboard size={20} />, label: t("dean.sidebar.dashboard") },
     { to: '/dashboard/dean/validations', icon: <CheckSquare size={20} />, label: t("dean.sidebar.validations") },
-    { to: '/dashboard/dean/schedule', icon: <CalendarDays size={20} />, label: t("dean.sidebar.schedule") },
+    { to: '/dashboard/dean/planning-hub', icon: <CalendarDays size={20} />, label: t("dean.sidebar.schedule") },
     { to: '/dashboard/dean/timetable-upload', icon: <Upload size={20} />, label: t("dean.sidebar.edition") },
   ];
 

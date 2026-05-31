@@ -1,6 +1,6 @@
 "use client"
 
-import { MapPin, User, Clock, GripVertical, Move } from "lucide-react"
+import { MapPin, User, Clock, GripVertical, Move, AlertCircle, Layers } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ScheduleEvent, courseTypeColors, courseTypeLabels, CourseType } from "@/lib/schedule-data"
 import {
@@ -93,7 +93,7 @@ export function EventCardEditable({
             {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
           </p>
           
-          {!isShort && (
+          {/*{!isShort && (
             <div className="flex flex-wrap gap-1 mt-1 mb-1.5">
               <span className={cn(
                 "inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-extrabold uppercase tracking-widest bg-background/40 border border-current/10",
@@ -101,8 +101,13 @@ export function EventCardEditable({
               )}>
                 {courseTypeLabels[event.type]}
               </span>
+              {event.groupName && (
+                <span className="inline-flex items-center rounded-sm px-1 py-0.5 text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
+                  {event.groupName}
+                </span>
+              )}
             </div>
-          )}
+          )}*/}
         </div>
 
         <div className={cn("space-y-0.5 min-w-0", isVeryShort && "hidden", isShort && "flex items-center gap-2 space-y-0 mt-1")}>
@@ -116,13 +121,28 @@ export function EventCardEditable({
           {!isShort && (
             <>
               <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
-                <User className="h-3 w-3 shrink-0 opacity-70" />
-                <span className="truncate text-[10px] font-medium">{event.professor}</span>
+                {event.professor ? (
+                  <>
+                    <User className="h-3 w-3 shrink-0 opacity-70" />
+                    <span className="truncate text-[10px] font-medium">{event.professor}</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-500 animate-pulse" />
+                    <span className="truncate text-[9px] font-black text-amber-600 uppercase">À DÉTERMINER</span>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-1 text-muted-foreground/80 overflow-hidden">
                 <MapPin className="h-3 w-3 shrink-0 opacity-70" />
                 <span className="truncate text-[10px] font-medium">{event.room}</span>
               </div>
+              {event.groupName && (
+                <div className="flex items-center gap-1 text-primary/80 overflow-hidden">
+                  <Layers className="h-3 w-3 shrink-0 opacity-70" />
+                  <span className="truncate text-[10px] font-bold uppercase tracking-tighter">{event.groupName}</span>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -165,13 +185,21 @@ export function EventCardEditable({
                   <span className="font-medium text-foreground">{event.startTime} — {event.endTime}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <User className="h-3.5 w-3.5 text-primary" />
-                  <span className="font-medium text-foreground">{event.professor || "Non assigné"}</span>
+                  {event.professor ? <User className="h-3.5 w-3.5 text-primary" /> : <AlertCircle className="h-3.5 w-3.5 text-amber-500" />}
+                  <span className={cn("font-medium", !event.professor && "text-amber-600 font-bold")}>
+                    {event.professor || "À DÉTERMINER (Non assigné)"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5 text-primary" />
                   <span className="font-medium text-foreground">{event.room || "Salle non définie"}</span>
                 </div>
+                {event.groupName && (
+                  <div className="flex items-center gap-2 text-xs text-primary font-bold">
+                    <Layers className="h-3.5 w-3.5" />
+                    <span>{event.groupName}</span>
+                  </div>
+                )}
               </div>
               {isEditMode && (
                 <div className="mt-2 pt-2 border-t border-border/50 text-[9px] text-primary/70 font-bold uppercase tracking-tighter">

@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <graduationcap className="h-6 w-6" />
+                <GraduationCap className="h-6 w-6" />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground">
                 CampusHub
