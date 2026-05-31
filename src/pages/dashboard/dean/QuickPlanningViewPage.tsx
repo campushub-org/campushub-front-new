@@ -100,7 +100,7 @@ const QuickPlanningViewPage = () => {
               codeDisplay.toUpperCase(),
               roomInfo,
               profName,
-              `${e.startTime} - ${e.endTime}`
+              e.type !== 'lecture' ? `${e.startTime} - ${e.endTime}` : ""
             ].filter(line => line !== "").join("\n");
           }).join("\n\n");
           row.push(text);
@@ -112,15 +112,16 @@ const QuickPlanningViewPage = () => {
 
       if (slot.pause) {
         tableData.push([
-          slot.pause,
           { 
             content: 'PAUSE 10 MIN', 
-            colSpan: 6, 
+            colSpan: 7, 
             styles: { 
               halign: 'center', 
               fillColor: [241, 245, 249], 
               fontStyle: 'bold',
-              textColor: [71, 85, 105]
+              textColor: [71, 85, 105],
+              fontSize: 7,
+              cellPadding: 1
             } 
           }
         ]);

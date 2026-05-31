@@ -444,11 +444,12 @@ const DeanSchedulingPage: React.FC = () => {
             else if (e.type === 'td') codeDisplay = `TD-${codeDisplay}`;
             else if (e.type === 'exam') codeDisplay = `CC-${codeDisplay}`;
 
+            // Filtrer les lignes vides et masquer l'heure pour les cours magistraux (lecture)
             return [
               codeDisplay.toUpperCase(),
               roomInfo,
               profName,
-              `${e.startTime} - ${e.endTime}`
+              e.type !== 'lecture' ? `${e.startTime} - ${e.endTime}` : ""
             ].filter(line => line !== "").join("\n");
           }).join("\n\n");
           row.push(text);
@@ -458,18 +459,19 @@ const DeanSchedulingPage: React.FC = () => {
       }
       tableData.push(row);
 
-      // Ajouter la ligne de pause si définie
+      // Ajouter la ligne de pause fusionnée sur TOUTE la largeur (7 colonnes)
       if (slot.pause) {
         tableData.push([
-          slot.pause,
           { 
             content: 'PAUSE 10 MIN', 
-            colSpan: 6, 
+            colSpan: 7, 
             styles: { 
               halign: 'center', 
               fillColor: [241, 245, 249], 
               fontStyle: 'bold',
-              textColor: [71, 85, 105]
+              textColor: [71, 85, 105],
+              fontSize: 7,
+              cellPadding: 1
             } 
           }
         ]);
