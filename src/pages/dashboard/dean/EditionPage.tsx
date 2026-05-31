@@ -32,7 +32,8 @@ import {
   Lock,
   Upload,
   Download,
-  Copy
+  Copy,
+  CalendarDays
 } from "lucide-react";
 import { 
   Table, 
@@ -85,7 +86,7 @@ import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-type EntityType = "teachers" | "rooms" | "subjects" | "assignments";
+type EntityType = "teachers" | "rooms" | "subjects" | "assignments" | "plans";
 type ViewMode = "list" | "detail";
 
 const EditionPage: React.FC = () => {
@@ -114,6 +115,7 @@ const EditionPage: React.FC = () => {
   const [rooms, setRooms] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<any[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
 
   const layoutOverrider = "-m-4 md:-m-6 lg:-m-8 max-w-none w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)]";
 
@@ -147,6 +149,11 @@ const EditionPage: React.FC = () => {
           setSubjects(subjectsRes.data);
           break;
         }
+        case "plans": {
+          const response = await api.get("/campushub-scheduling-service/api/scheduling/plans");
+          setPlans(response.data);
+          break;
+        }
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -167,9 +174,11 @@ const EditionPage: React.FC = () => {
         return subjects.filter(s => s.name?.toLowerCase().includes(query) || s.code?.toLowerCase().includes(query));
       case "assignments":
         return assignments.filter(a => a.teacherName?.toLowerCase().includes(query) || a.subjectCode?.toLowerCase().includes(query));
+      case "plans":
+        return plans.filter(p => p.name?.toLowerCase().includes(query) || p.academicYear?.toLowerCase().includes(query));
       default: return [];
     }
-  }, [searchQuery, activeEntity, teachers, rooms, subjects, assignments]);
+  }, [searchQuery, activeEntity, teachers, rooms, subjects, assignments, plans]);
 
   useEffect(() => {
     fetchData(activeEntity);
@@ -188,6 +197,7 @@ const EditionPage: React.FC = () => {
       case "rooms": defaults = { actif: true, capacite: 50, batiment: "Bâtiment Principal", filiere: "INFORMATIQUE-INE" }; break;
       case "subjects": defaults = { credits: 6, niveau: 1, semester: 1, category: "Fundamental", specialite: "INFORMATIQUE-INE" }; break;
       case "assignments": defaults = { role: "COURSE_LECTURER" }; break;
+      case "plans": defaults = { name: "", academicYear: "2025-2026", semester: 1, level: "L1", status: "DRAFT", isDefault: false }; break;
     }
     setSelectedItem(defaults);
     setViewMode("detail");
@@ -220,6 +230,7 @@ const EditionPage: React.FC = () => {
         case "rooms": endpoint = isNew ? "/campushub-salle-service/api/salles" : `/campushub-salle-service/api/salles/${id}`; break;
         case "subjects": endpoint = isNew ? "/campushub-scheduling-service/api/subjects" : `/campushub-scheduling-service/api/subjects/${id}`; break;
         case "assignments": endpoint = isNew ? "/campushub-scheduling-service/api/scheduling/assignments" : `/campushub-scheduling-service/api/scheduling/assignments/${id}`; break;
+        case "plans": endpoint = isNew ? "/campushub-scheduling-service/api/scheduling/plans" : `/campushub-scheduling-service/api/scheduling/plans/${id}`; break;
       }
       
       const payload = isNew && activeEntity === "teachers" ? { ...selectedItem, role: "TEACHER" } : selectedItem;
@@ -247,6 +258,7 @@ const EditionPage: React.FC = () => {
         case "rooms": endpoint = `/campushub-salle-service/api/salles/${id}`; break;
         case "subjects": endpoint = `/campushub-scheduling-service/api/subjects/${id}`; break;
         case "assignments": endpoint = `/campushub-scheduling-service/api/scheduling/assignments/${id}`; break;
+        case "plans": endpoint = `/campushub-scheduling-service/api/scheduling/plans/${id}`; break;
       }
       await api.delete(endpoint);
       toast.success("Élément supprimé");
@@ -453,6 +465,7 @@ const EditionPage: React.FC = () => {
     { id: "rooms", label: "Salles", icon: MapPin },
     { id: "subjects", label: "Matières", icon: BookOpen },
     { id: "assignments", label: "Assignations", icon: LinkIcon },
+    { id: "plans", label: "Plannings", icon: CalendarDays },
   ];
 
   return (
@@ -643,6 +656,14 @@ const EditionPage: React.FC = () => {
                                        {subName && <span className="opacity-70 truncate max-w-[200px]">• {subName}</span>}
                                        <Badge className="ml-2 scale-75 origin-left">{item.role === "COURSE_LECTURER" ? "Titulaire" : "Assistant"}</Badge>
                                      </>
+                                  ) : activeEntity === "plans" ? (
+                                    <>
+                                      <span className="font-semibold text-primary">{item.academicYear}</span>
+                                      <span className="opacity-70">• Niveau {item.level} • S{item.semester}</span>
+                                      <Badge variant={item.status === 'ACTIVE' ? 'default' : 'secondary'} className="ml-2 scale-75 origin-left">
+                                        {item.status === 'ACTIVE' ? 'Actif' : item.status}
+                                      </Badge>
+                                    </>
                                   ) : (
                                      item.email || item.code || item.subjectCode || item.batiment
                                   )}
@@ -670,6 +691,7 @@ const EditionPage: React.FC = () => {
                          {activeEntity === "rooms" && <MapPin className="h-10 w-10" />}
                          {activeEntity === "subjects" && <BookOpen className="h-10 w-10" />}
                          {activeEntity === "assignments" && <LinkIcon className="h-10 w-10" />}
+                         {activeEntity === "plans" && <CalendarDays className="h-10 w-10" />}
                       </div>
                       <div className="space-y-1">
                         <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 uppercase text-[10px] font-bold tracking-tighter">
@@ -681,7 +703,13 @@ const EditionPage: React.FC = () => {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                            <span className="flex items-center gap-1.5 font-mono"><Shield className="h-4 w-4 text-primary" /> {selectedItem.id || selectedItem.code || "ID Auto-généré"}</span>
                            <span className="h-1 w-1 rounded-full bg-border" />
-                           <span className="flex items-center gap-1.5 text-emerald-600 font-bold"><CheckCircle2 className="h-4 w-4" /> Statut: Actif</span>
+                           <span className={cn(
+                             "flex items-center gap-1.5 font-bold",
+                             (selectedItem.status === 'ACTIVE' || selectedItem.actif !== false) ? "text-emerald-600" : "text-amber-600"
+                           )}>
+                             <CheckCircle2 className="h-4 w-4" /> 
+                             Statut: {activeEntity === 'plans' ? selectedItem.status : (selectedItem.actif !== false ? 'Actif' : 'Inactif')}
+                           </span>
                         </div>
                       </div>
                     </div>
@@ -811,6 +839,55 @@ const EditionPage: React.FC = () => {
                                  </SelectContent>
                                </Select>
                              </FormGroup>
+                           </>
+                         )}
+
+                         {activeEntity === "plans" && (
+                           <>
+                             <FormGroup label="Nom du Planning" icon={<CalendarDays className="h-4 w-4" />}>
+                               <Input value={selectedItem.name || ""} onChange={v => setSelectedItem({...selectedItem, name: v.target.value})} placeholder="Ex: Semestre 1 - L3 INFO" />
+                             </FormGroup>
+                             <FormGroup label="Année Académique" icon={<Clock className="h-4 w-4" />}>
+                               <Input value={selectedItem.academicYear || ""} onChange={v => setSelectedItem({...selectedItem, academicYear: v.target.value})} placeholder="2025-2026" />
+                             </FormGroup>
+                             <FormGroup label="Niveau" icon={<Layers className="h-4 w-4" />}>
+                               <Select value={selectedItem.level} onValueChange={v => setSelectedItem({...selectedItem, level: v})}>
+                                 <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
+                                 <SelectContent>
+                                   <SelectItem value="L1">L1</SelectItem>
+                                   <SelectItem value="L2">L2</SelectItem>
+                                   <SelectItem value="L3">L3</SelectItem>
+                                   <SelectItem value="M1">M1</SelectItem>
+                                   <SelectItem value="M2">M2</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                             </FormGroup>
+                             <FormGroup label="Semestre" icon={<Clock className="h-4 w-4" />}>
+                               <Select value={selectedItem.semester?.toString()} onValueChange={v => setSelectedItem({...selectedItem, semester: parseInt(v)})}>
+                                 <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
+                                 <SelectContent>
+                                   <SelectItem value="1">Semestre 1</SelectItem>
+                                   <SelectItem value="2">Semestre 2</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                             </FormGroup>
+                             <FormGroup label="Statut du Plan" icon={<Shield className="h-4 w-4" />}>
+                               <Select value={selectedItem.status} onValueChange={v => setSelectedItem({...selectedItem, status: v})}>
+                                 <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
+                                 <SelectContent>
+                                   <SelectItem value="DRAFT">Brouillon (Édition seule)</SelectItem>
+                                   <SelectItem value="ACTIVE">Actif (Visible par tous)</SelectItem>
+                                   <SelectItem value="ARCHIVED">Archivé</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                             </FormGroup>
+                             <div className="flex items-center justify-between p-5 bg-background border border-border/60 rounded-2xl shadow-sm">
+                               <div className="space-y-0.5">
+                                 <Label className="text-sm font-bold">Plan par défaut</Label>
+                                 <p className="text-xs text-muted-foreground">Utilisé pour l'affichage initial</p>
+                               </div>
+                               <Switch checked={selectedItem.isDefault} onCheckedChange={v => setSelectedItem({...selectedItem, isDefault: v})} />
+                             </div>
                            </>
                          )}
                        </div>
