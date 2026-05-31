@@ -401,39 +401,35 @@ const DeanSchedulingPage: React.FC = () => {
     
     const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
     const timeSlotsToExport = [
-      { label: "07h00 - 10h00", start: 7, end: 10 },
-      { label: "10h00 - 13h00", start: 10, end: 13 },
-      { label: "13h00 - 16h00", start: 13, end: 16 },
-      { label: "16h00 - 19h00", start: 16, end: 19 }
+      { label: "07h00 - 09h55", start: 7.0, end: 9.92, pause: "09h55 - 10h05" },
+      { label: "10h05 - 12h55", start: 10.08, end: 12.92, pause: "12h55 - 13h05" },
+      { label: "13h05 - 15h55", start: 13.08, end: 15.92, pause: "15h55 - 16h05" },
+      { label: "16h05 - 18h55", start: 16.08, end: 18.92, pause: null }
     ];
 
-    const tableData: any[][] = timeSlotsToExport.map(slot => {
-      const row = [slot.label];
+    const tableData: any[][] = [];
+
+    timeSlotsToExport.forEach(slot => {
+      const row: any[] = [slot.label];
 
       for (let dayIndex = 0; dayIndex < 6; dayIndex++) {
-        // Trouver les événements qui se déroulent pendant cette plage de 3h
         const slotEvents = events.filter(e => {
-          const startHour = parseInt(e.startTime.split(':')[0]);
-          const startMin = parseInt(e.startTime.split(':')[1]);
-          const eventStartTimeDec = startHour + startMin/60;
-          
-          const endHour = parseInt(e.endTime.split(':')[0]);
-          const endMin = parseInt(e.endTime.split(':')[1]);
-          const eventEndTimeDec = endHour + endMin/60;
+          const [sH, sM] = e.startTime.split(':').map(Number);
+          const [eH, eM] = e.endTime.split(':').map(Number);
+          const eventStart = sH + sM/60;
+          const eventEnd = eH + eM/60;
 
-          // Un événement est dans ce slot s'il commence dedans ou s'il couvre une partie significative
+          // On accepte les cours qui chevauchent la plage
           return e.day === dayIndex && 
-                 ((eventStartTimeDec >= slot.start && eventStartTimeDec < slot.end) ||
-                  (eventEndTimeDec > slot.start && eventEndTimeDec <= slot.end) ||
-                  (eventStartTimeDec <= slot.start && eventEndTimeDec >= slot.end));
+                 ((eventStart >= slot.start && eventStart < slot.end) ||
+                  (eventEnd > slot.start && eventEnd <= slot.end) ||
+                  (eventStart <= slot.start && eventEnd >= slot.end));
         });
 
         if (slotEvents.length > 0) {
           const text = slotEvents.map(e => {
-            // Salle : vide si absent ou non assigné
             const roomInfo = (e.room && !["N/A", "NULL", "UNDEFINED", "NON ASSIGNÉ", "NON ASSIGNE"].includes(e.room.toUpperCase())) ? e.room : "";
             
-            // Enseignant : vide si absent, non assigné ou à déterminer
             let profName = "";
             const rawProf = e.professor ? e.professor.toUpperCase() : "";
             if (rawProf && 
@@ -460,7 +456,24 @@ const DeanSchedulingPage: React.FC = () => {
           row.push("");
         }
       }
-      return row;
+      tableData.push(row);
+
+      // Ajouter la ligne de pause si définie
+      if (slot.pause) {
+        tableData.push([
+          slot.pause,
+          { 
+            content: 'PAUSE 10 MIN', 
+            colSpan: 6, 
+            styles: { 
+              halign: 'center', 
+              fillColor: [241, 245, 249], 
+              fontStyle: 'bold',
+              textColor: [71, 85, 105]
+            } 
+          }
+        ]);
+      }
     });
 
     autoTable(doc, {
@@ -469,7 +482,7 @@ const DeanSchedulingPage: React.FC = () => {
       body: tableData,
       theme: 'grid',
       headStyles: { 
-        fillColor: [30, 41, 59], // Darker theme like ERP
+        fillColor: [30, 41, 59], 
         textColor: 255, 
         fontSize: 10, 
         halign: 'center',
@@ -490,7 +503,9 @@ const DeanSchedulingPage: React.FC = () => {
       },
       didParseCell: function (data) {
         if (data.section === 'body' && data.column.index !== 0) {
-          if (data.cell.text.length > 0 && data.cell.text[0] !== "") {
+          if (data.cell.raw && typeof data.cell.raw === 'object') {
+             // C'est une cellule de pause (déjà stylisée par colSpan)
+          } else if (data.cell.text.length > 0 && data.cell.text[0] !== "") {
              data.cell.styles.fillColor = [248, 250, 252];
              data.cell.styles.fontStyle = 'bold';
           }
