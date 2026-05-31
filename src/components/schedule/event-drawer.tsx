@@ -459,10 +459,11 @@ export function EventDrawer({
               <div className="space-y-4">
                 <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignants assignés</Label>
                 
+                {/* Liste des enseignants sélectionnés (Badges) */}
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.teacherIds && formData.teacherIds.length > 0 ? (
                     formData.teacherIds.map(tid => {
-                      // Recherche dans la liste globale des enseignants
+                      // On cherche dans la liste GLOBALE pour avoir le nom à jour
                       const t = teachers.find(prof => prof.id === tid);
                       return (
                         <Badge key={tid} variant="secondary" className="pl-3 pr-1 py-1 h-8 gap-2 rounded-lg bg-primary/10 border-primary/20 text-primary group">
@@ -485,7 +486,7 @@ export function EventDrawer({
                   ) : (
                     <div className="flex items-center gap-2 p-3 rounded-xl border border-dashed border-border/60 bg-muted/20 w-full">
                        <AlertCircle size={14} className="text-amber-600" />
-                       <span className="text-[10px] font-bold text-amber-600/80 uppercase">Aucun enseignant sélectionné</span>
+                       <span className="text-[10px] font-bold text-amber-600/80 uppercase">Aucun intervenant sélectionné</span>
                     </div>
                   )}
                 </div>
@@ -493,11 +494,11 @@ export function EventDrawer({
                 <Select 
                   onValueChange={(v) => {
                     if (v === "none") return;
-                    const tid = parseInt(v);
+                    const userId = parseInt(v);
                     setFormData(prev => {
                       const currentIds = prev.teacherIds || [];
-                      if (currentIds.includes(tid)) return prev;
-                      return { ...prev, teacherIds: [...currentIds, tid] };
+                      if (currentIds.includes(userId)) return prev;
+                      return { ...prev, teacherIds: [...currentIds, userId] };
                     });
                     setHasChanges(true);
                   }}
@@ -505,22 +506,36 @@ export function EventDrawer({
                   <SelectTrigger className="h-12 bg-muted/30 border-border/60 rounded-xl">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-primary/60" />
-                      <SelectValue placeholder="Ajouter un enseignant..." />
+                      <SelectValue placeholder={loadingTeachers ? "Chargement..." : "Ajouter un intervenant..."} />
                     </div>
                   </SelectTrigger>
                   <SelectContent className="max-h-80">
                     <SelectItem value="none" disabled className="font-bold text-muted-foreground uppercase text-[10px]">
-                      LISTE DES ENSEIGNANTS
+                      SÉLECTIONNER UN ENSEIGNANT
                     </SelectItem>
-                    {teachers.map(t => {
-                      // On vérifie si ce prof est dans les assignations "officielles" de la matière
-                      const isAssigned = assignments.some(a => a.teacherId === t.id);
+                    
+                    {/* Tri : Enseignants assignés en haut, puis les autres alphabétiquement */}
+                    {[...teachers].sort((a, b) => {
+                       const aAssigned = assignments.some(asg => asg.teacherId === a.id);
+                       const bAssigned = assignments.some(asg => asg.teacherId === b.id);
+                       if (aAssigned && !bAssigned) return -1;
+                       if (!aAssigned && bAssigned) return 1;
+                       return a.fullName.localeCompare(b.fullName);
+                    }).map(t => {
+                      const assignment = assignments.find(asg => asg.teacherId === t.id);
                       return (
                         <SelectItem key={t.id} value={t.id.toString()} className="py-2">
                           <div className="flex items-center justify-between w-full gap-4">
-                            <span className="font-bold">{t.fullName}</span>
-                            {isAssigned && (
-                              <Badge variant="outline" className="text-[9px] h-5 bg-emerald-50 text-emerald-700 border-emerald-200">ASSIGNÉ</Badge>
+                            <div className="flex flex-col">
+                               <span className="font-bold text-sm">{t.fullName}</span>
+                               {assignment && (
+                                 <span className="text-[9px] opacity-60 uppercase tracking-tighter">
+                                   {assignment.role === 'COURSE_LECTURER' ? 'Titulaire' : 'Assistant'}
+                                 </span>
+                               )}
+                            </div>
+                            {assignment && (
+                              <Badge variant="outline" className="text-[8px] h-5 bg-emerald-50 text-emerald-700 border-emerald-200 font-black">ASSIGNÉ</Badge>
                             )}
                           </div>
                         </SelectItem>
