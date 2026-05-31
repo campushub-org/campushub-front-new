@@ -21,6 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from 'react-i18next';
 import { logout } from '@/lib/auth';
@@ -130,6 +131,13 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="end" className="w-56 rounded-xl shadow-xl border-border/50 p-1.5 animate-in fade-in zoom-in duration-200">
+            <DropdownMenuItem asChild>
+              <NavLink to={`/dashboard/${userRole.toLowerCase()}/profile`} className="flex items-center w-full rounded-lg font-medium cursor-pointer py-2.5">
+                <User className="mr-2 h-4 w-4" />
+                <span>{t("sidebar.profile")}</span>
+              </NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1 opacity-50" />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/5 rounded-lg font-medium cursor-pointer py-2.5">
               <LogOut className="mr-2 h-4 w-4" />
               <span>{t("sidebar.logout")}</span>
