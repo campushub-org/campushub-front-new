@@ -32,51 +32,94 @@ const QuickPlanningViewPage = () => {
       return;
     }
 
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4"
+    });
     
     // Header
-    doc.setFontSize(20);
+    doc.setFontSize(22);
     doc.setTextColor(59, 130, 246); // Primary blue
     doc.text(`CampusHub - Planning Consolide`, 14, 20);
     
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(80, 80, 80);
     const entityLabel = entityType === 'teachers' ? 'Enseignant' : 'Salle';
-    doc.text(`${entityLabel}: ${entityName}`, 14, 30);
+    doc.text(`${entityLabel}: ${entityName}`, 14, 28);
     
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Généré le: ${new Date().toLocaleString('fr-FR')}`, 14, 38);
-    doc.text(`Source: Tous les plans actifs`, 14, 43);
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Généré le: ${new Date().toLocaleString('fr-FR')} | Source: Plans actifs`, 14, 34);
 
-    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-    
-    const tableData = events
-      .filter(e => selectedTypes.includes(e.type))
-      .sort((a, b) => {
-        if (a.day !== b.day) return a.day - b.day;
-        return a.startTime.localeCompare(b.startTime);
-      })
-      .map(event => [
-        days[event.day] || `Jour ${event.day}`,
-        `${event.startTime} - ${event.endTime}`,
-        event.title,
-        entityType === 'teachers' ? (event.room || "-") : (event.professor || "-"),
-        event.groupName || "-",
-        event.type.toUpperCase()
-      ]);
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    const timeSlotsToExport = [
+      "07:00", "08:00", "09:00", "10:00", "11:00", "12:00",
+      "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"
+    ];
+
+    const tableData: any[][] = timeSlotsToExport.map(slot => {
+      const row = [slot];
+      const hour = parseInt(slot.split(':')[0]);
+
+      for (let dayIndex = 0; dayIndex < 6; dayIndex++) {
+        const slotEvents = events.filter(e => {
+          const startHour = parseInt(e.startTime.split(':')[0]);
+          const endHour = parseInt(e.endTime.split(':')[0]);
+          return e.day === dayIndex && hour >= startHour && hour < endHour && selectedTypes.includes(e.type);
+        });
+
+        if (slotEvents.length > 0) {
+          const text = slotEvents.map(e => {
+            const startHour = parseInt(e.startTime.split(':')[0]);
+            if (hour === startHour) {
+              const extraInfo = entityType === 'teachers' ? `[${e.room || ""}]` : `${e.professor || ""}`;
+              return `${e.title}\n${extraInfo}`;
+            }
+            return "↑";
+          }).join("\n---\n");
+          row.push(text);
+        } else {
+          row.push("");
+        }
+      }
+      return row;
+    });
 
     autoTable(doc, {
-      startY: 50,
-      head: [['Jour', 'Heure', 'Matière', entityType === 'teachers' ? 'Salle' : 'Enseignant', 'Groupe', 'Type']],
+      startY: 40,
+      head: [['Heure', ...days]],
       body: tableData,
-      headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [245, 247, 250] },
-      styles: { fontSize: 9, cellPadding: 3 },
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [59, 130, 246], 
+        textColor: 255, 
+        fontSize: 11, 
+        halign: 'center'
+      },
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 2, 
+        valign: 'middle', 
+        halign: 'center',
+        overflow: 'linebreak'
+      },
+      columnStyles: {
+        0: { cellWidth: 20, fontStyle: 'bold', fillColor: [245, 247, 250] }
+      },
+      didParseCell: function (data) {
+        if (data.section === 'body' && data.column.index !== 0) {
+          if (data.cell.text[0] === "↑") {
+            data.cell.styles.textColor = [150, 150, 150];
+          } else if (data.cell.text[0] !== "") {
+             data.cell.styles.fillColor = [239, 246, 255];
+          }
+        }
+      }
     });
 
     doc.save(`planning_${entityType}_${entityName.replace(/\s+/g, '_')}.pdf`);
-    toast.success("Exportation PDF réussie");
+    toast.success("Exportation PDF (Calendrier) réussie");
   };
 
   useEffect(() => {

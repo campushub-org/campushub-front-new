@@ -383,43 +383,108 @@ const DeanSchedulingPage: React.FC = () => {
     const plan = plans.find(p => p.id === selectedPlanId);
     if (!plan) return;
 
-    const doc = new jsPDF();
+    // Paysage pour avoir plus de place pour les jours en colonnes
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4"
+    });
     
     // Header
-    doc.setFontSize(18);
-    doc.text(`Emploi du Temps - ${plan.name}`, 14, 20);
+    doc.setFontSize(22);
+    doc.setTextColor(59, 130, 246); // Primary blue
+    doc.text(`Emploi du Temps : ${plan.name}`, 14, 20);
+    
     doc.setFontSize(12);
-    doc.text(`Niveau: ${plan.level} | Semestre: ${plan.semester} | Année: ${plan.academicYear}`, 14, 30);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`Année : ${plan.academicYear} | Semestre : ${plan.semester} | Niveau : ${plan.level}`, 14, 28);
     
     const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-    const tableData: any[][] = [];
+    const timeSlotsToExport = [
+      "07:00", "08:00", "09:00", "10:00", "11:00", "12:00",
+      "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"
+    ];
 
-    // Sort events by time and day
-    const sortedEvents = [...events].sort((a, b) => {
-      if (a.day !== b.day) return a.day - b.day;
-      return a.startTime.localeCompare(b.startTime);
-    });
+    const tableData: any[][] = timeSlotsToExport.map(slot => {
+      const row = [slot];
+      const hour = parseInt(slot.split(':')[0]);
 
-    sortedEvents.forEach(event => {
-      tableData.push([
-        days[event.day] || `Jour ${event.day}`,
-        `${event.startTime} - ${event.endTime}`,
-        event.title,
-        event.professor || "-",
-        event.room || "-",
-        event.type
-      ]);
+      for (let dayIndex = 0; dayIndex < 6; dayIndex++) {
+        // Trouver les événements qui couvrent ce créneau horaire pour ce jour
+        const slotEvents = events.filter(e => {
+          const startHour = parseInt(e.startTime.split(':')[0]);
+          const endHour = parseInt(e.endTime.split(':')[0]);
+          return e.day === dayIndex && hour >= startHour && hour < endHour;
+        });
+
+        if (slotEvents.length > 0) {
+          // Si l'événement commence juste à cette heure, on affiche les détails
+          // Sinon (si c'est la suite d'un cours de 2h), on peut mettre un indicateur ou laisser vide
+          const text = slotEvents.map(e => {
+            const startHour = parseInt(e.startTime.split(':')[0]);
+            if (hour === startHour) {
+              return `${e.title}\n${e.professor || ""}\n[${e.room || ""}]`;
+            }
+            return "↑"; // Indicateur de continuation
+          }).join("\n---\n");
+          row.push(text);
+        } else {
+          row.push("");
+        }
+      }
+      return row;
     });
 
     autoTable(doc, {
-      startY: 40,
-      head: [['Jour', 'Heure', 'Matière', 'Enseignant', 'Salle', 'Type']],
+      startY: 35,
+      head: [['Heure', ...days]],
       body: tableData,
-      headStyles: { fillColor: [59, 130, 246] }, // Primary color
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [59, 130, 246], 
+        textColor: 255, 
+        fontSize: 11, 
+        halign: 'center',
+        fontStyle: 'bold'
+      },
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 2, 
+        valign: 'middle', 
+        halign: 'center',
+        overflow: 'linebreak',
+        cellWidth: 'auto'
+      },
+      columnStyles: {
+        0: { cellWidth: 20, fontStyle: 'bold', fillColor: [245, 247, 250] }
+      },
+      didParseCell: function (data) {
+        if (data.section === 'body' && data.column.index !== 0) {
+          if (data.cell.text[0] === "↑") {
+            data.cell.styles.textColor = [150, 150, 150];
+          } else if (data.cell.text[0] !== "") {
+             data.cell.styles.fillColor = [239, 246, 255]; // Light blue for course cells
+          }
+        }
+      }
     });
 
-    doc.save(`planning_${plan.name.replace(/\s+/g, '_')}.pdf`);
-    toast.success("Génération PDF réussie");
+    // Footer
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `CampusHub - Document généré le ${new Date().toLocaleDateString('fr-FR')}`, 
+        doc.internal.pageSize.width / 2, 
+        doc.internal.pageSize.height - 10, 
+        { align: 'center' }
+      );
+    }
+
+    doc.save(`planning_${plan.level}_${plan.name.replace(/\s+/g, '_')}.pdf`);
+    toast.success("Génération du calendrier PDF réussie");
   }, [selectedPlanId, plans, events]);
 
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
