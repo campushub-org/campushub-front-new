@@ -430,15 +430,24 @@ const DeanSchedulingPage: React.FC = () => {
 
         if (slotEvents.length > 0) {
           const text = slotEvents.map(e => {
-            const roomInfo = e.room || "N/A";
-            const profName = e.professor ? e.professor.trim().split(' ')[0].toUpperCase() : "";
+            // Salle : vide si absent ou non assigné
+            const roomInfo = (e.room && !["N/A", "NULL", "UNDEFINED", "NON ASSIGNÉ", "NON ASSIGNE"].includes(e.room.toUpperCase())) ? e.room : "";
+            
+            // Enseignant : vide si absent, non assigné ou à déterminer
+            let profName = "";
+            const rawProf = e.professor ? e.professor.toUpperCase() : "";
+            if (rawProf && 
+                !["N/A", "NULL", "UNDEFINED", "NON ASSIGNÉ", "NON ASSIGNE"].includes(rawProf) && 
+                !rawProf.includes("DÉTERMINER") && 
+                !rawProf.includes("DETERMINER")) {
+              profName = e.professor.trim().split(' ')[0].toUpperCase();
+            }
             
             let codeDisplay = e.subjectCode || e.title;
             if (e.type === 'tp') codeDisplay = `TP-${codeDisplay}`;
             else if (e.type === 'td') codeDisplay = `TD-${codeDisplay}`;
             else if (e.type === 'exam') codeDisplay = `CC-${codeDisplay}`;
 
-            // Filtrer les lignes vides (si profName est vide)
             return [
               codeDisplay.toUpperCase(),
               roomInfo,
