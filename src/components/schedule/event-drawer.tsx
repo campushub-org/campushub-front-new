@@ -459,10 +459,10 @@ export function EventDrawer({
               <div className="space-y-4">
                 <Label className="text-[11px] font-black uppercase tracking-widest text-primary/70 ml-1">Enseignants assignés</Label>
                 
-                {/* Liste des enseignants sélectionnés (Badges) */}
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.teacherIds && formData.teacherIds.length > 0 ? (
                     formData.teacherIds.map(tid => {
+                      // Recherche dans la liste globale des enseignants
                       const t = teachers.find(prof => prof.id === tid);
                       return (
                         <Badge key={tid} variant="secondary" className="pl-3 pr-1 py-1 h-8 gap-2 rounded-lg bg-primary/10 border-primary/20 text-primary group">
@@ -485,7 +485,7 @@ export function EventDrawer({
                   ) : (
                     <div className="flex items-center gap-2 p-3 rounded-xl border border-dashed border-border/60 bg-muted/20 w-full">
                        <AlertCircle size={14} className="text-amber-600" />
-                       <span className="text-[10px] font-bold text-amber-600/80 uppercase">Aucun enseignant assigné</span>
+                       <span className="text-[10px] font-bold text-amber-600/80 uppercase">Aucun enseignant sélectionné</span>
                     </div>
                   )}
                 </div>
@@ -508,11 +508,24 @@ export function EventDrawer({
                       <SelectValue placeholder="Ajouter un enseignant..." />
                     </div>
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none" disabled className="font-bold text-muted-foreground">CHOISIR DANS LA LISTE</SelectItem>
-                    {teachers.map(t => (
-                      <SelectItem key={t.id} value={t.id.toString()}>{t.fullName}</SelectItem>
-                    ))}
+                  <SelectContent className="max-h-80">
+                    <SelectItem value="none" disabled className="font-bold text-muted-foreground uppercase text-[10px]">
+                      LISTE DES ENSEIGNANTS
+                    </SelectItem>
+                    {teachers.map(t => {
+                      // On vérifie si ce prof est dans les assignations "officielles" de la matière
+                      const isAssigned = assignments.some(a => a.teacherId === t.id);
+                      return (
+                        <SelectItem key={t.id} value={t.id.toString()} className="py-2">
+                          <div className="flex items-center justify-between w-full gap-4">
+                            <span className="font-bold">{t.fullName}</span>
+                            {isAssigned && (
+                              <Badge variant="outline" className="text-[9px] h-5 bg-emerald-50 text-emerald-700 border-emerald-200">ASSIGNÉ</Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
