@@ -401,32 +401,51 @@ const DeanSchedulingPage: React.FC = () => {
     
     const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
     const timeSlotsToExport = [
-      "07:00", "08:00", "09:00", "10:00", "11:00", "12:00",
-      "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"
+      { label: "07h00 - 10h00", start: 7, end: 10 },
+      { label: "10h00 - 13h00", start: 10, end: 13 },
+      { label: "13h00 - 16h00", start: 13, end: 16 },
+      { label: "16h00 - 19h00", start: 16, end: 19 }
     ];
 
     const tableData: any[][] = timeSlotsToExport.map(slot => {
-      const row = [slot];
-      const hour = parseInt(slot.split(':')[0]);
+      const row = [slot.label];
 
       for (let dayIndex = 0; dayIndex < 6; dayIndex++) {
-        // Trouver les événements qui couvrent ce créneau horaire pour ce jour
+        // Trouver les événements qui se déroulent pendant cette plage de 3h
         const slotEvents = events.filter(e => {
           const startHour = parseInt(e.startTime.split(':')[0]);
+          const startMin = parseInt(e.startTime.split(':')[1]);
+          const eventStartTimeDec = startHour + startMin/60;
+          
           const endHour = parseInt(e.endTime.split(':')[0]);
-          return e.day === dayIndex && hour >= startHour && hour < endHour;
+          const endMin = parseInt(e.endTime.split(':')[1]);
+          const eventEndTimeDec = endHour + endMin/60;
+
+          // Un événement est dans ce slot s'il commence dedans ou s'il couvre une partie significative
+          return e.day === dayIndex && 
+                 ((eventStartTimeDec >= slot.start && eventStartTimeDec < slot.end) ||
+                  (eventEndTimeDec > slot.start && eventEndTimeDec <= slot.end) ||
+                  (eventStartTimeDec <= slot.start && eventEndTimeDec >= slot.end));
         });
 
         if (slotEvents.length > 0) {
-          // Si l'événement commence juste à cette heure, on affiche les détails
-          // Sinon (si c'est la suite d'un cours de 2h), on peut mettre un indicateur ou laisser vide
           const text = slotEvents.map(e => {
-            const startHour = parseInt(e.startTime.split(':')[0]);
-            if (hour === startHour) {
-              return `${e.title}\n${e.professor || ""}\n[${e.room || ""}]`;
-            }
-            return "↑"; // Indicateur de continuation
-          }).join("\n---\n");
+            const roomInfo = e.room || "N/A";
+            const profName = e.professor ? e.professor.trim().split(' ')[0].toUpperCase() : "";
+            
+            let codeDisplay = e.subjectCode || e.title;
+            if (e.type === 'tp') codeDisplay = `TP-${codeDisplay}`;
+            else if (e.type === 'td') codeDisplay = `TD-${codeDisplay}`;
+            else if (e.type === 'exam') codeDisplay = `CC-${codeDisplay}`;
+
+            // Filtrer les lignes vides (si profName est vide)
+            return [
+              codeDisplay.toUpperCase(),
+              roomInfo,
+              profName,
+              `${e.startTime} - ${e.endTime}`
+            ].filter(line => line !== "").join("\n");
+          }).join("\n\n");
           row.push(text);
         } else {
           row.push("");
@@ -437,33 +456,34 @@ const DeanSchedulingPage: React.FC = () => {
 
     autoTable(doc, {
       startY: 35,
-      head: [['Heure', ...days]],
+      head: [['HEURES', ...days.map(d => d.toUpperCase())]],
       body: tableData,
       theme: 'grid',
       headStyles: { 
-        fillColor: [59, 130, 246], 
+        fillColor: [30, 41, 59], // Darker theme like ERP
         textColor: 255, 
-        fontSize: 11, 
+        fontSize: 10, 
         halign: 'center',
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        cellPadding: 4
       },
       styles: { 
         fontSize: 8, 
-        cellPadding: 2, 
+        cellPadding: 3, 
         valign: 'middle', 
         halign: 'center',
         overflow: 'linebreak',
-        cellWidth: 'auto'
+        lineColor: [200, 200, 200],
+        lineWidth: 0.1
       },
       columnStyles: {
-        0: { cellWidth: 20, fontStyle: 'bold', fillColor: [245, 247, 250] }
+        0: { cellWidth: 35, fontStyle: 'bold', fillColor: [241, 245, 249] }
       },
       didParseCell: function (data) {
         if (data.section === 'body' && data.column.index !== 0) {
-          if (data.cell.text[0] === "↑") {
-            data.cell.styles.textColor = [150, 150, 150];
-          } else if (data.cell.text[0] !== "") {
-             data.cell.styles.fillColor = [239, 246, 255]; // Light blue for course cells
+          if (data.cell.text.length > 0 && data.cell.text[0] !== "") {
+             data.cell.styles.fillColor = [248, 250, 252];
+             data.cell.styles.fontStyle = 'bold';
           }
         }
       }
