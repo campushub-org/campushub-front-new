@@ -357,7 +357,7 @@ const DeanSchedulingPage: React.FC = () => {
         day: e.day,
         description: e.description,
         groupName: e.groupName,
-        teacherId: e.teacherId,
+        assignmentIds: e.assignmentIds || [],
         roomId: e.roomId,
         subjectCode: e.subjectCode
       }))
@@ -581,13 +581,14 @@ const DeanSchedulingPage: React.FC = () => {
         const eventsToCreate = importData.events.map((e: any) => ({
           ...e,
           planId: newPlanId,
-          id: undefined // Le backend générera les IDs
+          id: undefined,
+          assignmentIds: e.assignmentIds || []
         }));
 
         await api.post(`/campushub-scheduling-service/api/scheduling/batch-save`, eventsToCreate);
         
         toast.success("Nouveau plan créé et importé avec succès");
-        fetchInitialData(); // Recharger tout pour voir le nouveau plan
+        fetchInitialData();
       } else {
         if (!selectedPlanId) {
           toast.error("Aucun plan sélectionné pour la fusion.");
@@ -597,7 +598,8 @@ const DeanSchedulingPage: React.FC = () => {
         const eventsToCreate = importData.events.map((e: any) => ({
           ...e,
           planId: selectedPlanId,
-          id: undefined
+          id: undefined,
+          assignmentIds: e.assignmentIds || []
         }));
 
         await api.post(`/campushub-scheduling-service/api/scheduling/batch-save`, eventsToCreate);
