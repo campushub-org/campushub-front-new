@@ -20,6 +20,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
   const colors = courseTypeColors[event.type]
   
   const formatTitle = (e: ScheduleEvent) => {
+    console.log("Formatting title for event:", e);
     let code = e.subjectCode || "";
     if (code) {
       if (e.type === 'tp') code = `TP-${code}`;
