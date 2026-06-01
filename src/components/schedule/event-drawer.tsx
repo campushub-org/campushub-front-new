@@ -230,11 +230,13 @@ export function EventDrawer({
 
         const payload = { 
           ...cleanFormData, 
+          assignmentIds: formData.teacherIds || [],
           planId: planId || formData.planId, 
           seriesId: formData.seriesId || null ,
           academicYear: formData.academicYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`,
           semester: formData.semester || 1
         };
+        delete payload.professor;
 
         console.log("Payload envoyé au backend :", payload);
 
