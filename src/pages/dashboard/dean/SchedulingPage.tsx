@@ -746,7 +746,6 @@ const DeanSchedulingPage: React.FC = () => {
               onRoomToggle={handleRoomToggle}
               onLevelToggle={handleLevelToggle}
               isLoading={loading}
-              onRefresh={() => fetchEvents(selectedPlanId)}
             />
           </div>
         </aside>
