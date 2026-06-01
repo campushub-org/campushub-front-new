@@ -436,8 +436,8 @@ const DeanSchedulingPage: React.FC = () => {
                 !["N/A", "NULL", "UNDEFINED", "NON ASSIGNÉ", "NON ASSIGNE"].includes(rawProf) && 
                 !rawProf.includes("DÉTERMINER") && 
                 !rawProf.includes("DETERMINER")) {
-              const profs = e.professor.split(',').map(p => p.trim().split(' ')[0].toUpperCase());
-              profName = profs.join(' ');
+              const profs = e.professor.split(',').map(p => p.trim().split(' ')[0]);
+              profName = profs.join('/');
             }
             
             let codeDisplay = e.subjectCode || e.title;
