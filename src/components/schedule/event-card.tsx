@@ -19,6 +19,18 @@ interface EventCardProps {
 export function EventCard({ event, compact = false, onClick }: EventCardProps) {
   const colors = courseTypeColors[event.type]
   
+  const formatTitle = (e: ScheduleEvent) => {
+    let code = e.subjectCode || "";
+    if (code) {
+      if (e.type === 'tp') code = `TP-${code}`;
+      else if (e.type === 'td') code = `TD-${code}`;
+      else if (e.type === 'exam') code = `CC-${code}`;
+      return `${code}: ${e.title}`;
+    }
+    return e.title;
+  };
+  const formattedTitle = formatTitle(event);
+
   const calculateDuration = () => {
     const [startH, startM] = event.startTime.split(":").map(Number)
     const [endH, endM] = event.endTime.split(":").map(Number)
@@ -44,7 +56,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
               )}
             >
               <p className="truncate text-xs font-medium text-foreground">
-                {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+                {formattedTitle}
               </p>
               <p className="mt-0.5 text-[10px] text-muted-foreground">
                 {event.startTime} - {event.endTime}
@@ -54,7 +66,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
           <TooltipContent side="right" className="max-w-xs text-left">
             <div className="space-y-1">
               <p className="font-medium">
-                {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+                {formattedTitle}
               </p>
               <p className="text-xs text-muted-foreground">{courseTypeLabels[event.type]}</p>
               <div className="flex items-center gap-1 text-xs">
@@ -90,7 +102,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
             "font-medium text-foreground line-clamp-1",
             isShort ? "text-xs" : "text-sm"
           )}>
-            {event.subjectCode ? `${event.subjectCode}: ` : ""}{event.title}
+            {formattedTitle}
           </p>
           
           {!isShort && (
