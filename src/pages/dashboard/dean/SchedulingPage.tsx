@@ -270,7 +270,7 @@ const DeanSchedulingPage: React.FC = () => {
 
   const handleEventSave = useCallback((event: ScheduleEvent | ScheduleEvent[]) => {
     let newEvents: ScheduleEvent[];
-    const generateId = () => crypto.randomUUID();
+    const generateId = () => 'new-' + Math.random().toString(36).substr(2, 9);
     
     if (Array.isArray(event)) {
       if (isNewEvent) {
@@ -296,12 +296,19 @@ const DeanSchedulingPage: React.FC = () => {
     setSelectedEvent(null);
   }, [events, isNewEvent, updateHistory]);
 
-  const handleEventDelete = useCallback((eventId: string) => {
-    const newEvents = events.filter(e => e.id !== eventId);
-    setEvents(newEvents);
-    updateHistory(newEvents);
-    setDrawerOpen(false);
-    setSelectedEvent(null);
+  const handleEventDelete = useCallback(async (eventId: string) => {
+    try {
+        await api.delete(`/campushub-scheduling-service/api/scheduling/events/${eventId}`);
+        const newEvents = events.filter(e => e.id !== eventId);
+        setEvents(newEvents);
+        updateHistory(newEvents);
+        setDrawerOpen(false);
+        setSelectedEvent(null);
+        toast.success("Événement supprimé avec succès");
+    } catch (error) {
+        console.error("Error deleting event:", error);
+        toast.error("Erreur lors de la suppression de l'événement");
+    }
   }, [events, updateHistory]);
 
   const handleEventDuplicate = useCallback((event: ScheduleEvent) => {
@@ -695,6 +702,7 @@ const DeanSchedulingPage: React.FC = () => {
                 }
                 fetchEvents(id);
               }}
+              onRefresh={() => fetchEvents(selectedPlanId)}
               onAddPlan={() => {
                 setPlanToEdit(null);
                 setIsPlanDrawerOpen(true);
