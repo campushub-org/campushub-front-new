@@ -201,7 +201,8 @@ const QuickPlanningViewPage = () => {
           const planEvents = res.data;
           const filtered = planEvents.filter(event => {
             if (entityType === 'teachers') {
-              return event.teacherId?.toString() === entityId || event.professor === entityName;
+              // Vérifier si le tableau contient l'ID (parse en entier car entityId est string)
+              return event.teacherIds?.includes(parseInt(entityId));
             } else {
               return event.roomId?.toString() === entityId || event.room === entityName || event.room === entityId;
             }
