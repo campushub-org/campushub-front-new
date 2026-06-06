@@ -56,6 +56,13 @@ const CTA = () => {
               </div>
             </div>
 
+            <a
+              href="/explore/courses"
+              className="inline-block mt-8 text-white/70 hover:text-white text-sm font-medium underline decoration-white/30 hover:decoration-white underline-offset-4 transition-all"
+            >
+              {t("cta.explore_link")}
+            </a>
+
             {/* Trust logos */}
             <div className="mt-20 pt-12 border-t border-white/10">
               <p className="text-white/40 text-sm font-bold uppercase tracking-widest mb-10">{t("cta.partners")}</p>

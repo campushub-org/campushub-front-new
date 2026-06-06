@@ -199,6 +199,15 @@ const Signin = () => {
               {t("auth.no_account")}{" "}
               <a href="/signup" className="text-primary font-bold hover:underline transition-all">{t("auth.signup_link")}</a>
             </p>
+
+            <p className="text-center">
+              <a
+                href="/explore/courses"
+                className="text-sm text-muted-foreground hover:text-primary font-medium underline decoration-muted-foreground/30 hover:decoration-primary underline-offset-4 transition-all"
+              >
+                {t("auth.explore_without_account")}
+              </a>
+            </p>
           </form>
         </div>
 
