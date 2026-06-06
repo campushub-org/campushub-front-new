@@ -18,8 +18,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      const path = window.location.pathname;
+      const isGuestOnExplore =
+        !localStorage.getItem("token") && path.startsWith("/explore");
+
+      // Guest browsing /explore/* must not be pushed to /signin on a 401
+      // (e.g. an endpoint not yet opened publicly). Just let the page handle it.
+      if (isGuestOnExplore) {
+        return Promise.reject(error);
+      }
+
       // Le token est invalide ou expiré côté serveur
-      if (!window.location.pathname.includes("/signin")) {
+      if (!path.includes("/signin")) {
         logout();
       }
     }

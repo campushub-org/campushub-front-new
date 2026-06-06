@@ -18,6 +18,9 @@ interface ResourceFiltersProps {
   onProfessorToggle: (professor: string) => void
   onRoomToggle: (room: string) => void
   onLevelToggle: (level: string) => void
+  // 'readonly' hides Teachers / Rooms sections and the display-mode toggle.
+  // Only the "Levels" section remains, useful for guest / student views.
+  mode?: "edit" | "readonly"
 }
 
 export function ResourceFilters({
@@ -29,7 +32,8 @@ export function ResourceFilters({
   selectedLevels,
   onProfessorToggle,
   onRoomToggle,
-  onLevelToggle
+  onLevelToggle,
+  mode = "edit",
 }: ResourceFiltersProps) {
   // Par défaut, la section Niveaux est ouverte
   const [expandedSection, setExpandedSection] = useState<string | null>("levels")
@@ -73,23 +77,25 @@ export function ResourceFilters({
           )}
         </div>
 
-        {/* Dynamic Toggle Switch */}
-        <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/10 p-2.5 transition-colors">
-          <div className="flex flex-col gap-0.5">
-            <Label htmlFor="active-mode" className="text-sm font-medium text-foreground">
-              Mode d'affichage
-            </Label>
-            <span className="text-xs text-muted-foreground">
-              {showOnlyActive ? "Seulement programmés" : "Toutes les ressources"}
-            </span>
+        {/* Dynamic Toggle Switch (edit mode only) */}
+        {mode === "edit" && (
+          <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/10 p-2.5 transition-colors">
+            <div className="flex flex-col gap-0.5">
+              <Label htmlFor="active-mode" className="text-sm font-medium text-foreground">
+                Mode d'affichage
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                {showOnlyActive ? "Seulement programmés" : "Toutes les ressources"}
+              </span>
+            </div>
+            <Switch
+              id="active-mode"
+              checked={showOnlyActive}
+              onCheckedChange={setShowOnlyActive}
+              className="data-[state=checked]:bg-primary"
+            />
           </div>
-          <Switch 
-            id="active-mode" 
-            checked={showOnlyActive} 
-            onCheckedChange={setShowOnlyActive}
-            className="data-[state=checked]:bg-primary"
-          />
-        </div>
+        )}
       </div>
 
       {/* Levels Section - FIRST */}
@@ -144,7 +150,8 @@ export function ResourceFilters({
         )}
       </div>
 
-      {/* Professors Section */}
+      {/* Professors Section (edit mode only) */}
+      {mode === "edit" && (
       <div className="rounded-lg border border-border bg-secondary/30 overflow-hidden">
         <button
           onClick={() => setExpandedSection(expandedSection === "professors" ? null : "professors")}
@@ -203,8 +210,10 @@ export function ResourceFilters({
           </div>
         )}
       </div>
+      )}
 
-      {/* Rooms Section */}
+      {/* Rooms Section (edit mode only) */}
+      {mode === "edit" && (
       <div className="rounded-lg border border-border bg-secondary/30 overflow-hidden">
         <button
           onClick={() => setExpandedSection(expandedSection === "rooms" ? null : "rooms")}
@@ -263,6 +272,7 @@ export function ResourceFilters({
           </div>
         )}
       </div>
+      )}
 
       {/* Active Filters Display */}
       {totalFilters > 0 && (

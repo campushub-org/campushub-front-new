@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +36,10 @@ const StudentCoursesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('Tous');
   const navigate = useNavigate();
+  const location = useLocation();
+  // Same component is mounted under /dashboard/student/courses (authenticated)
+  // and /explore/courses (guest mode). Build the detail URL accordingly.
+  const basePath = location.pathname.startsWith('/explore') ? '/explore' : '/dashboard/student';
 
   const getThumbnailUrl = (url: string) => {
     if (!url) return null;
@@ -133,7 +137,7 @@ const StudentCoursesPage: React.FC = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
                   <Card className="group h-full flex flex-col justify-between hover:shadow-lg transition-all duration-300 rounded-xl overflow-hidden border-border/50 bg-card">
-                    <div className="relative aspect-[4/5] overflow-hidden bg-muted cursor-pointer" onClick={() => navigate(`/dashboard/student/courses/view/${item.id}`)}>
+                    <div className="relative aspect-[4/5] overflow-hidden bg-muted cursor-pointer" onClick={() => navigate(`${basePath}/courses/view/${item.id}`)}>
                       {thumbnail ? (
                         <img src={thumbnail} alt={item.titre} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       ) : (

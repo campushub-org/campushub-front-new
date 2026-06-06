@@ -27,6 +27,8 @@ interface ScheduleHeaderProps {
   onExportJSON?: () => void
   onExportPDF?: () => void
   onImportClick?: () => void
+  // 'readonly' hides import/export JSON (only PDF stays). Defaults to 'edit'.
+  mode?: "edit" | "readonly"
 }
 
 export function ScheduleHeader({
@@ -41,6 +43,7 @@ export function ScheduleHeader({
   onExportJSON,
   onExportPDF,
   onImportClick,
+  mode = "edit",
 }: ScheduleHeaderProps) {
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: "long", year: "numeric" }
@@ -128,17 +131,21 @@ export function ScheduleHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Données</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem onClick={onImportClick}>
-              <Plus className="mr-2 h-4 w-4" />
-              Importer JSON
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem onClick={onExportJSON}>
-              <Download className="mr-2 h-4 w-4" />
-              Exporter JSON
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuSeparator />
+            {mode === "edit" && (
+              <>
+                <DropdownMenuLabel>Données</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem onClick={onImportClick}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Importer JSON
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem onClick={onExportJSON}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Exporter JSON
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuLabel>Rendu</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem onClick={onExportPDF}>

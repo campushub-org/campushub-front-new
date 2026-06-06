@@ -35,6 +35,9 @@ interface ScheduleSidebarProps {
   onLevelToggle: (level: string) => void
   isLoading?: boolean
   onRefresh?: () => void
+  // 'readonly' hides plan management button and Teachers/Rooms filters
+  // (propagated to ResourceFilters). Defaults to 'edit'.
+  mode?: "edit" | "readonly"
 }
 
 export function ScheduleSidebar({
@@ -56,7 +59,8 @@ export function ScheduleSidebar({
   onRoomToggle,
   onLevelToggle,
   isLoading = false,
-  onRefresh
+  onRefresh,
+  mode = "edit",
 }: ScheduleSidebarProps) {
   const today = new Date()
   const dayOfWeek = today.getDay()
@@ -123,11 +127,13 @@ export function ScheduleSidebar({
           <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-primary">
             <Layers className="h-3.5 w-3.5" /> Programmation
           </h3>
-          <div className="flex gap-1">
-             <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onAddPlan} title="Nouveau plan">
-               <Plus className="h-3 w-3" />
-             </Button>
-          </div>
+          {mode === "edit" && (
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={onAddPlan} title="Nouveau plan">
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
         </div>
 
         <Select value={selectedPlanId} onValueChange={onPlanChange}>
@@ -188,6 +194,7 @@ export function ScheduleSidebar({
           onProfessorToggle={onProfessorToggle}
           onRoomToggle={onRoomToggle}
           onLevelToggle={onLevelToggle}
+          mode={mode}
         />
       </div>
 

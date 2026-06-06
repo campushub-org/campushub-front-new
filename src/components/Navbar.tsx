@@ -22,6 +22,7 @@ const Navbar = () => {
   const navLinks = [
     { name: t("navbar.home"), href: "#" },
     { name: t("navbar.features"), href: "#features" },
+    { name: t("navbar.explore"), href: "/explore/courses" },
     { name: t("navbar.about"), href: "#about" },
   ];
 

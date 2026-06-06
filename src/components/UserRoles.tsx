@@ -79,10 +79,20 @@ const UserRoles = () => {
                     {role.description}
                   </p>
                   
-                  <div className="flex items-center gap-2 text-foreground font-bold group-hover:gap-4 transition-all">
-                    <span>{t("roles_section.learn_more")}</span>
-                    <ChevronRight className="w-5 h-5 text-primary" />
-                  </div>
+                  {index === 0 ? (
+                    <a
+                      href="/explore/courses"
+                      className="inline-flex items-center gap-2 text-primary font-bold group-hover:gap-4 transition-all"
+                    >
+                      <span>{t("roles_section.view_student_space")}</span>
+                      <ChevronRight className="w-5 h-5" />
+                    </a>
+                  ) : (
+                    <div className="flex items-center gap-2 text-foreground font-bold group-hover:gap-4 transition-all">
+                      <span>{t("roles_section.learn_more")}</span>
+                      <ChevronRight className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
                 </div>
               </motion.div>
             );

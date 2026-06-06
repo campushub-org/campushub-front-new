@@ -9,13 +9,14 @@ import Signin from "./pages/Signin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/dashboard/Dashboard";
+import { Navigate } from "react-router-dom";
 
 // Student Pages
 import StudentLayout from "./pages/dashboard/student/StudentLayout";
+import PublicStudentLayout from "./pages/dashboard/student/PublicStudentLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import CoursesPage from "./pages/dashboard/student/CoursesPage";
-import CourseSchedulePage from "./pages/dashboard/student/CourseSchedulePage";
-import ExamSchedulePage from "./pages/dashboard/student/ExamSchedulePage";
+import PlanningPage from "./pages/dashboard/student/PlanningPage";
 import NotificationsPage from "./pages/dashboard/student/NotificationsPage";
 import ProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentViewMaterialPage from "./pages/dashboard/student/ViewCourseMaterialPage";
@@ -70,6 +71,16 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
 
+            {/* Public guest "explore" routes (no JWT required).
+                Backend exposes GET /api/supports[/:id] and
+                GET /api/scheduling/{plans,events} publicly. */}
+            <Route path="/explore" element={<PublicStudentLayout />}>
+              <Route index element={<Navigate to="/explore/courses" replace />} />
+              <Route path="courses" element={<CoursesPage />} />
+              <Route path="courses/view/:materialId" element={<StudentViewMaterialPage />} />
+              <Route path="planning" element={<PlanningPage />} />
+            </Route>
+
             {/* Protected Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedRoute />}>
               <Route index element={<Dashboard />} />
@@ -78,8 +89,10 @@ const App = () => (
                 <Route index element={<StudentDashboard />} />
                 <Route path="courses" element={<CoursesPage />} />
                 <Route path="courses/view/:materialId" element={<StudentViewMaterialPage />} />
-                <Route path="schedule-courses" element={<CourseSchedulePage />} />
-                <Route path="schedule-exams" element={<ExamSchedulePage />} />
+                <Route path="planning" element={<PlanningPage />} />
+                {/* Backward-compat redirects: the two old schedule pages were merged into /planning */}
+                <Route path="schedule-courses" element={<Navigate to="/dashboard/student/planning" replace />} />
+                <Route path="schedule-exams" element={<Navigate to="/dashboard/student/planning" replace />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="profile" element={<ProfilePage />} />
               </Route>

@@ -11,8 +11,7 @@ const StudentLayout: React.FC = () => {
   const studentNavItems: NavItem[] = [
     { to: '/dashboard/student', icon: <LayoutDashboard size={20} />, label: t("common.dashboard") },
     { to: '/dashboard/student/courses', icon: <BookOpen size={20} />, label: t("academic.materials") },
-    { to: '/dashboard/student/schedule-courses', icon: <CalendarDays size={20} />, label: `${t("academic.schedule")} - ${t("academic.courses")}` },
-    { to: '/dashboard/student/schedule-exams', icon: <CalendarDays size={20} />, label: `${t("academic.schedule")} - ${t("academic.exams")}` },
+    { to: '/dashboard/student/planning', icon: <CalendarDays size={20} />, label: t("planning.menu_label") },
   ];
 
   return (

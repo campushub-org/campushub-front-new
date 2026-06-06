@@ -65,17 +65,22 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col gap-3"
             >
-              <Button size="lg" className="h-14 px-8 text-lg font-semibold shadow-glow group" asChild>
-                <a href="/signup">
-                  {t("hero.cta_start")}
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </Button>
-              <Button variant="outline" size="lg" className="h-14 px-8 text-lg font-semibold" asChild>
-                <a href="#features">{t("hero.cta_features")}</a>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" className="h-14 px-8 text-lg font-semibold shadow-glow group" asChild>
+                  <a href="/explore/courses">
+                    {t("hero.cta_explore")}
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </Button>
+                <Button variant="outline" size="lg" className="h-14 px-8 text-lg font-semibold" asChild>
+                  <a href="/signup">{t("hero.cta_create_account")}</a>
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t("hero.explore_subtitle")}
+              </p>
             </motion.div>
 
             <motion.div
