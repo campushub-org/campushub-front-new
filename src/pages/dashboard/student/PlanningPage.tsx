@@ -1,21 +1,33 @@
 import React, { useState, useCallback, useEffect } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
   Loader2,
-  Download,
-  CalendarDays,
+  Layout,
+  Clock,
   MapPin,
   User as UserIcon,
-  Clock,
+  Users as UsersIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ScheduleHeader } from "@/components/schedule/schedule-header";
 import { WeekViewEditable } from "@/components/schedule/week-view-editable";
 import { DayView } from "@/components/schedule/day-view";
 import { MonthView } from "@/components/schedule/month-view";
-import { ScheduleEvent, SchedulePlan, CourseType } from "@/lib/schedule-data";
+import { ScheduleSidebar } from "@/components/schedule/schedule-sidebar";
+import {
+  ScheduleEvent,
+  SchedulePlan,
+  CourseType,
+  courseTypeColors,
+  courseTypeLabels,
+} from "@/lib/schedule-data";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -23,89 +35,83 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useTranslation } from "react-i18next";
 
 type ViewMode = "week" | "day" | "month";
 
-const COURSE_TYPES: { value: CourseType; labelKey: string; color: string }[] = [
-  { value: "lecture", labelKey: "planning.type_lecture", color: "bg-blue-500" },
-  { value: "td", labelKey: "planning.type_td", color: "bg-emerald-500" },
-  { value: "tp", labelKey: "planning.type_tp", color: "bg-purple-500" },
-  { value: "exam", labelKey: "planning.type_exam", color: "bg-red-500" },
-  { value: "meeting", labelKey: "planning.type_meeting", color: "bg-amber-500" },
-];
-
-const LEVELS = ["L1", "L2", "L3", "M1", "M2"];
-
 const PlanningPage: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  // Neutralise les paddings du DashboardLayout parent pour prendre toute la largeur.
-  const layoutOverrider =
-    "-m-4 md:-m-6 lg:-m-8 max-w-none w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)]";
-
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("week");
-  const [selectedTypes, setSelectedTypes] = useState<CourseType[]>(
-    COURSE_TYPES.map((c) => c.value)
-  );
+  const [selectedTypes, setSelectedTypes] = useState<CourseType[]>([
+    "lecture",
+    "td",
+    "tp",
+    "exam",
+    "meeting",
+  ]);
+  const [selectedProfessors] = useState<string[]>([]);
+  const [selectedRooms] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>(["L1"]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState<SchedulePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
 
-  // Initial plans fetch (public endpoint, works without token)
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const plansRes = await api.get<SchedulePlan[]>(
-          "/campushub-scheduling-service/api/scheduling/plans"
-        );
-        if (Array.isArray(plansRes.data) && plansRes.data.length > 0) {
-          setPlans(plansRes.data);
-          const activePlan =
-            plansRes.data.find((p) => p.status === "ACTIVE") || plansRes.data[0];
-          setSelectedPlanId(activePlan.id);
-          if (activePlan.level) setSelectedLevels([activePlan.level]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch plans:", err);
+  // Initial fetch: plans only (no users/salles since the read-only sidebar
+  // hides those filters in 'readonly' mode).
+  const fetchInitialData = useCallback(async () => {
+    try {
+      const plansRes = await api.get<SchedulePlan[]>(
+        "/campushub-scheduling-service/api/scheduling/plans"
+      );
+      if (Array.isArray(plansRes.data) && plansRes.data.length > 0) {
+        setPlans(plansRes.data);
+        const activePlan =
+          plansRes.data.find((p) => p.status === "ACTIVE") || plansRes.data[0];
+        setSelectedPlanId(activePlan.id);
+        if (activePlan.level) setSelectedLevels([activePlan.level]);
+        fetchEvents(activePlan.id);
+      } else {
+        setSelectedPlanId("");
+        setEvents([]);
       }
-    };
-    init();
+    } catch (err) {
+      console.error("Failed to fetch plans:", err);
+    }
   }, []);
 
-  // Events fetch on plan change
-  useEffect(() => {
-    if (!selectedPlanId) {
+  const fetchEvents = useCallback(async (planId?: string) => {
+    if (!planId) {
       setEvents([]);
       return;
     }
     setLoading(true);
-    api
-      .get<ScheduleEvent[]>(
-        `/campushub-scheduling-service/api/scheduling/events?planId=${selectedPlanId}`
-      )
-      .then((res) => setEvents(Array.isArray(res.data) ? res.data : []))
-      .catch((err) => {
-        console.error("Failed to fetch events:", err);
-        setEvents([]);
-      })
-      .finally(() => setLoading(false));
-  }, [selectedPlanId]);
+    try {
+      const res = await api.get<ScheduleEvent[]>(
+        `/campushub-scheduling-service/api/scheduling/events?planId=${planId}`
+      );
+      setEvents(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
+  // Same overrider trick as DeanSchedulingPage to escape the parent padding.
+  const layoutOverrider =
+    "-m-4 md:-m-6 lg:-m-8 max-w-none w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)]";
 
   const handlePrevious = useCallback(() => {
     setCurrentDate((prev) => {
@@ -129,50 +135,52 @@ const PlanningPage: React.FC = () => {
 
   const handleToday = useCallback(() => setCurrentDate(new Date()), []);
 
-  const handleTypeToggle = (type: CourseType) => {
+  const handleTypeToggle = useCallback((type: CourseType) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
-  };
+  }, []);
 
-  const handleLevelToggle = (level: string) => {
+  const handleLevelToggle = useCallback((level: string) => {
     setSelectedLevels((prev) => {
       if (prev.includes(level)) {
         return prev.length > 1 ? prev.filter((l) => l !== level) : prev;
       }
       return [...prev, level];
     });
-  };
+  }, []);
 
-  // PDF export — same layout/format as the dean export but read-only context.
+  const handleDayClick = useCallback((date: Date) => {
+    setCurrentDate(date);
+    setViewMode("day");
+  }, []);
+
+  const handleEventClick = useCallback((event: ScheduleEvent) => {
+    setSelectedEvent(event);
+  }, []);
+
+  // PDF export — same format as DeanSchedulingPage.
   const handleExportPDF = useCallback(() => {
     if (!selectedPlanId) {
-      toast.error(t("planning.pdf_no_plan"));
+      toast.error("Aucune programmation sélectionnée");
       return;
     }
     const plan = plans.find((p) => p.id === selectedPlanId);
     if (!plan) return;
 
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-    doc.setFontSize(20);
-    doc.setTextColor(30, 41, 99);
-    doc.text(`${t("planning.pdf_title")} : ${plan.name}`, 14, 18);
-    doc.setFontSize(11);
+    doc.setFontSize(22);
+    doc.setTextColor(59, 130, 246);
+    doc.text(`Emploi du Temps : ${plan.name}`, 14, 20);
+    doc.setFontSize(12);
     doc.setTextColor(80, 80, 80);
     doc.text(
-      `${plan.academicYear} • S${plan.semester} • ${plan.level}`,
+      `Année : ${plan.academicYear} | Semestre : ${plan.semester} | Niveau : ${plan.level}`,
       14,
-      26
+      28
     );
 
-    const days = [
-      t("common.days.monday"),
-      t("common.days.tuesday"),
-      t("common.days.wednesday"),
-      t("common.days.thursday"),
-      t("common.days.friday"),
-      t("common.days.saturday"),
-    ];
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
     const timeSlots = [
       { label: "07h00 - 09h55", start: 7.0, end: 9.92, pause: "09h55 - 10h05" },
       { label: "10h05 - 12h55", start: 10.08, end: 12.92, pause: "12h55 - 13h05" },
@@ -210,12 +218,15 @@ const PlanningPage: React.FC = () => {
                   ? e.room
                   : "";
               const prof = e.professor
-                ? e.professor.split(",").map((p) => p.trim().split(" ")[0]).join("/")
+                ? e.professor
+                    .split(",")
+                    .map((p) => p.trim().split(" ")[0])
+                    .join("/")
                 : "";
               let code = e.subjectCode || e.title;
               if (e.type === "tp") code = `TP-${code}`;
               else if (e.type === "td") code = `TD-${code}`;
-              else if (e.type === "exam") code = `EX-${code}`;
+              else if (e.type === "exam") code = `CC-${code}`;
               return [
                 code.toUpperCase(),
                 room,
@@ -234,7 +245,7 @@ const PlanningPage: React.FC = () => {
       if (slot.pause) {
         tableData.push([
           {
-            content: `PAUSE • ${slot.pause}`,
+            content: "PAUSE 10 MIN",
             colSpan: 7,
             styles: {
               halign: "center",
@@ -250,21 +261,21 @@ const PlanningPage: React.FC = () => {
     });
 
     autoTable(doc, {
-      startY: 32,
-      head: [[t("planning.pdf_hours_col"), ...days.map((d) => d.toUpperCase())]],
+      startY: 35,
+      head: [["HEURES", ...days.map((d) => d.toUpperCase())]],
       body: tableData as never,
       theme: "grid",
       headStyles: {
-        fillColor: [30, 41, 99],
+        fillColor: [30, 41, 59],
         textColor: 255,
         fontSize: 10,
         halign: "center",
         fontStyle: "bold",
-        cellPadding: 3,
+        cellPadding: 4,
       },
       styles: {
         fontSize: 8,
-        cellPadding: 2.5,
+        cellPadding: 3,
         valign: "middle",
         halign: "center",
         overflow: "linebreak",
@@ -272,198 +283,148 @@ const PlanningPage: React.FC = () => {
         lineWidth: 0.1,
       },
       columnStyles: {
-        0: { cellWidth: 32, fontStyle: "bold", fillColor: [241, 245, 249] },
+        0: { cellWidth: 35, fontStyle: "bold", fillColor: [241, 245, 249] },
       },
     });
 
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text(
-      `CampusHub • ${new Date().toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}`,
-      doc.internal.pageSize.width / 2,
-      doc.internal.pageSize.height - 8,
-      { align: "center" }
-    );
+    const pageCount = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `CampusHub - Document généré le ${new Date().toLocaleDateString("fr-FR")}`,
+        doc.internal.pageSize.width / 2,
+        doc.internal.pageSize.height - 10,
+        { align: "center" }
+      );
+    }
 
     doc.save(`planning_${plan.level}_${plan.name.replace(/\s+/g, "_")}.pdf`);
-    toast.success(t("planning.pdf_success"));
-  }, [selectedPlanId, plans, events, t, i18n.language]);
+    toast.success("PDF téléchargé");
+  }, [selectedPlanId, plans, events]);
 
-  const formatDateHeader = () => {
-    const opts: Intl.DateTimeFormatOptions =
-      viewMode === "month"
-        ? { month: "long", year: "numeric" }
-        : viewMode === "week"
-        ? { day: "numeric", month: "long", year: "numeric" }
-        : { weekday: "long", day: "numeric", month: "long", year: "numeric" };
-    return currentDate.toLocaleDateString(
-      i18n.language === "fr" ? "fr-FR" : "en-US",
-      opts
-    );
-  };
-
-  const eventTypeMeta = selectedEvent
-    ? COURSE_TYPES.find((c) => c.value === selectedEvent.type)
+  const eventTypeColor = selectedEvent
+    ? courseTypeColors[selectedEvent.type]
     : undefined;
+  const eventTypeLabel = selectedEvent
+    ? courseTypeLabels[selectedEvent.type]
+    : "";
 
   return (
-    <div
-      className={cn(
-        "flex h-[calc(100vh-7rem)] bg-background border-t border-border/50 overflow-hidden",
-        layoutOverrider
-      )}
-    >
-      {/* Sidebar filtres essentiels */}
-      <aside className="shrink-0 w-64 border-r border-border bg-card/50 p-4 space-y-6 overflow-y-auto">
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            {t("planning.plan_label")}
-          </label>
-          <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("planning.no_plan")} />
-            </SelectTrigger>
-            <SelectContent>
-              {plans.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  <span className="flex items-center gap-2">
-                    {p.name}
-                    {p.status === "ACTIVE" && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    )}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <TooltipProvider>
+      {/* Same horizontal-scroll fix as DeanSchedulingPage */}
+      <style>{`
+        html, body { overflow-x: hidden !important; width: 100%; position: relative; }
+        main { overflow-x: hidden !important; }
+      `}</style>
 
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            {t("planning.level_label")}
-          </label>
-          <div className="flex flex-wrap gap-1.5">
-            {LEVELS.map((lvl) => (
-              <Button
-                key={lvl}
-                variant={selectedLevels.includes(lvl) ? "default" : "outline"}
-                size="sm"
-                className="h-7 px-2.5 text-xs"
-                onClick={() => handleLevelToggle(lvl)}
-              >
-                {lvl}
-              </Button>
-            ))}
+      <div
+        className={cn(
+          "flex h-[calc(100vh-theme(spacing.16))] bg-background overflow-hidden border-t border-border/50",
+          layoutOverrider
+        )}
+      >
+        {/* Sidebar Interne (Filtres) — exact same wrapper as DeanSchedulingPage */}
+        <aside
+          className={cn(
+            "shrink-0 border-r border-border bg-card/50 transition-all duration-300 ease-in-out relative h-full",
+            sidebarOpen ? "w-72 opacity-100" : "w-0 opacity-0 overflow-hidden border-r-0"
+          )}
+        >
+          <div className="w-72 p-6 h-full overflow-y-auto">
+            <ScheduleSidebar
+              events={events}
+              plans={plans}
+              selectedPlanId={selectedPlanId}
+              onPlanChange={(id) => {
+                setSelectedPlanId(id);
+                const plan = plans.find((p) => p.id === id);
+                if (plan && plan.level) setSelectedLevels([plan.level]);
+                fetchEvents(id);
+              }}
+              onRefresh={() => fetchEvents(selectedPlanId)}
+              selectedTypes={selectedTypes}
+              allProfessors={[]}
+              allRooms={[]}
+              selectedProfessors={selectedProfessors}
+              selectedRooms={selectedRooms}
+              selectedLevels={selectedLevels}
+              onProfessorToggle={() => undefined}
+              onRoomToggle={() => undefined}
+              onLevelToggle={handleLevelToggle}
+              isLoading={loading}
+              mode="readonly"
+            />
           </div>
-        </div>
+        </aside>
 
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            {t("planning.type_label")}
-          </label>
-          <div className="space-y-1">
-            {COURSE_TYPES.map(({ value, labelKey, color }) => (
-              <label
-                key={value}
-                className="flex items-center gap-2.5 cursor-pointer hover:bg-accent/50 p-1.5 rounded-md transition-colors"
-              >
-                <Checkbox
-                  checked={selectedTypes.includes(value)}
-                  onCheckedChange={() => handleTypeToggle(value)}
-                />
-                <span className={cn("h-3 w-3 rounded-sm", color)} />
-                <span className="text-sm">{t(labelKey)}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </aside>
-
-      {/* Main panel */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 border-b border-border bg-card/30">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button variant="outline" size="sm" onClick={handleToday}>
-              {t("planning.today")}
-            </Button>
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={handlePrevious}
-                aria-label={t("planning.previous")}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={handleNext}
-                aria-label={t("planning.next")}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-            <h2 className="text-base md:text-lg font-semibold ml-1 capitalize">
-              {formatDateHeader()}
-            </h2>
-            {loading && (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground ml-1" />
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-lg border border-border bg-secondary/50 p-0.5">
-              {(["day", "week", "month"] as ViewMode[]).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={cn(
-                    "h-7 px-3 text-xs font-medium rounded-md transition-colors",
-                    viewMode === mode
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+        {/* Contenu principal */}
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
+          {/* Section Header & Toolbar — identical to DeanSchedulingPage */}
+          <div className="p-4 lg:p-6 pb-2 space-y-4 shrink-0 bg-gradient-hero/10 backdrop-blur-sm z-10 border-b border-sidebar-border/40 shadow-soft rounded-b-lg">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "h-9 w-9 transition-colors hover:bg-accent",
+                        sidebarOpen ? "text-primary bg-primary/5" : "text-muted-foreground"
+                      )}
+                      onClick={() => setSidebarOpen(!sidebarOpen)}
+                    >
+                      <Layout className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {sidebarOpen ? "Masquer les filtres" : "Afficher les filtres"}
+                  </TooltipContent>
+                </Tooltip>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-extrabold text-sidebar-primary tracking-tight">
+                    Mon planning
+                  </h1>
+                  {loading && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                   )}
-                >
-                  {t(`planning.view_${mode}`)}
-                </button>
-              ))}
+                </div>
+              </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportPDF}
-              disabled={!selectedPlanId}
-              className="gap-1.5"
-            >
-              <Download className="h-4 w-4" />
-              PDF
-            </Button>
-          </div>
-        </div>
 
-        <div className="flex-1 overflow-auto bg-card/80 p-4">
-          {!selectedPlanId && !loading ? (
-            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-              <CalendarDays className="h-12 w-12 mb-3 opacity-30" />
-              <p className="font-medium">{t("planning.empty_title")}</p>
-              <p className="text-sm">{t("planning.empty_desc")}</p>
+            {/* Contrôles du Calendrier (Date, Vue) — same wrapper */}
+            <div className="bg-muted/30 rounded-lg p-1">
+              <ScheduleHeader
+                currentDate={currentDate}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                onToday={handleToday}
+                selectedTypes={selectedTypes}
+                onTypeToggle={handleTypeToggle}
+                onExportPDF={handleExportPDF}
+                mode="readonly"
+              />
             </div>
-          ) : (
-            <>
+          </div>
+
+          {/* Grille du Calendrier */}
+          <div className="flex-1 overflow-hidden relative">
+            <div className="h-full overflow-auto bg-card/80 p-6 rounded-lg shadow-medium scrollbar-thin scrollbar-thumb-sidebar-border">
               {viewMode === "week" && (
                 <WeekViewEditable
                   events={events}
                   currentDate={currentDate}
                   selectedTypes={selectedTypes}
-                  selectedProfessors={[]}
-                  selectedRooms={[]}
+                  selectedProfessors={selectedProfessors}
+                  selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
                   isEditMode={false}
                   isPlanActive={!!selectedPlanId}
-                  onEventClick={setSelectedEvent}
+                  onEventClick={handleEventClick}
                 />
               )}
               {viewMode === "day" && (
@@ -471,12 +432,12 @@ const PlanningPage: React.FC = () => {
                   events={events}
                   currentDate={currentDate}
                   selectedTypes={selectedTypes}
-                  selectedProfessors={[]}
-                  selectedRooms={[]}
+                  selectedProfessors={selectedProfessors}
+                  selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
                   isEditMode={false}
                   isPlanActive={!!selectedPlanId}
-                  onEventClick={setSelectedEvent}
+                  onEventClick={handleEventClick}
                 />
               )}
               {viewMode === "month" && (
@@ -484,91 +445,81 @@ const PlanningPage: React.FC = () => {
                   events={events}
                   currentDate={currentDate}
                   selectedTypes={selectedTypes}
-                  selectedProfessors={[]}
-                  selectedRooms={[]}
+                  selectedProfessors={selectedProfessors}
+                  selectedRooms={selectedRooms}
                   selectedLevels={selectedLevels}
                   isPlanActive={!!selectedPlanId}
-                  onEventClick={setSelectedEvent}
-                  onDayClick={(d) => {
-                    setCurrentDate(d);
-                    setViewMode("day");
-                  }}
+                  onEventClick={handleEventClick}
+                  onDayClick={handleDayClick}
                 />
               )}
-            </>
-          )}
-        </div>
-      </main>
+            </div>
+          </div>
+        </main>
 
-      {/* Event detail modal — read-only */}
-      <Dialog
-        open={!!selectedEvent}
-        onOpenChange={(open) => !open && setSelectedEvent(null)}
-      >
-        <DialogContent className="sm:max-w-md">
-          {selectedEvent && (
-            <>
-              <DialogHeader className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {eventTypeMeta && (
+        {/* Event detail modal (read-only) */}
+        <Dialog
+          open={!!selectedEvent}
+          onOpenChange={(open) => !open && setSelectedEvent(null)}
+        >
+          <DialogContent className="sm:max-w-md">
+            {selectedEvent && (
+              <>
+                <DialogHeader className="space-y-2">
+                  <div className="flex items-center gap-2">
                     <span
-                      className={cn("h-2.5 w-2.5 rounded-full", eventTypeMeta.color)}
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-full",
+                        eventTypeColor?.bg
+                      )}
                     />
+                    <Badge variant="secondary" className="text-xs font-semibold">
+                      {eventTypeLabel}
+                    </Badge>
+                  </div>
+                  <DialogTitle className="text-xl">{selectedEvent.title}</DialogTitle>
+                  {selectedEvent.description && (
+                    <DialogDescription className="text-sm">
+                      {selectedEvent.description}
+                    </DialogDescription>
                   )}
-                  <Badge variant="secondary" className="text-xs font-semibold">
-                    {eventTypeMeta ? t(eventTypeMeta.labelKey) : selectedEvent.type}
-                  </Badge>
+                </DialogHeader>
+                <div className="space-y-3 pt-2 text-sm">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground w-20">Horaire</span>
+                    <span className="font-medium">
+                      {selectedEvent.startTime} – {selectedEvent.endTime}
+                    </span>
+                  </div>
+                  {selectedEvent.professor && (
+                    <div className="flex items-center gap-3">
+                      <UserIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground w-20">Enseignant</span>
+                      <span className="font-medium">{selectedEvent.professor}</span>
+                    </div>
+                  )}
+                  {selectedEvent.room && (
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground w-20">Salle</span>
+                      <span className="font-medium">{selectedEvent.room}</span>
+                    </div>
+                  )}
+                  {selectedEvent.groupName && (
+                    <div className="flex items-center gap-3">
+                      <UsersIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground w-20">Groupe</span>
+                      <span className="font-medium">{selectedEvent.groupName}</span>
+                    </div>
+                  )}
                 </div>
-                <DialogTitle className="text-xl">{selectedEvent.title}</DialogTitle>
-                {selectedEvent.description && (
-                  <DialogDescription className="text-sm">
-                    {selectedEvent.description}
-                  </DialogDescription>
-                )}
-              </DialogHeader>
-              <div className="space-y-3 pt-2 text-sm">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-muted-foreground w-20">
-                    {t("planning.time")}
-                  </span>
-                  <span className="font-medium">
-                    {selectedEvent.startTime} – {selectedEvent.endTime}
-                  </span>
-                </div>
-                {selectedEvent.professor && (
-                  <div className="flex items-center gap-3">
-                    <UserIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground w-20">
-                      {t("planning.professor")}
-                    </span>
-                    <span className="font-medium">{selectedEvent.professor}</span>
-                  </div>
-                )}
-                {selectedEvent.room && (
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground w-20">
-                      {t("planning.room")}
-                    </span>
-                    <span className="font-medium">{selectedEvent.room}</span>
-                  </div>
-                )}
-                {selectedEvent.groupName && (
-                  <div className="flex items-center gap-3">
-                    <span className="h-4 w-4 shrink-0" />
-                    <span className="text-muted-foreground w-20">
-                      {t("planning.group")}
-                    </span>
-                    <span className="font-medium">{selectedEvent.groupName}</span>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </TooltipProvider>
   );
 };
 
